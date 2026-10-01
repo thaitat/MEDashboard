@@ -137,6 +137,9 @@ pre.preview{white-space:pre-wrap;background:var(--bg);border:1px solid var(--lin
 .steps{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:8px}
 .steps i{height:4px;border-radius:2px;background:var(--line)}
 .steps i.done{background:var(--c)}
+.bkbox{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px}
+.bkh{font-weight:600;margin-bottom:2px}
+.lastbk-old{color:var(--warn);font-weight:500}
 .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--panel);padding:8px 16px;border-radius:8px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s}
 .toast.show{opacity:1}
 .sync{font-size:12px;color:var(--ink3)}
@@ -183,8 +186,8 @@ pre.preview{white-space:pre-wrap;background:var(--bg);border:1px solid var(--lin
   </div>
 
   <div class="tools">
-    <button class="btn" id="exportBtn">สำรองข้อมูล</button>
-    <button class="btn" id="importBtn">นำเข้าข้อมูลสำรอง</button>
+    <button class="btn" id="backupBtn">สำรอง / กู้คืนข้อมูล</button>
+    <span class="sub" id="lastBk" style="align-self:center"></span>
     <input type="file" id="importFile" accept=".json,application/json" hidden>
   </div>
 </div>
@@ -272,6 +275,27 @@ pre.preview{white-space:pre-wrap;background:var(--bg);border:1px solid var(--lin
       <button type="button" class="btn" id="pCancel">ยกเลิก</button>
       <button type="button" class="btn primary" id="pSave">บันทึก</button>
     </div>
+  </div>
+</dialog>
+
+<dialog id="bkDlg">
+  <div class="dlg">
+    <h2>สำรอง / กู้คืนข้อมูล</h2>
+    <div class="bkbox">
+      <div class="bkh">สำรองข้อมูล</div>
+      <div class="sub">กดแล้วเลือก LINE (แนะนำ Keep Memo) หรือ ไดรฟ์ จากเมนูแชร์ของมือถือ</div>
+      <div class="sub" id="bkStatus" style="margin-top:4px"></div>
+      <div class="acts" style="justify-content:flex-start">
+        <button class="btn lineb" id="shareFile">ส่งไฟล์สำรองเข้าไลน์ / ไดรฟ์</button>
+        <button class="btn" id="exportBtn">ดาวน์โหลดไฟล์</button>
+      </div>
+    </div>
+    <div class="bkbox">
+      <div class="bkh">กู้คืนข้อมูล</div>
+      <div class="sub">เลือกไฟล์ .json ที่สำรองไว้ ถ้าเก็บไว้ในไดรฟ์ เลือก "ไดรฟ์" จากหน้าเลือกไฟล์ได้เลย ถ้าอยู่ในไลน์ ให้เปิดไฟล์ในแชตแล้วกดบันทึกลงเครื่องก่อน</div>
+      <div class="acts" style="justify-content:flex-start"><button class="btn" id="importBtn">เลือกไฟล์สำรอง</button></div>
+    </div>
+    <div class="acts"><button class="btn" id="bkClose">ปิด</button></div>
   </div>
 </dialog>
 
@@ -400,7 +424,7 @@ function render(){
       <div class="meta"><span class="st ${WAIT.includes(t.status)?'wait':''}">${esc(t.status)}</span><span>${esc(t.owner||'ยังไม่ระบุผู้รับผิดชอบ')}</span>${t.due?`<span class="due ${isLate(t)?'late':''}">${isLate(t)?'เกินกำหนด ':'ครบ '}${thDate(t.due)}</span>`:''}</div>
       ${t.note?`<div class="note">${esc(t.note)}</div>`:''}</button>`}).join('');
   }
-  renderLog();renderBudget();renderPeople();
+  renderLog();renderBudget();renderPeople();renderLastBk();
   const owners=[...new Set([...S.people.map(p=>p.name),...[...S.tasks,...S.log,...S.budget].map(t=>t.owner)].filter(Boolean))];
   $('owners').innerHTML=owners.map(o=>`<option value="${esc(o)}">`).join('');
 }
@@ -557,16 +581,33 @@ async function copyText(s){
 }
 
 async function exportData(){
-  const name='maintenance-backup-'+todayISO()+'.json',data=JSON.stringify(S,null,1);
+  const name=backupName(),data=JSON.stringify(S,null,1);markBackup();
   if(window.claude&&window.claude.use){try{const dl=await window.claude.use('downloads');if(dl){await dl.save({filename:name,data});return}}catch(e){if(e&&e.code)return}}
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type:'application/json'}));a.download=name;a.click();
 }
-function importData(file){
-  const r=new FileReader();
-  r.onload=()=>{try{const d=JSON.parse(r.result);if(!Array.isArray(d.tasks)||!Array.isArray(d.log))throw 0;normalize(d);
-    if(!confirm(`นำเข้างาน ${d.tasks.length} งาน ประวัติ ${d.log.length} รายการ งบประมาณ ${d.budget.length} รายการ และบุคลากร ${d.people.length} คน แทนข้อมูลปัจจุบัน?`))return;S=d;save();toast('นำเข้าแล้ว')}
-    catch(e){toast('ไฟล์นี้ไม่ใช่ข้อมูลสำรองของแอปนี้')}};
-  r.readAsText(file);
+function applyImport(text){
+  try{const d=JSON.parse(text);if(!Array.isArray(d.tasks)||!Array.isArray(d.log))throw 0;normalize(d);
+    if(!confirm(`นำเข้างาน ${d.tasks.length} งาน ประวัติ ${d.log.length} รายการ งบประมาณ ${d.budget.length} รายการ และบุคลากร ${d.people.length} คน แทนข้อมูลปัจจุบัน?`))return;S=d;save();toast('นำเข้าแล้ว');return true}
+  catch(e){toast('ไฟล์นี้ไม่ใช่ข้อมูลสำรองของแอปนี้');return false}
+}
+function importData(file){const r=new FileReader();r.onload=()=>{if(applyImport(r.result)&&$('bkDlg').open)$('bkDlg').close()};r.readAsText(file)}
+
+/* ---------- backup via share sheet ---------- */
+const BKK='mech-maint-backup';
+let BK={lastBackup:0};
+try{Object.assign(BK,JSON.parse(localStorage.getItem(BKK)||'{}'))}catch(e){}
+function markBackup(){BK.lastBackup=Date.now();try{localStorage.setItem(BKK,JSON.stringify(BK))}catch(e){}renderLastBk();bkStatus()}
+function backupName(){const d=new Date();return `maintenance-backup-${todayISO()}_${String(d.getHours()).padStart(2,'0')}${String(d.getMinutes()).padStart(2,'0')}.json`}
+function renderLastBk(){
+  const el=$('lastBk');if(!BK.lastBackup){el.innerHTML=S.tasks.length?'<span class="lastbk-old">ยังไม่เคยสำรองข้อมูล</span>':'';return}
+  const days=Math.floor((Date.now()-BK.lastBackup)/864e5);
+  el.innerHTML=`<span class="${days>=7?'lastbk-old':''}">สำรองล่าสุด ${days===0?'วันนี้':days+' วันก่อน'}</span>`;
+}
+function bkStatus(){$('bkStatus').textContent=BK.lastBackup?'สำรองล่าสุด '+new Date(BK.lastBackup).toLocaleString('th-TH',{dateStyle:'medium',timeStyle:'short'}):'ยังไม่เคยสำรองข้อมูล'}
+async function shareBackup(){
+  const name=backupName(),file=new File([JSON.stringify(S,null,1)],name,{type:'application/json'});
+  try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'สำรองข้อมูลงานบำรุงรักษา'});markBackup();toast('ส่งไฟล์สำรองแล้ว');return}}catch(e){if(e&&e.name==='AbortError')return}
+  toast('อุปกรณ์นี้แชร์ไฟล์ไม่ได้ จะดาวน์โหลดไฟล์แทน');exportData();
 }
 function demo(){
   const t=todayISO(),add=n=>{const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)};
@@ -627,6 +668,9 @@ $('shareBtn').onclick=()=>{updatePreview();$('shareDlg').showModal()};
 $('shareCancel').onclick=()=>$('shareDlg').close();
 $('copyBtn').onclick=()=>copyText(buildSummary());
 $('exportBtn').onclick=exportData;
+$('backupBtn').onclick=()=>{bkStatus();$('bkDlg').showModal()};
+$('bkClose').onclick=()=>$('bkDlg').close();
+$('shareFile').onclick=shareBackup;
 $('importBtn').onclick=()=>$('importFile').click();
 $('importFile').onchange=e=>{if(e.target.files[0])importData(e.target.files[0]);e.target.value=''};
 
