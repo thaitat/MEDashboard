@@ -1,5 +1,5 @@
 // เปลี่ยนเลขเวอร์ชันทุกครั้งที่อัปโหลด index.html ใหม่ เพื่อให้มือถือโหลดเวอร์ชันล่าสุด
-const CACHE = 'maint-v3';
+const CACHE = 'maint-v10';
 const SHELL = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 self.addEventListener('install', e => {

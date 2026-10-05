@@ -17,30 +17,40 @@
 :root{
   --bg:#EEF1F3;--panel:#FFFFFF;--ink:#1C2430;--ink2:#566273;--ink3:#8A95A3;--line:#D6DCE2;
   --steel:#2F5D7C;--steel-soft:#E1EAF1;--danger:#B3261E;--danger-soft:#FBE5E3;--warn:#8A5A00;--warn-soft:#FCEFCF;--ok:#1E6B45;--ok-soft:#DDF1E6;
-  --pm:#127A74;--cm:#C2412D;--im:#6A4FB3;--pr:#B07A00;--line-green:#06C755;
+  --pm:#127A74;--ot:#1F5FA8;--cm:#C2412D;--im:#6A4FB3;--pr:#B07A00;--line-green:#06C755;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#12171D;--panel:#1B222A;--ink:#E7ECF1;--ink2:#A7B2BF;--ink3:#77838F;--line:#2C3540;
   --steel:#7FB0D4;--steel-soft:#1F3342;--danger:#F2877E;--danger-soft:#3A1C1A;--warn:#F2C45A;--warn-soft:#3A2F12;--ok:#7FD3A4;--ok-soft:#173226;
-  --pm:#4CC2B9;--cm:#F08A76;--im:#A993EC;--pr:#E6B53E;
+  --pm:#4CC2B9;--ot:#79A8E8;--cm:#F08A76;--im:#A993EC;--pr:#E6B53E;
 }}
 :root[data-theme="dark"]{
   --bg:#12171D;--panel:#1B222A;--ink:#E7ECF1;--ink2:#A7B2BF;--ink3:#77838F;--line:#2C3540;
   --steel:#7FB0D4;--steel-soft:#1F3342;--danger:#F2877E;--danger-soft:#3A1C1A;--warn:#F2C45A;--warn-soft:#3A2F12;--ok:#7FD3A4;--ok-soft:#173226;
-  --pm:#4CC2B9;--cm:#F08A76;--im:#A993EC;--pr:#E6B53E;
+  --pm:#4CC2B9;--ot:#79A8E8;--cm:#F08A76;--im:#A993EC;--pr:#E6B53E;
 }
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none !important}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;font-size:15px;line-height:1.55}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 :focus-visible{outline:2px solid var(--steel);outline-offset:2px}
-.wrap{max-width:720px;margin:0 auto;padding:16px 16px 110px}
-header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:4px 0 14px}
+.wrap{max-width:720px;margin:0 auto;padding:6px 16px 110px}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:0}
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:var(--bg);border-bottom:1px solid var(--line)}
+.topin{max-width:720px;margin:0 auto;padding:10px 16px 0}
+.topbar h1{font-size:17px}
+.mainnav{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;margin:6px -16px 0;padding:0 12px}
+.mainnav::-webkit-scrollbar{display:none}
+.mainnav button{flex:none;white-space:nowrap;border:0;background:none;padding:8px 10px 8px;color:var(--ink2);font-weight:500;font-size:14px;border-bottom:3px solid transparent}
+.mainnav button.on{color:var(--ink);border-bottom-color:var(--c,var(--ink))}
+.mainnav .cnt{display:inline-block;min-width:18px;padding:0 5px;margin-left:5px;border-radius:9px;background:var(--steel-soft);color:var(--steel);font-size:11px;font-weight:600;line-height:18px;text-align:center}
+.mainnav .cnt.red{background:var(--danger-soft);color:var(--danger)}
 h1{font-size:20px;font-weight:600;margin:0;letter-spacing:-.2px}
 .sub{color:var(--ink2);font-size:13px}
-.board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid var(--line);background:var(--panel);border-radius:10px;overflow:hidden}
+.board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border:1px solid var(--line);background:var(--panel);border-radius:10px;overflow:hidden}
 .board button{border:0;background:transparent;padding:10px 6px 9px;text-align:center;border-right:1px solid var(--line);position:relative}
 .board button:last-child{border-right:0}
 .board .k{display:block;font-size:12px;color:var(--ink2);font-weight:500}
@@ -48,7 +58,7 @@ h1{font-size:20px;font-weight:600;margin:0;letter-spacing:-.2px}
 .board .late{display:block;font-size:11px;color:var(--danger);min-height:16px}
 .board button::after{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--c)}
 .board button.on{background:var(--steel-soft)}
-.alerts{display:flex;gap:8px;margin:12px 0 4px;flex-wrap:wrap}
+.alerts{display:flex;gap:8px;margin:0 0 10px;flex-wrap:wrap}
 .pill{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:5px 12px;font-size:13px;color:var(--ink2)}
 .pill.on{border-color:var(--steel);color:var(--steel);background:var(--steel-soft)}
 .pill b{font-weight:600}
@@ -84,7 +94,7 @@ dialog::backdrop{background:rgba(10,15,20,.5)}
 .f span{display:block;font-size:13px;color:var(--ink2);margin-bottom:3px}
 .f input,.f select,.f textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.seg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:11px}
+.seg{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:11px}
 .seg button{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:8px 2px;font-size:13px;font-weight:500}
 .seg button.on{border-color:var(--c);box-shadow:inset 0 -3px 0 var(--c);background:var(--panel)}
 .acts{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:6px}
@@ -140,31 +150,43 @@ pre.preview{white-space:pre-wrap;background:var(--bg);border:1px solid var(--lin
 .bkbox{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px}
 .bkh{font-weight:600;margin-bottom:2px}
 .lastbk-old{color:var(--warn);font-weight:500}
+.mhead{font-size:13px;font-weight:600;color:var(--ink2);margin:14px 0 6px}
+.meet-soon{color:var(--warn);font-weight:500}
+.pmbar{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:8px;margin-bottom:10px}
+.pmbar select{width:100%;padding:8px 6px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+.pmprog{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:10px}
+.pmprog .row{display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-size:13px;color:var(--ink2)}
+.pmprog b{font-size:18px;color:var(--ink)}
+.cfg{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;margin:6px 0 12px}
+.cfg h2{font-size:16px;margin:0 0 4px}
+.linkbtn{background:none;border:0;color:var(--steel);text-decoration:underline;padding:4px 0;font-size:13px}
 .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--panel);padding:8px 16px;border-radius:8px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s}
 .toast.show{opacity:1}
 .sync{font-size:12px;color:var(--ink3)}
-@media (max-width:420px){.board .n{font-size:22px}.row2{grid-template-columns:1fr}}
+@media (max-width:420px){.board .n{font-size:21px}.board .k{font-size:11px}.board .late{font-size:10px}.seg button{font-size:12px}.row2{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){.toast{transition:none}}
 </style>
 </head>
 <body>
+<div class="topbar">
+  <div class="topin">
+    <header>
+      <div>
+        <h1>งานแผนกบำรุงรักษาเครื่องกล</h1>
+        <div class="sub" id="today"></div>
+      </div>
+      <div class="sync" id="sync"></div>
+    </header>
+    <nav class="mainnav" id="mainNav" aria-label="เมนูหลัก"></nav>
+  </div>
+</div>
 <div class="wrap">
-  <header>
-    <div>
-      <h1>งานแผนกบำรุงรักษาเครื่องกล</h1>
-      <div class="sub" id="today"></div>
+  <div id="jobSub">
+    <div class="viewtabs">
+      <button id="vOpen" class="on">งานเปิดอยู่</button>
+      <button id="vLog">ประวัติ</button>
     </div>
-    <div class="sync" id="sync"></div>
-  </header>
-
-  <div class="board" id="board"></div>
-  <div class="alerts" id="alerts"></div>
-
-  <div class="viewtabs">
-    <button id="vOpen" class="on">งานที่เปิดอยู่</button>
-    <button id="vLog">ประวัติงาน</button>
-    <button id="vBud">งบประมาณ</button>
-    <button id="vPpl">บุคลากร</button>
+    <div class="alerts" id="alerts"></div>
   </div>
 
   <div id="openView"></div>
@@ -177,6 +199,15 @@ pre.preview{white-space:pre-wrap;background:var(--bg);border:1px solid var(--lin
     <div class="yrs" id="yrs"></div>
     <div class="bsum" id="bsum"></div>
     <div id="budList"></div>
+  </div>
+
+  <div id="pmView" hidden></div>
+
+  <div id="testView" hidden>
+    <div class="yrs" id="tYrs" style="grid-template-columns:repeat(auto-fill,minmax(96px,1fr))"></div>
+    <div class="bsum" id="tSum"></div>
+    <div id="tList"></div>
+    <label class="f" style="margin-top:14px"><span>หมายเหตุของแผนปีนี้</span><textarea id="tNotes" rows="3" placeholder="เช่น วันทดสอบ Fire pump อาจเปลี่ยนแปลง รอยืนยันอีกครั้ง"></textarea></label>
   </div>
 
   <div id="pplView" hidden>
@@ -201,16 +232,25 @@ pre.preview{white-space:pre-wrap;background:var(--bg);border:1px solid var(--lin
   <form class="dlg" id="jobForm" method="dialog">
     <h2 id="jobTitle">เพิ่มงาน</h2>
     <div class="seg" id="catSeg"></div>
-    <div class="row2">
+    <div class="row2" id="rowWoPri">
       <label class="f"><span id="woLabel">เลข WO (Maximo)</span><input id="fWo" placeholder="WO-123456"></label>
       <label class="f"><span>ความเร่งด่วน</span>
         <select id="fPri"><option value="3">ปกติ</option><option value="2">ด่วน</option><option value="1">ด่วนมาก</option></select></label>
     </div>
+    <label class="f" id="fOutageWrap" hidden><span>รอบ Outage / หน่วยผลิต</span><input id="fOutage" placeholder="Outage Unit 2 ปี 2570"></label>
     <label class="f"><span>ชื่องาน</span><input id="fTitle" placeholder="เปลี่ยนแบริ่งปั๊ม P-101"></label>
     <div class="err" id="errTitle"></div>
-    <div class="row2">
+    <div class="row2" id="rowOwnerDue">
       <label class="f"><span>ผู้รับผิดชอบ</span><input id="fOwner" list="owners" placeholder="สมชาย"></label>
       <label class="f"><span>กำหนดเสร็จ</span><input id="fDue" type="date"></label>
+    </div>
+    <div id="rowOutage" hidden>
+      <div class="row2">
+        <label class="f"><span>เริ่ม Outage</span><input id="fOStart" type="date"></label>
+        <label class="f"><span>สิ้นสุด Outage</span><input id="fOEnd" type="date"></label>
+      </div>
+      <label class="f"><span>จำนวนชั่วโมง</span><input id="fOHours" inputmode="decimal" placeholder="เช่น 192"></label>
+      <div class="err" id="errOut"></div>
     </div>
     <label class="f"><span>สถานะ</span><select id="fStatus"></select></label>
     <label class="f"><span>อัปเดตล่าสุด</span><textarea id="fNote" rows="2" placeholder="รอผู้ขายยืนยันวันส่งของ"></textarea></label>
@@ -299,6 +339,50 @@ pre.preview{white-space:pre-wrap;background:var(--bg);border:1px solid var(--lin
   </div>
 </dialog>
 
+<dialog id="tDlg">
+  <div class="dlg">
+    <h2 id="tTitle">เพิ่มรายการทดสอบ</h2>
+    <label class="f"><span>อุปกรณ์</span><input id="tEquip" placeholder="DELUGE VALVE UNIT 1"></label>
+    <div class="err" id="errTEquip"></div>
+    <label class="f"><span>Outage (เว้นว่าง = ไม่ต้องหยุดเครื่อง)</span><input id="tUnit" placeholder="Unit 1"></label>
+    <div class="row" style="display:flex;gap:6px;flex-wrap:wrap;margin:-4px 0 11px" id="tUnitChips">
+      <button type="button" class="pill" data-u="">ไม่ต้องหยุดเครื่อง</button><button type="button" class="pill" data-u="Unit 1">Unit 1</button><button type="button" class="pill" data-u="Unit 2">Unit 2</button><button type="button" class="pill" data-u="Unit 3">Unit 3</button><button type="button" class="pill" data-u="Unit 1, 2, 3">Unit 1, 2, 3</button>
+    </div>
+    <div class="row2">
+      <label class="f"><span>วันดำเนินการ</span><input id="tDate" type="date"></label>
+      <label class="f"><span>ประชุมเตรียมงาน</span><input id="tMeet" type="date"></label>
+    </div>
+    <div class="err" id="errTDate"></div>
+    <label class="f"><span>สถานะ</span><select id="tStatus"></select></label>
+    <label class="f"><span>ผลการทดสอบ / หมายเหตุ</span><textarea id="tNote" rows="2" placeholder="ทดสอบผ่าน แรงดันน้ำปกติ"></textarea></label>
+    <button type="button" class="btn" id="tMkCm" hidden style="margin-bottom:10px">สร้างงาน CM จากผลทดสอบ</button>
+    <div class="acts">
+      <button type="button" class="btn danger grow" id="tDel" hidden>ลบ</button>
+      <button type="button" class="btn" id="tCancel">ยกเลิก</button>
+      <button type="button" class="btn primary" id="tSave">บันทึก</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="pmDlg">
+  <div class="dlg">
+    <h2 id="pmTitle" style="margin-bottom:4px"></h2>
+    <div class="sub" id="pmInfo" style="margin-bottom:12px"></div>
+    <label class="f"><span>สถานะ</span><select id="pmStatus"></select></label>
+    <div class="row2">
+      <label class="f"><span>วันที่ทำจริง</span><input id="pmActual" type="date"></label>
+      <label class="f"><span>เลข WO</span><input id="pmWo" placeholder="WO-123456"></label>
+    </div>
+    <label class="f"><span>ผู้รับผิดชอบ</span><input id="pmOwner" list="owners" placeholder="สมชาย"></label>
+    <label class="f"><span>หมายเหตุ</span><textarea id="pmNote" rows="2" placeholder="เปลี่ยนไส้กรอง 2 ตัว"></textarea></label>
+    <div class="err" id="pmErr"></div>
+    <div class="acts">
+      <button type="button" class="btn" id="pmCancel">ยกเลิก</button>
+      <button type="button" class="btn primary" id="pmSave">บันทึกลง Sheet</button>
+    </div>
+  </div>
+</dialog>
+
 <dialog id="closeDlg">
   <div class="dlg">
     <h2>ปิดงาน</h2>
@@ -314,12 +398,28 @@ pre.preview{white-space:pre-wrap;background:var(--bg);border:1px solid var(--lin
 <dialog id="shareDlg">
   <div class="dlg">
     <h2>สรุปส่งไลน์</h2>
-    <label class="chk"><input type="checkbox" id="sAll" checked> งานที่เปิดอยู่ทั้งหมด</label>
-    <label class="chk"><input type="checkbox" id="sLate" checked> ไฮไลต์งานเกินกำหนด</label>
-    <label class="chk"><input type="checkbox" id="sClosed" checked> งานที่ปิดวันนี้</label>
-    <label class="chk"><input type="checkbox" id="sNote" checked> แสดงอัปเดตล่าสุด</label>
-    <label class="chk"><input type="checkbox" id="sBud"> สรุปงบประมาณ 3 ปี</label>
-    <label class="chk"><input type="checkbox" id="sPpl"> บุคลากรที่ไม่อยู่ปฏิบัติงาน</label>
+    <div class="seg" style="grid-template-columns:1fr 1fr" id="modeSeg">
+      <button type="button" data-m="day" class="on" style="--c:var(--steel)">รายงานประจำวัน</button>
+      <button type="button" data-m="month" style="--c:var(--steel)">รายงานประจำเดือน</button>
+    </div>
+    <div id="mOpts" hidden>
+      <label class="f"><span>เดือน</span><select id="mMonth"></select></label>
+      <label class="chk"><input type="checkbox" id="mOT" checked> งาน Outage ในเดือน</label>
+      <label class="chk"><input type="checkbox" id="mTest" checked> แผนทดสอบอุปกรณ์ในเดือน</label>
+      <label class="chk"><input type="checkbox" id="mOpen" checked> งานเกินกำหนด</label>
+      <label class="chk"><input type="checkbox" id="mList"> รายการงานที่ปิดในเดือน</label>
+      <label class="chk"><input type="checkbox" id="mPerson"> ผลงานรายบุคคล</label>
+      <label class="chk"><input type="checkbox" id="mBud"> งบประมาณ</label>
+    </div>
+    <div id="dOpts">
+      <label class="chk"><input type="checkbox" id="sIssue" checked> เรื่องที่ต้องติดตาม</label>
+      <label class="chk"><input type="checkbox" id="sClosed" checked> งานที่ปิดวันนี้</label>
+      <label class="chk"><input type="checkbox" id="sNext" checked> แผนงาน 30 วันข้างหน้า (Outage / ทดสอบ)</label>
+      <label class="chk"><input type="checkbox" id="sBud"> งบประมาณ</label>
+      <label class="chk"><input type="checkbox" id="sPpl"> กำลังพล</label>
+      <label class="chk"><input type="checkbox" id="sAll"> แนบรายการงานเปิดทั้งหมด (ละเอียด)</label>
+    </div>
+    <label class="f" style="margin-top:8px"><span>ผู้รายงาน (ไม่บังคับ)</span><input id="sReporter" placeholder="ชื่อ / ตำแหน่ง"></label>
     <pre class="preview" id="preview"></pre>
     <div class="acts">
       <button class="btn grow" id="shareCancel">ปิด</button>
@@ -335,20 +435,28 @@ pre.preview{white-space:pre-wrap;background:var(--bg);border:1px solid var(--lin
 <script>
 const CATS={
   PM:{name:'PM',full:'บำรุงรักษาเชิงป้องกัน',c:'--pm',st:['รอดำเนินการ','กำลังทำ','รออะไหล่','รอเครื่องหยุด']},
+  OT:{name:'Outage',full:'PM Outage (หยุดเครื่องตามแผน)',c:'--ot',st:['เตรียมอะไหล่/บุคลากร','พร้อม รอหยุดเครื่อง','กำลังดำเนินการ','ดำเนินการแล้วเสร็จ']},
   CM:{name:'CM',full:'ซ่อมแก้ไข',c:'--cm',st:['แจ้งซ่อม','กำลังซ่อม','รออะไหล่','รอผู้รับเหมา']},
   IM:{name:'IM',full:'งานปรับปรุง',c:'--im',st:['เสนอโครงการ','รออนุมัติ','อนุมัติแล้ว','กำลังทำ']},
   PR:{name:'จัดซื้อ',full:'จัดซื้อจัดจ้าง',c:'--pr',st:['ขอซื้อ (PR)','รออนุมัติ PR','ออก PO แล้ว','รอของ','ของเข้าแล้ว']}
 };
-const WAIT=['รออะไหล่','รอของ','รอผู้รับเหมา','รอเครื่องหยุด','รออนุมัติ','รออนุมัติ PR'];
+const WAIT=['พร้อม รอหยุดเครื่อง','รออะไหล่','รอของ','รอผู้รับเหมา','รอเครื่องหยุด','รออนุมัติ','รออนุมัติ PR'];
 const PRI={1:'ด่วนมาก',2:'ด่วน',3:'ปกติ'};
 const LS='mech-maint-tracker-v1';
-let S={tasks:[],log:[],budget:[],updatedAt:0};
+let S={tasks:[],log:[],budget:[],people:[],tests:[],testNotes:{},updatedAt:0};
+const TST=['รอดำเนินการ','ประชุมเตรียมงานแล้ว','ทดสอบแล้ว - ผ่าน','ทดสอบแล้ว - พบปัญหา','เลื่อน'];
+let testYear=null,editingT=null;
 const BTYPE=['งบทำการ','งบลงทุน'];
 const POS=['หัวหน้าแผนก','วิศวกร','หัวหน้าช่าง','ช่างเทคนิค','ช่างฝีมือ','ธุรการ/จัดซื้อ','อื่นๆ'];
 const AVAIL=['ปฏิบัติงาน','ลา','อบรม/สัมมนา','ปฏิบัติงานนอกพื้นที่'];
 let editingP=null;
 function normalize(d){
-  if(!Array.isArray(d.budget))d.budget=[];if(!Array.isArray(d.people))d.people=[];
+  if(!d.pmSheet||typeof d.pmSheet!=='object')d.pmSheet={url:'',token:''};
+  if(!Array.isArray(d.budget))d.budget=[];if(!Array.isArray(d.people))d.people=[];if(!Array.isArray(d.tests))d.tests=[];if(!d.testNotes||typeof d.testNotes!=='object')d.testNotes={};
+  const otMap={'วางแผนงาน':'เตรียมอะไหล่/บุคลากร','เตรียมอะไหล่/ผู้รับเหมา':'เตรียมอะไหล่/บุคลากร','ทดสอบหลังซ่อม':'กำลังดำเนินการ'};
+  [...(d.tasks||[]),...(d.log||[])].forEach(t=>{if(t.cat!=='OT')return;if(otMap[t.status])t.status=otMap[t.status];
+    if(!['เตรียมอะไหล่/บุคลากร','พร้อม รอหยุดเครื่อง','กำลังดำเนินการ','ดำเนินการแล้วเสร็จ'].includes(t.status))t.status='เตรียมอะไหล่/บุคลากร';
+    if(t.due&&!t.oEnd)t.oEnd=t.due;t.due='';t.wo='';t.owner='';t.pri=3});
   d.budget.forEach(b=>{if(!BST.includes(b.status))b.status=BST[0];if(!BTYPE.includes(b.type))b.type=/ลงทุน|CAPEX/i.test(b.type||'')?'งบลงทุน':'งบทำการ'});
   return d;
 }
@@ -358,16 +466,21 @@ let budStage=0;
 function stepOf(s){return BST.indexOf(s)+1}
 function beYear(){return new Date().getFullYear()+543}
 function budYears(){const y=beYear();return [y+1,y+2,y+3]}
-let view='open',budYear=null,editingB=null;
+let budYear=null,editingB=null;
 function baht(n){return (Number(n)||0).toLocaleString('th-TH',{maximumFractionDigits:0})}
 function num(v){const n=Number(String(v).replace(/[,\s฿]/g,''));return isFinite(n)?n:NaN}
-let filter={cat:'ALL',quick:null};
+let filter={cat:'PM',quick:null};
+let view='PM';try{const v=localStorage.getItem('mech-maint-view');if(v)view=v}catch(e){}
 let db=null,saveTimer=null,editing=null,newCat='PM',closing=null;
 const $=id=>document.getElementById(id);
 
 function todayISO(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function thDate(iso,withYear){if(!iso)return '';const [y,m,d]=iso.split('-').map(Number);const dt=new Date(y,m-1,d);return dt.toLocaleDateString('th-TH',withYear?{day:'numeric',month:'short',year:'2-digit'}:{day:'numeric',month:'short'})}
-function isLate(t){return t.due&&t.due<todayISO()}
+const OT_DONE='ดำเนินการแล้วเสร็จ';
+function dueOf(t){return t.cat==='OT'?(t.status===OT_DONE?'':(t.oEnd||'')):(t.due||'')}
+function isLate(t){const d=dueOf(t);return !!d&&d<todayISO()}
+function otPeriod(t){if(!t.oStart&&!t.oEnd)return '';const a=t.oStart?thDate(t.oStart):'?',b=t.oEnd?thDate(t.oEnd,true):'?';return (t.oStart&&t.oEnd&&t.oStart===t.oEnd?thDate(t.oStart,true):a+' – '+b)}
+function otHours(t){return t.oHours!=null&&t.oHours!==''?`${Number(t.oHours).toLocaleString('th-TH')} ชม.`:''}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),1800)}
@@ -396,35 +509,35 @@ async function connectDb(){
 
 function render(){
   $('today').textContent=new Date().toLocaleDateString('th-TH',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  const b=Object.entries(CATS).map(([k,c])=>{
-    const L=S.tasks.filter(t=>t.cat===k),late=L.filter(isLate).length;
-    return `<button style="--c:var(${c.c})" class="${filter.cat===k?'on':''}" data-cat="${k}" aria-pressed="${filter.cat===k}"><span class="k">${c.name}</span><span class="n">${L.length}</span><span class="late">${late?'เกินกำหนด '+late:''}</span></button>`}).join('');
-  $('board').innerHTML=b;
-  const late=S.tasks.filter(isLate).length,wait=S.tasks.filter(t=>WAIT.includes(t.status)).length,urgent=S.tasks.filter(t=>t.pri==1).length;
+  renderNav();
+  const C=S.tasks.filter(t=>t.cat===filter.cat);
+  const late=C.filter(isLate).length,wait=C.filter(t=>WAIT.includes(t.status)).length,urgent=C.filter(t=>t.pri==1).length;
   $('alerts').innerHTML=
-    `<button class="pill ${filter.cat==='ALL'&&!filter.quick?'on':''}" data-q="all">ทั้งหมด <b>${S.tasks.length}</b></button>`+
+    `<button class="pill ${!filter.quick?'on':''}" data-q="all">ทั้งหมด <b>${C.length}</b></button>`+
     `<button class="pill red ${filter.quick==='late'?'on':''}" data-q="late">เกินกำหนด <b>${late}</b></button>`+
-    `<button class="pill amb ${filter.quick==='wait'?'on':''}" data-q="wait">รอของ/รออนุมัติ <b>${wait}</b></button>`+
-    `<button class="pill red ${filter.quick==='urgent'?'on':''}" data-q="urgent">ด่วนมาก <b>${urgent}</b></button>`;
+    `<button class="pill amb ${filter.quick==='wait'?'on':''}" data-q="wait">${filter.cat==='OT'?'รอหยุดเครื่อง':'รอของ/รออนุมัติ'} <b>${wait}</b></button>`+
+    (filter.cat==='OT'?'':`<button class="pill red ${filter.quick==='urgent'?'on':''}" data-q="urgent">ด่วนมาก <b>${urgent}</b></button>`);
   let L=S.tasks.slice();
   if(filter.cat!=='ALL')L=L.filter(t=>t.cat===filter.cat);
   if(filter.quick==='late')L=L.filter(isLate);
   if(filter.quick==='wait')L=L.filter(t=>WAIT.includes(t.status));
   if(filter.quick==='urgent')L=L.filter(t=>t.pri==1);
-  L.sort((a,b)=>(isLate(b)-isLate(a))||(a.pri-b.pri)||((a.due||'9')>(b.due||'9')?1:-1));
+  const sk=t=>t.cat==='OT'?(t.oStart||t.oEnd||'9'):(t.due||'9');
+  L.sort((a,b)=>(isLate(b)-isLate(a))||(a.pri-b.pri)||(sk(a)>sk(b)?1:-1));
   if(!S.tasks.length){
     $('openView').innerHTML=`<div class="empty"><h2>เริ่มติดตามงานแรก</h2><p>เพิ่มงานจาก Maximo ที่ต้องการติดตาม แล้วกดสรุปส่งไลน์ให้ทีมได้ทุกเมื่อ</p><button class="btn primary" id="emptyAdd">เพิ่มงาน</button> <button class="btn" id="demoBtn">ลองใส่ข้อมูลตัวอย่าง</button></div>`;
     $('emptyAdd').onclick=()=>openJob(null);$('demoBtn').onclick=demo;
   }else if(!L.length){
-    $('openView').innerHTML=`<div class="empty"><p>ไม่มีงานที่ตรงกับตัวกรองนี้</p></div>`;
+    $('openView').innerHTML=filter.quick?`<div class="empty"><p>ไม่มีงานที่ตรงกับตัวกรองนี้</p></div>`:`<div class="empty"><p>ยังไม่มีงาน ${esc(NAVL[filter.cat]||'')} ที่เปิดอยู่</p><button class="btn primary" id="catAdd">เพิ่มงาน</button></div>`;
+    if(!filter.quick)$('catAdd').onclick=()=>openJob(null);
   }else{
     $('openView').innerHTML=L.map(t=>{const c=CATS[t.cat];return `<button class="job" style="--c:var(${c.c})" data-id="${t.id}">
-      <div class="top"><span><span class="wo">${esc(t.wo||'ไม่มีเลขอ้างอิง')}</span> ${c.name}</span>${t.pri<3?`<span class="pri p${t.pri}">${PRI[t.pri]}</span>`:''}</div>
+      <div class="top"><span>${t.cat==='OT'?`<span class="wo">${c.name}</span>${t.outage?' · '+esc(t.outage):''}`:`<span class="wo">${esc(t.wo||'ไม่มีเลขอ้างอิง')}</span> ${c.name}`}</span>${t.pri<3?`<span class="pri p${t.pri}">${PRI[t.pri]}</span>`:''}</div>
       <div class="t">${esc(t.title)}</div>
-      <div class="meta"><span class="st ${WAIT.includes(t.status)?'wait':''}">${esc(t.status)}</span><span>${esc(t.owner||'ยังไม่ระบุผู้รับผิดชอบ')}</span>${t.due?`<span class="due ${isLate(t)?'late':''}">${isLate(t)?'เกินกำหนด ':'ครบ '}${thDate(t.due)}</span>`:''}</div>
+      <div class="meta"><span class="st ${WAIT.includes(t.status)?'wait':t.status===OT_DONE?'ok':''}">${esc(t.status)}</span>${t.cat==='OT'?`${otPeriod(t)?`<span class="due ${isLate(t)?'late':''}">${isLate(t)?'เลยช่วง ':''}${otPeriod(t)}</span>`:''}${otHours(t)?`<span>${otHours(t)}</span>`:''}`:`<span>${esc(t.owner||'ยังไม่ระบุผู้รับผิดชอบ')}</span>${t.due?`<span class="due ${isLate(t)?'late':''}">${isLate(t)?'เกินกำหนด ':'ครบ '}${thDate(t.due)}</span>`:''}`}</div>
       ${t.note?`<div class="note">${esc(t.note)}</div>`:''}</button>`}).join('');
   }
-  renderLog();renderBudget();renderPeople();renderLastBk();
+  renderLog();renderBudget();renderPeople();renderTests();renderLastBk();if(view==='PM')renderPM();
   const owners=[...new Set([...S.people.map(p=>p.name),...[...S.tasks,...S.log,...S.budget].map(t=>t.owner)].filter(Boolean))];
   $('owners').innerHTML=owners.map(o=>`<option value="${esc(o)}">`).join('');
 }
@@ -520,14 +633,229 @@ function savePerson(){
   else{S.people.push({id:uid(),...d});toast('เพิ่มบุคลากรแล้ว')}
   $('pDlg').close();save();
 }
-function setView(v){view=v;[['open','vOpen','openView'],['log','vLog','logView'],['bud','vBud','budView'],['ppl','vPpl','pplView']].forEach(([k,b,p])=>{$(b).classList.toggle('on',k===v);$(p).hidden=k!==v});
-  $('addBtn').textContent=v==='bud'?'เพิ่มรายการงบ':v==='ppl'?'เพิ่มบุคลากร':'เพิ่มงาน';$('board').style.display=$('alerts').style.display=(v==='bud'||v==='ppl')?'none':''}
+function addDays(iso,n){const [y,m,d]=iso.split('-').map(Number);const dt=new Date(y,m-1,d+n);return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0')}
+function tDone(t){return (t.status||'').startsWith('ทดสอบแล้ว')}
+function needOut(t){const u=(t.unit||'').trim();return !!u&&u!=='-'}
+function tLate(t){return !!t.date&&t.date<todayISO()&&!tDone(t)&&t.status!=='เลื่อน'}
+function testYears(){return [...new Set([beYear(),beYear()+1,...S.tests.map(t=>t.year)])].sort((a,b)=>a-b)}
+function tSort(a,b){return (a.date||'9')<(b.date||'9')?-1:(a.date||'9')>(b.date||'9')?1:a.equip.localeCompare(b.equip)}
+function renderTests(){
+  if(testYear==null)testYear=beYear();
+  const Ys=testYears();
+  $('tYrs').innerHTML=Ys.map(y=>{const n=S.tests.filter(t=>t.year===y).length;return `<button class="${y===testYear?'on':''}" data-ty="${y}" aria-pressed="${y===testYear}"><div class="y">ปี ${y}</div><div class="a">${n} รายการ</div></button>`}).join('');
+  const L=S.tests.filter(t=>t.year===testYear).sort(tSort),today=todayISO(),in30=addDays(today,30);
+  const done=L.filter(tDone).length,soon=L.filter(t=>t.date&&t.date>=today&&t.date<=in30&&!tDone(t)).length,late=L.filter(tLate).length,out=L.filter(needOut).length,bad=L.filter(t=>t.status==='ทดสอบแล้ว - พบปัญหา').length;
+  $('tSum').innerHTML=`<div><div class="k">ทดสอบแล้ว</div><div class="v" style="color:var(--ok)">${done}/${L.length}</div></div><div><div class="k">ใน 30 วัน</div><div class="v" style="color:var(--warn)">${soon}</div></div><div><div class="k">เลยกำหนด</div><div class="v" style="color:var(--danger)">${late}</div></div>`+
+    `<div style="grid-column:1/-1;border-top:1px solid var(--line);border-right:0;display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--ink2)"><span>ต้องหยุดเครื่อง <b style="color:var(--ink)">${out}</b></span><span>ไม่ต้องหยุดเครื่อง <b style="color:var(--ink)">${L.length-out}</b></span>${bad?`<span>พบปัญหา <b style="color:var(--danger)">${bad}</b></span>`:''}</div>`;
+  $('tNotes').value=S.testNotes[testYear]||'';
+  if(!L.length){
+    const prev=S.tests.filter(t=>t.year===testYear-1).length;
+    $('tList').innerHTML=`<div class="empty"><h2>ยังไม่มีแผนทดสอบปี ${testYear}</h2><p>เพิ่มทีละรายการ หรือดึงรายการอุปกรณ์มาตั้งต้นแล้วค่อยแก้วันที่</p><button class="btn primary" id="tEmptyAdd">เพิ่มรายการทดสอบ</button><div class="row" style="justify-content:center;margin-top:8px">${prev?`<button class="btn" id="tCopyPrev">คัดลอกรายการจากปี ${testYear-1}</button>`:''}<button class="btn" id="tSeed">ใช้รายการอุปกรณ์ตามแผนปี 2568</button></div></div>`;
+    $('tEmptyAdd').onclick=()=>openTest(null);$('tSeed').onclick=()=>seedTests(testYear);if(prev)$('tCopyPrev').onclick=()=>copyTests(testYear-1,testYear);return}
+  let html='',lastM=null;
+  L.forEach(t=>{const m=t.date?t.date.slice(0,7):'none';
+    if(m!==lastM){lastM=m;html+=`<div class="mhead">${m==='none'?'ยังไม่กำหนดวัน':new Date(Number(m.slice(0,4)),Number(m.slice(5))-1,1).toLocaleDateString('th-TH',{month:'long',year:'numeric'})}</div>`}
+    const c=!t.date?'--ink3':needOut(t)?'--pr':'--ok';
+    const md=t.meet?Math.round((new Date(t.meet)-new Date(today))/864e5):null;
+    const stc=tDone(t)?(t.status==='ทดสอบแล้ว - พบปัญหา'?'no':'ok'):t.status==='เลื่อน'?'wait':'';
+    html+=`<button class="job" style="--c:var(${c})" data-t="${t.id}">
+      <div class="top"><span class="wo">${needOut(t)?'หยุดเครื่อง '+esc(t.unit):'ไม่ต้องหยุดเครื่อง'}</span></div>
+      <div class="t">${esc(t.equip)}</div>
+      <div class="meta"><span class="st ${stc}">${esc(t.status)}</span>${t.date?`<span class="due ${tLate(t)?'late':''}">${tLate(t)?'เลยวันทดสอบ ':'ทดสอบ '}${thDate(t.date)}</span>`:''}${t.meet?`<span class="${md!=null&&md>=0&&md<=7&&!tDone(t)?'meet-soon':''}">ประชุม ${thDate(t.meet)}${md!=null&&md>=0&&md<=7&&!tDone(t)?(md===0?' (วันนี้)':` (อีก ${md} วัน)`):''}</span>`:''}</div>
+      ${t.note?`<div class="note">${esc(t.note)}</div>`:''}</button>`});
+  $('tList').innerHTML=html;
+}
+function mapYear(md,be){return md?(be-543)+'-'+md:''}
+function seedTests(be){
+  const R=[['FIRE FIGHTING FOR OIL TREATMENT ROOM','','02-05','01-28'],['FIRE PUMP','','02-20','02-13'],['DELUGE VALVE UNIT 1','','03-11','03-04'],['DELUGE VALVE UNIT 2','','03-12','03-04'],['DELUGE VALVE UNIT 3','','03-13','03-04'],
+    ['IRRIGATION OUTLET','','05-20','05-14'],['LOW LEVEL OUTLET','','05-21','05-14'],['SPILLWAY','','05-28','05-22'],
+    ['FIRE FIGHTING FOR MAIN TRANSFORMER (KG1A)','Unit 1','11-25','11-18'],['FIRE FIGHTING FOR MAIN TRANSFORMER (KG2A)','Unit 2','11-26','11-18'],['FIRE FIGHTING FOR MAIN TRANSFORMER (KG3A)','Unit 3','11-27','11-18'],['INTAKE GATE','Unit 1, 2, 3','','']];
+  R.forEach(([equip,unit,d,m])=>S.tests.push({id:uid(),year:be,equip,unit,date:mapYear(d,be),meet:mapYear(m,be),status:'รอดำเนินการ',note:''}));
+  toast(`เพิ่ม ${R.length} รายการ วันที่ตั้งตามแผนปี 2568 กรุณาตรวจแก้`);save();
+}
+function copyTests(from,to){const L=S.tests.filter(t=>t.year===from);
+  L.forEach(t=>S.tests.push({id:uid(),year:to,equip:t.equip,unit:t.unit,date:t.date?mapYear(t.date.slice(5),to):'',meet:t.meet?mapYear(t.meet.slice(5),to):'',status:'รอดำเนินการ',note:''}));
+  toast(`คัดลอก ${L.length} รายการ กรุณาตรวจแก้วันที่`);save()}
+function openTest(t){
+  editingT=t;$('tTitle').textContent=t?'แก้ไขรายการทดสอบ':'เพิ่มรายการทดสอบ';
+  $('tStatus').innerHTML=TST.map(x=>`<option>${x}</option>`).join('');
+  $('tEquip').value=t?.equip||'';$('tUnit').value=t?.unit||'';$('tDate').value=t?.date||'';$('tMeet').value=t?.meet||'';
+  $('tStatus').value=t?.status||TST[0];$('tNote').value=t?.note||'';$('errTEquip').textContent='';$('errTDate').textContent='';
+  $('tDel').hidden=!t;$('tMkCm').hidden=!(t&&t.status==='ทดสอบแล้ว - พบปัญหา');$('tDlg').showModal();
+}
+function saveTest(){
+  const equip=$('tEquip').value.trim(),date=$('tDate').value,meet=$('tMeet').value;
+  if(!equip){$('errTEquip').textContent='ใส่ชื่ออุปกรณ์ก่อนบันทึก';return}
+  if(date&&meet&&meet>date){$('errTDate').textContent='วันประชุมเตรียมงานควรอยู่ก่อนวันดำเนินการ';return}
+  const d={equip,unit:$('tUnit').value.trim(),date,meet,status:$('tStatus').value,note:$('tNote').value.trim()};
+  if(editingT)Object.assign(editingT,d);else S.tests.push({id:uid(),year:testYear,...d});
+  $('tDlg').close();toast(editingT?'บันทึกแล้ว':'เพิ่มรายการแล้ว');save();
+}
+function testLines(o,from,to,title){
+  const L=S.tests.filter(t=>t.date&&t.date>=from&&t.date<=to).sort(tSort),late=from===todayISO()?S.tests.filter(tLate).sort(tSort):[];
+  const meets=from===todayISO()?S.tests.filter(t=>t.meet&&t.meet>=from&&t.meet<=addDays(from,7)&&!tDone(t)):[];
+  if(!L.length&&!late.length&&!meets.length)return;
+  o.push('',title);
+  const ln=t=>`• ${thDate(t.date)} ${t.equip}${needOut(t)?' ['+t.unit+']':''}${from===todayISO()?(t.meet?' (ประชุม '+thDate(t.meet)+')':''):' – '+t.status}`;
+  late.forEach(t=>o.push(`• ⚠️ เลยวันทดสอบ ${thDate(t.date)} ${t.equip}`));
+  L.filter(t=>from!==todayISO()||!tDone(t)).forEach(t=>o.push(ln(t)));
+  if(meets.length){const g={};meets.forEach(t=>(g[t.meet]=g[t.meet]||[]).push(t.equip));Object.keys(g).sort().forEach(m=>o.push(`📅 ประชุมเตรียมงาน ${thDate(m)}: ${g[m].join(', ')}`))}
+}
+const NAV=[['PM','PM'],['CM','CM'],['IM','IM'],['OT','แผน Outage'],['test','แผนทดสอบ'],['bud','งานงบประมาณ'],['ppl','บุคลากร']];
+const NAVL=Object.fromEntries(NAV);
+let jobMode='open';
+/* ---------- แผน PM จาก Google Sheet ---------- */
+const PMK='mech-maint-pmcache';
+let PMC={items:[],statuses:['รอดำเนินการ','กำลังดำเนินการ','เสร็จแล้ว','เลื่อน','ยกเลิก'],year:null,fetchedAt:0};
+try{Object.assign(PMC,JSON.parse(localStorage.getItem(PMK)||'{}'))}catch(e){}
+let pmF={month:null,unit:'',cat:'',quick:''},pmBusy=false,pmEditing=null,pmCfgOpen=false;
+const PM_DONE='เสร็จแล้ว',PM_CANCEL='ยกเลิก';
+function pmOn(){return !!(S.pmSheet&&S.pmSheet.url&&S.pmSheet.token)}
+function pmSaveCache(){try{localStorage.setItem(PMK,JSON.stringify(PMC))}catch(e){}}
+function pmLate(x){return x.planDate&&x.planDate<todayISO()&&x.status!==PM_DONE&&x.status!==PM_CANCEL}
+function pmOpen(x){return x.status!==PM_DONE&&x.status!==PM_CANCEL}
+function pmStats(ym){const L=PMC.items.filter(x=>x.planDate&&x.planDate.slice(0,7)===ym);
+  return {L,done:L.filter(x=>x.status===PM_DONE).length,late:L.filter(pmLate).length,mh:L.reduce((a,x)=>a+(Number(x.manHours)||0),0)}}
+async function pmFetch(silent){
+  if(!pmOn()||pmBusy)return;
+  pmBusy=true;if(view==='PM')renderPM();
+  const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),20000);
+  try{
+    const u=S.pmSheet.url+(S.pmSheet.url.includes('?')?'&':'?')+'action=list&token='+encodeURIComponent(S.pmSheet.token);
+    const r=await fetch(u,{signal:ctl.signal});const j=await r.json();
+    if(!j.ok)throw new Error(j.error||'error');
+    PMC.items=j.items||[];PMC.statuses=j.statuses||PMC.statuses;PMC.year=j.year;PMC.fetchedAt=Date.now();pmSaveCache();
+    if(!silent)toast(`ดึงแผน PM แล้ว ${PMC.items.length} รายการ`);
+  }catch(e){if(!silent)toast(e.name==='AbortError'?'Sheet ตอบช้าเกินไป ลองใหม่อีกครั้ง':/รหัส/.test(e.message)?'รหัสเชื่อมต่อ (TOKEN) ไม่ถูกต้อง':'ดึงข้อมูลจาก Sheet ไม่ได้ ตรวจลิงก์และอินเทอร์เน็ต');pmBusy=false;clearTimeout(tm);render();return false}
+  pmBusy=false;clearTimeout(tm);render();return true;
+}
+async function pmPost(id,fields){
+  const r=await fetch(S.pmSheet.url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({token:S.pmSheet.token,action:'update',id,fields})});
+  const j=await r.json();if(!j.ok)throw new Error(j.error||'error');return j.item;
+}
+function pmCfgHTML(first){
+  return `<div class="cfg"><h2>${first?'เชื่อมต่อแผน PM จาก Google Sheet':'ตั้งค่าการเชื่อมต่อ'}</h2>
+    <p class="sub" style="margin:0 0 10px">ใช้ Web app URL และ TOKEN จากสคริปต์ฐานข้อมูล PM (ดูได้จากฟังก์ชัน showInfo)</p>
+    <label class="f"><span>Web app URL</span><input id="pmUrl" placeholder="https://script.google.com/macros/s/…/exec" value="${esc(S.pmSheet.url)}" autocomplete="off"></label>
+    <label class="f"><span>TOKEN</span><input id="pmTok" value="${esc(S.pmSheet.token)}" autocomplete="off"></label>
+    <div class="err" id="pmCfgErr"></div>
+    <div class="acts" style="justify-content:flex-start">${first?'':'<button class="btn danger" id="pmDisc">ยกเลิกการเชื่อมต่อ</button><button class="btn" id="pmCfgX">ปิด</button>'}<button class="btn primary" id="pmConn">เชื่อมต่อ</button></div></div>`;
+}
+function bindPmCfg(){
+  $('pmConn').onclick=async()=>{const url=$('pmUrl').value.trim(),tok=$('pmTok').value.trim();
+    if(!/^https:\/\/script\.google(usercontent)?\.com\/.+/.test(url)){$('pmCfgErr').textContent='ลิงก์ต้องขึ้นต้นด้วย https://script.google.com/macros/s/…/exec';return}
+    if(!tok){$('pmCfgErr').textContent='ใส่ TOKEN ด้วย';return}
+    const prev={...S.pmSheet};S.pmSheet={url,token:tok};$('pmConn').disabled=true;$('pmConn').textContent='กำลังทดสอบ…';
+    const ok=await pmFetch(false);
+    if(ok){pmCfgOpen=false;save()}else{S.pmSheet=prev;if($('pmConn')){$('pmConn').disabled=false;$('pmConn').textContent='เชื่อมต่อ'}}};
+  if($('pmDisc'))$('pmDisc').onclick=()=>{if(!confirm('ยกเลิกการเชื่อมต่อ Sheet? (ข้อมูลใน Sheet ไม่หาย)'))return;S.pmSheet={url:'',token:''};PMC.items=[];pmSaveCache();pmCfgOpen=false;save()};
+  if($('pmCfgX'))$('pmCfgX').onclick=()=>{pmCfgOpen=false;renderPM()};
+}
+function renderPM(){
+  const el=$('pmView');$('addBtn').textContent=pmOn()?'รีเฟรชแผน PM':'เพิ่มงาน PM';
+  const legacy=S.tasks.filter(t=>t.cat==='PM');
+  const legacyHTML=legacy.length?`<div class="mhead">งาน PM ที่บันทึกเองในแอป (เดิม) ${legacy.length} งาน</div>`+legacy.map(t=>`<button class="job" style="--c:var(--pm)" data-legacy="${t.id}"><div class="t">${esc(t.title)}</div><div class="meta"><span class="st">${esc(t.status)}</span><span>${esc(t.owner||'')}</span>${t.due?`<span class="due ${isLate(t)?'late':''}">ครบ ${thDate(t.due)}</span>`:''}</div></button>`).join(''):'';
+  if(!pmOn()){el.innerHTML=pmCfgHTML(true)+legacyHTML;bindPmCfg();bindLegacy();return}
+  if(pmF.month==null){const n=new Date();pmF.month=(PMC.year&&n.getFullYear()!==PMC.year)?0:n.getMonth()+1}
+  const yr=PMC.year||new Date().getFullYear();
+  const monthOpts=['<option value="0">ทั้งปี '+(yr+543)+'</option>'].concat(MONTHS_TH_FULL.map((m,i)=>`<option value="${i+1}" ${pmF.month===i+1?'selected':''}>${m}</option>`)).join('');
+  let base=PMC.items.slice();
+  if(pmF.unit)base=base.filter(x=>x.unit===pmF.unit);
+  if(pmF.cat)base=base.filter(x=>x.cat===pmF.cat);
+  const inMonth=pmF.month?base.filter(x=>x.month===pmF.month):base;
+  const lateAll=base.filter(pmLate);
+  let L=pmF.quick==='late'?lateAll:inMonth;
+  if(pmF.quick==='open')L=L.filter(pmOpen);
+  if(pmF.quick==='done')L=L.filter(x=>x.status===PM_DONE);
+  L.sort((a,b)=>(a.planDate<b.planDate?-1:a.planDate>b.planDate?1:String(a.desc).localeCompare(String(b.desc))));
+  const done=inMonth.filter(x=>x.status===PM_DONE).length,pct=inMonth.length?Math.round(done/inMonth.length*100):0;
+  const mh=inMonth.reduce((a,x)=>a+(Number(x.manHours)||0),0);
+  const ago=PMC.fetchedAt?new Date(PMC.fetchedAt).toLocaleString('th-TH',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'-';
+  el.innerHTML=(pmCfgOpen?pmCfgHTML(false):'')+`
+    <div class="pmbar">
+      <select id="pmMonth" aria-label="เดือน">${monthOpts}</select>
+      <select id="pmUnit" aria-label="หน่วย"><option value="">ทุกหน่วย</option>${['ส่วนกลาง','Unit 1','Unit 2','Unit 3'].map(u=>`<option ${pmF.unit===u?'selected':''}>${u}</option>`).join('')}</select>
+      <select id="pmCat" aria-label="ประเภท"><option value="">ทุกประเภท</option>${['PM','PM Outage'].map(u=>`<option ${pmF.cat===u?'selected':''}>${u}</option>`).join('')}</select>
+    </div>
+    <div class="pmprog"><div class="row"><span>${pmF.month?MONTHS_TH_FULL[pmF.month-1]:'ทั้งปี'} · เสร็จแล้ว</span><span><b>${done}</b> / ${inMonth.length} (${pct}%)</span></div>
+      <div class="bar"><i style="width:${pct}%"></i></div>
+      <div class="row" style="margin-top:6px"><span>Man-hour ตามแผน ${mh.toLocaleString('th-TH')}</span><span>${pmBusy?'กำลังดึงข้อมูล…':'ข้อมูลเมื่อ '+ago}</span></div></div>
+    <div class="alerts">
+      <button class="pill ${!pmF.quick?'on':''}" data-pq="">ทั้งหมด <b>${inMonth.length}</b></button>
+      <button class="pill ${pmF.quick==='open'?'on':''}" data-pq="open">ยังไม่เสร็จ <b>${inMonth.filter(pmOpen).length}</b></button>
+      <button class="pill ${pmF.quick==='done'?'on':''}" data-pq="done">เสร็จแล้ว <b>${done}</b></button>
+      <button class="pill red ${pmF.quick==='late'?'on':''}" data-pq="late">เลยกำหนดทั้งปี <b>${lateAll.length}</b></button>
+    </div>
+    <div id="pmList">${!PMC.items.length?`<div class="empty"><p>${pmBusy?'กำลังดึงแผน PM…':'ยังไม่มีข้อมูล กดรีเฟรชเพื่อดึงจาก Sheet'}</p></div>`:!L.length?'<div class="empty"><p>ไม่มีรายการตามตัวกรองนี้</p></div>':L.map(x=>{
+      const st=x.status===PM_DONE?'ok':x.status==='เลื่อน'?'wait':x.status===PM_CANCEL?'no':'';
+      return `<button class="job" style="--c:var(${x.cat==='PM Outage'?'--ot':'--pm'})" data-pm="${esc(x.id)}">
+        <div class="top"><span><span class="wo">${thDate(x.planDate)}</span> · ${esc(x.unit)}${x.cat==='PM Outage'?' · Outage':''}</span><span>${x.freqWeeks?esc(x.freqWeeks)+'W':''}</span></div>
+        <div class="t">${esc(x.desc)}</div>
+        <div class="meta"><span class="st ${st}">${esc(x.status)}</span>${pmLate(x)?`<span class="due late">เลยกำหนด ${daysLate(x.planDate,todayISO())} วัน</span>`:''}${x.actualDate?`<span>ทำจริง ${thDate(x.actualDate)}</span>`:''}${x.men&&x.hours?`<span>${x.men} คน × ${x.hours} ชม.</span>`:''}${x.wo?`<span>${esc(x.wo)}</span>`:''}${x.owner?`<span>${esc(x.owner)}</span>`:''}</div>
+        ${x.note?`<div class="note">${esc(x.note)}</div>`:''}</button>`}).join('')}</div>
+    <button class="linkbtn" id="pmCfgBtn">ตั้งค่าการเชื่อมต่อ Google Sheet</button>
+    ${legacyHTML}`;
+  if(pmCfgOpen)bindPmCfg();
+  $('pmMonth').value=String(pmF.month);
+  $('pmMonth').onchange=e=>{pmF.month=Number(e.target.value);if(pmF.quick==='late')pmF.quick='';renderPM()};
+  $('pmUnit').onchange=e=>{pmF.unit=e.target.value;renderPM()};
+  $('pmCat').onchange=e=>{pmF.cat=e.target.value;renderPM()};
+  el.querySelector('.alerts').onclick=e=>{const b=e.target.closest('[data-pq]');if(!b)return;const q=b.dataset.pq;pmF.quick=pmF.quick===q?'':q;renderPM()};
+  $('pmList').onclick=e=>{const b=e.target.closest('[data-pm]');if(b)openPm(PMC.items.find(x=>x.id===b.dataset.pm))};
+  $('pmCfgBtn').onclick=()=>{pmCfgOpen=!pmCfgOpen;renderPM();window.scrollTo(0,0)};
+  bindLegacy();
+}
+function bindLegacy(){$('pmView').querySelectorAll('[data-legacy]').forEach(b=>b.onclick=()=>openJob(S.tasks.find(t=>t.id===b.dataset.legacy)))}
+function openPm(x){
+  if(!x)return;pmEditing=x;
+  $('pmTitle').textContent=x.desc;
+  $('pmInfo').textContent=`${x.pmnum} · ตามแผน ${thDate(x.planDate,true)} · ${x.unit}${x.location?' · '+x.location:''}${x.men&&x.hours?` · ${x.men} คน × ${x.hours} ชม.`:''}`;
+  $('pmStatus').innerHTML=PMC.statuses.map(s=>`<option ${s===x.status?'selected':''}>${esc(s)}</option>`).join('');
+  $('pmActual').value=x.actualDate||'';$('pmWo').value=x.wo||'';$('pmOwner').value=x.owner||'';$('pmNote').value=x.note||'';
+  $('pmErr').textContent='';$('pmSave').disabled=false;$('pmSave').textContent='บันทึกลง Sheet';$('pmDlg').showModal();
+}
+async function savePm(){
+  const x=pmEditing;if(!x)return;
+  const f={status:$('pmStatus').value,actualDate:$('pmActual').value,wo:$('pmWo').value.trim(),owner:$('pmOwner').value.trim(),note:$('pmNote').value.trim()};
+  if(f.status===PM_DONE&&!f.actualDate){f.actualDate=todayISO();$('pmActual').value=f.actualDate}
+  if(f.actualDate&&f.actualDate>todayISO()){$('pmErr').textContent='วันที่ทำจริงต้องไม่เกินวันนี้';return}
+  const changed={};Object.keys(f).forEach(k=>{if((x[k]||'')!==f[k])changed[k]=f[k]});
+  if(!Object.keys(changed).length){$('pmDlg').close();return}
+  $('pmSave').disabled=true;$('pmSave').textContent='กำลังบันทึก…';$('pmErr').textContent='';
+  try{const item=await pmPost(x.id,changed);Object.assign(x,item||changed);pmSaveCache();$('pmDlg').close();toast('บันทึกลง Sheet แล้ว');render()}
+  catch(e){$('pmErr').textContent=/รหัส/.test(e.message)?'TOKEN ไม่ถูกต้อง':navigator.onLine===false?'ไม่มีอินเทอร์เน็ต บันทึกไม่ได้':'บันทึกไม่สำเร็จ: '+e.message;$('pmSave').disabled=false;$('pmSave').textContent='บันทึกลง Sheet'}
+}
+const MONTHS_TH_FULL=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+function renderNav(){
+  const today=todayISO(),in30=addDays(today,30);
+  $('mainNav').innerHTML=NAV.map(([k,l])=>{let cnt='';
+    if(k==='PM'&&pmOn()){const late=PMC.items.filter(pmLate).length,cur=pmStats(todayISO().slice(0,7)).L.filter(pmOpen).length;if(late)cnt=`<span class="cnt red">${late}</span>`;else if(cur)cnt=`<span class="cnt">${cur}</span>`}
+    else if(CATS[k]){const L=S.tasks.filter(t=>t.cat===k),late=L.filter(isLate).length;if(L.length)cnt=`<span class="cnt ${late?'red':''}">${L.length}</span>`}
+    else if(k==='test'){const late=S.tests.filter(tLate).length,soon=S.tests.filter(t=>t.date&&t.date>=today&&t.date<=in30&&!tDone(t)).length;if(late)cnt=`<span class="cnt red">${late}</span>`;else if(soon)cnt=`<span class="cnt">${soon}</span>`}
+    return `<button data-v="${k}" class="${view===k?'on':''}" style="--c:var(${CATS[k]?CATS[k].c:'--steel'})" aria-current="${view===k?'page':'false'}">${l}${cnt}</button>`}).join('');
+}
+function setView(v,keepScroll){
+  if(v==='open'||v==='log'){jobMode=v;v=view}
+  if(!NAVL[v])v='PM';
+  view=v;try{localStorage.setItem('mech-maint-view',v)}catch(e){}
+  const isPM=v==='PM';const job=!!CATS[v]&&!isPM;if(CATS[v]&&filter.cat!==v){filter.cat=v;filter.quick=null}
+  $('pmView').hidden=!isPM;
+  $('jobSub').hidden=!job;$('alerts').hidden=!(job&&jobMode==='open');
+  $('openView').hidden=!(job&&jobMode==='open');$('logView').hidden=!(job&&jobMode==='log');
+  $('vOpen').classList.toggle('on',jobMode==='open');$('vLog').classList.toggle('on',jobMode==='log');
+  $('testView').hidden=v!=='test';$('budView').hidden=v!=='bud';$('pplView').hidden=v!=='ppl';
+  $('addBtn').textContent=isPM?(pmOn()?'รีเฟรชแผน PM':'เพิ่มงาน PM'):v==='bud'?'เพิ่มรายการงบ':v==='ppl'?'เพิ่มบุคลากร':v==='test'?'เพิ่มรายการทดสอบ':'เพิ่มงาน '+NAVL[v];
+  render();
+  if(isPM&&pmOn()&&Date.now()-PMC.fetchedAt>5*60000)pmFetch(true);
+  const b=$('mainNav').querySelector('.on');if(b)b.scrollIntoView({block:'nearest',inline:'center'});
+  if(!keepScroll)window.scrollTo(0,0);
+}
 function fillStatus(cat,val){$('fStatus').innerHTML=CATS[cat].st.map(s=>`<option ${s===val?'selected':''}>${s}</option>`).join('')}
-function renderSeg(){$('catSeg').innerHTML=Object.entries(CATS).map(([k,c])=>`<button type="button" style="--c:var(${c.c})" class="${newCat===k?'on':''}" data-k="${k}">${c.name}</button>`).join('');$('woLabel').textContent=newCat==='PR'?'เลข PR / PO':'เลข WO (Maximo)'}
+function renderSeg(){const E=Object.entries(CATS).filter(([k])=>k!=='PR'||newCat==='PR');$('catSeg').style.gridTemplateColumns=`repeat(${E.length},1fr)`;$('catSeg').innerHTML=E.map(([k,c])=>`<button type="button" style="--c:var(${c.c})" class="${newCat===k?'on':''}" data-k="${k}">${c.name}</button>`).join('');$('woLabel').textContent=newCat==='PR'?'เลข PR / PO':'เลข WO (Maximo)';const ot=newCat==='OT';$('fOutageWrap').hidden=!ot;$('rowWoPri').hidden=ot;$('rowOwnerDue').hidden=ot;$('rowOutage').hidden=!ot}
 function openJob(t){
-  editing=t;newCat=t?t.cat:(filter.cat!=='ALL'?filter.cat:'PM');renderSeg();
+  editing=t;newCat=t?t.cat:(CATS[view]?view:'PM');renderSeg();
   $('jobTitle').textContent=t?'แก้ไขงาน':'เพิ่มงาน';
-  $('fWo').value=t?.wo||'';$('fTitle').value=t?.title||'';$('fOwner').value=t?.owner||'';$('fDue').value=t?.due||'';
+  $('fWo').value=t?.wo||'';$('fOutage').value=t?.outage||'';$('fOStart').value=t?.oStart||'';$('fOEnd').value=t?.oEnd||'';$('fOHours').value=t&&t.oHours!=null?t.oHours:'';$('errOut').textContent='';$('fTitle').value=t?.title||'';$('fOwner').value=t?.owner||'';$('fDue').value=t?.due||'';
   $('fPri').value=t?.pri||3;$('fNote').value=t?.note||'';fillStatus(newCat,t?.status);
   $('errTitle').textContent='';$('delBtn').hidden=!t;$('closeJobBtn').hidden=!t;
   const h=t?.history||[];$('fHist').hidden=!h.length;
@@ -537,7 +865,12 @@ function openJob(t){
 function saveJob(){
   const title=$('fTitle').value.trim();
   if(!title){$('errTitle').textContent='ใส่ชื่องานก่อนบันทึก';$('fTitle').focus();return}
-  const d={cat:newCat,wo:$('fWo').value.trim(),title,owner:$('fOwner').value.trim(),due:$('fDue').value,pri:Number($('fPri').value),status:$('fStatus').value,note:$('fNote').value.trim()};
+  const ot=newCat==='OT';let oHours=null;
+  if(ot){const st=$('fOStart').value,en=$('fOEnd').value,hv=$('fOHours').value.trim().replace(/,/g,'');
+    if(st&&en&&en<st){$('errOut').textContent='วันสิ้นสุดต้องไม่ก่อนวันเริ่ม';return}
+    if(hv){oHours=Number(hv);if(!isFinite(oHours)||oHours<0){$('errOut').textContent='จำนวนชั่วโมงต้องเป็นตัวเลข';return}}}
+  const d=ot?{cat:newCat,outage:$('fOutage').value.trim(),wo:'',title,owner:'',due:'',pri:3,oStart:$('fOStart').value,oEnd:$('fOEnd').value,oHours,status:$('fStatus').value,note:$('fNote').value.trim()}
+    :{cat:newCat,outage:'',oStart:'',oEnd:'',oHours:null,wo:$('fWo').value.trim(),title,owner:$('fOwner').value.trim(),due:$('fDue').value,pri:Number($('fPri').value),status:$('fStatus').value,note:$('fNote').value.trim()};
   if(editing){
     const changed=editing.status!==d.status||editing.note!==d.note;
     Object.assign(editing,d);
@@ -556,23 +889,106 @@ function doClose(){
   closing=null;$('closeDlg').close();if($('jobDlg').open)$('jobDlg').close();toast('ย้ายไปประวัติแล้ว');save();
 }
 
-function buildSummary(){
-  const all=$('sAll').checked,late=$('sLate').checked,closed=$('sClosed').checked,note=$('sNote').checked;
-  const d=new Date().toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'});
-  let o=[`📋 สรุปงานแผนกบำรุงรักษาเครื่องกล`,`ประจำวันที่ ${d}`,`งานเปิดอยู่ ${S.tasks.length} งาน`];
-  const line=t=>{let s=`• ${t.wo?t.wo+' ':''}${t.title}\n   ${t.owner||'-'} | ${t.status}${t.due?' | ครบ '+thDate(t.due):''}${t.pri==1?' | ด่วนมาก':''}`;if(note&&t.note)s+=`\n   ↳ ${t.note}`;return s};
-  const lateL=S.tasks.filter(isLate);
-  if(late&&lateL.length){o.push('',`⚠️ เกินกำหนด ${lateL.length} งาน`);lateL.forEach(t=>o.push(line(t)))}
-  if(all){Object.entries(CATS).forEach(([k,c])=>{const L=S.tasks.filter(t=>t.cat===k&&!(late&&isLate(t)));if(!L.length)return;o.push('',`【${c.name}】${c.full} ${L.length} งาน`);L.sort((a,b)=>a.pri-b.pri).forEach(t=>o.push(line(t)))})}
-  const cl=S.log.filter(t=>t.closedAt===todayISO());
-  if(closed&&cl.length){o.push('',`✅ ปิดงานวันนี้ ${cl.length} งาน`);cl.forEach(t=>o.push(`• ${t.wo?t.wo+' ':''}${t.title} (${t.owner||'-'})${t.closeNote?'\n   ↳ '+t.closeNote:''}`))}
-  if($('sBud').checked){o.push('','💰 งบประมาณ (บาท)');budYears().forEach(y=>{const t=yearTotals(y);if(!t.L.length)return;
-    const stg=BST.map((_,i)=>{const c=t.L.filter(b=>stepOf(b.status)===i+1).length;return c?`${i+1}.${BSHORT[i]} ${c}`:''}).filter(Boolean).join(', ');
-    const bt=BTYPE.map(ty=>`${ty.replace('งบ','')} ${baht(t.L.filter(b=>b.type===ty).reduce((a,b)=>a+(b.req||0),0))}`).join(' / ');
-    o.push(`• ปี ${y}: ขอ ${baht(t.req)} (${bt})\n   อนุมัติ ${baht(t.app)}\n   ขั้นตอน: ${stg}`)})}
-  if($('sPpl').checked){const off=S.people.filter(p=>p.avail&&p.avail!=='ปฏิบัติงาน');o.push('',`👷 บุคลากรไม่อยู่ปฏิบัติงาน ${off.length} คน`);off.forEach(p=>o.push(`• ${p.name} – ${p.avail}${p.note?' ('+p.note+')':''}`))}
-  return o.join('\n');
+let shareMode='day';
+const SEP='━━━━━━━━━━━━━━';
+const RCAT=['PM','CM','IM','OT','PR'];
+const LIMIT=5;
+function monthOptions(){
+  const now=new Date(),o=[];
+  for(let i=0;i<12;i++){const d=new Date(now.getFullYear(),now.getMonth()-i,1);const v=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+    o.push(`<option value="${v}">${d.toLocaleDateString('th-TH',{month:'long',year:'numeric'})}${i===0?' (เดือนนี้)':''}</option>`)}
+  $('mMonth').innerHTML=o.join('');
 }
+function catsInUse(){return RCAT.filter(k=>k!=='PR'||S.tasks.some(t=>t.cat==='PR')||S.log.some(t=>t.cat==='PR'))}
+function daysLate(d,ref){return Math.round((new Date(ref)-new Date(d))/864e5)}
+function mb(n){return ((n||0)/1e6).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function more(o,L,fn){L.slice(0,LIMIT).forEach((t,i)=>o.push(fn(t,i)));if(L.length>LIMIT)o.push(`   …และอีก ${L.length-LIMIT} รายการ`)}
+function tag(t){return `[${CATS[t.cat].name}]`}
+function head(o,title,sub){o.push(title,sub,SEP)}
+function foot(o){const r=$('sReporter').value.trim();o.push('',SEP);if(r)o.push(`รายงานโดย: ${r}`)}
+function budgetLines(o){
+  const Ys=budYears().filter(y=>yearTotals(y).L.length);if(!Ys.length)return;
+  o.push('','💰 งบประมาณ (ล้านบาท)');
+  Ys.forEach(y=>{const t=yearTotals(y),pct=t.req?Math.round(t.app/t.req*100):0,done=t.L.filter(b=>stepOf(b.status)===7).length;
+    const bt=BTYPE.map(ty=>[ty.replace('งบ',''),t.L.filter(b=>b.type===ty).reduce((a,b)=>a+(b.req||0),0)]).filter(x=>x[1]).map(x=>`${x[0]} ${mb(x[1])}`).join(' · ');
+    o.push(`▪️ ปี ${y}: ขอ ${mb(t.req)} | ${t.app?`อนุมัติ ${mb(t.app)} (${pct}%)`:'ยังไม่มียอดอนุมัติ'}`,`   ${bt}`,`   ถึงขั้นตรวจรับ ${done}/${t.L.length} รายการ`)});
+}
+function buildDaily(){
+  const today=todayISO(),in30=addDays(today,30),o=[];
+  head(o,'📋 รายงานสรุปงานประจำวัน','แผนกบำรุงรักษาเครื่องกล · '+new Date().toLocaleDateString('th-TH',{weekday:'long',day:'numeric',month:'long',year:'numeric'}));
+  const closedToday=S.log.filter(t=>t.closedAt===today);
+  o.push('📊 ภาพรวมงาน');
+  catsInUse().forEach(k=>{const L=S.tasks.filter(t=>t.cat===k),late=L.filter(isLate).length;
+    if(k==='PM'&&pmOn()){const st=pmStats(today.slice(0,7)),pl=PMC.items.filter(pmLate).length;
+      o.push(`▪️ PM (แผนประจำปี): เดือนนี้เสร็จ ${st.done}/${st.L.length}${pl?` · เลยกำหนด ${pl}`:''}`);if(!L.length)return}
+    o.push(`▪️ ${CATS[k].name}: เปิดอยู่ ${L.length}${late?` · เกินกำหนด ${late}`:''}`)});
+  const lateAll=S.tasks.filter(isLate).length;
+  o.push(`${pmOn()?'งาน CM / IM / Outage รวม':'รวม'} ${S.tasks.length} งาน${lateAll?` · เกินกำหนด ${lateAll}`:''} · ปิดวันนี้ ${closedToday.length}`);
+  if($('sIssue').checked){
+    const iss=S.tasks.filter(t=>isLate(t)||t.pri==1||WAIT.includes(t.status));
+    iss.sort((a,b)=>(isLate(b)-isLate(a))||(a.pri-b.pri));
+    const lateT=S.tests.filter(tLate);
+    if(iss.length||lateT.length||(pmOn()&&PMC.items.some(pmLate))){o.push('',`⚠️ เรื่องที่ต้องติดตาม${iss.length?` (${iss.length} งาน)`:''}`);
+      more(o,iss,(t,i)=>{const r=[];if(isLate(t))r.push(`เกินกำหนด ${daysLate(dueOf(t),today)} วัน`);else if(t.pri==1)r.push('ด่วนมาก');r.push(t.status);if(t.cat!=='OT'&&t.owner)r.push(t.owner);
+        return `${i+1}. ${tag(t)} ${t.title}\n   ${r.join(' · ')}${t.note?`\n   ↳ ${t.note}`:''}`});
+      const pl=pmOn()?PMC.items.filter(pmLate).sort((a,b)=>a.planDate<b.planDate?-1:1):[];
+      if(pl.length){o.push(`🛠️ PM เลยกำหนด ${pl.length} รายการ`);pl.slice(0,3).forEach(x=>o.push(`   • ${x.desc} (${x.unit}, แผน ${thDate(x.planDate)})`));if(pl.length>3)o.push(`   …และอีก ${pl.length-3} รายการ`)}
+      if(lateT.length){lateT.sort(tSort);o.push(`🧪 ทดสอบอุปกรณ์เลยกำหนด ${lateT.length} รายการ`);lateT.slice(0,3).forEach(t=>o.push(`   • ${t.equip} (กำหนด ${thDate(t.date)})`));if(lateT.length>3)o.push(`   …และอีก ${lateT.length-3} รายการ`)}}
+  }
+  const pmToday=pmOn()?PMC.items.filter(x=>x.status===PM_DONE&&x.actualDate===today):[];
+  if($('sClosed').checked&&(closedToday.length||pmToday.length)){o.push('',`✅ ปิดงานวันนี้ (${closedToday.length+pmToday.length})`);more(o,[...pmToday.map(x=>({cat:'PM',title:x.desc+' ('+x.unit+')'})),...closedToday],t=>`• ${tag(t)} ${t.title}${t.closeNote?`\n   ↳ ${t.closeNote}`:''}`)}
+  if($('sNext').checked){
+    const ev=[];
+    S.tasks.filter(t=>t.cat==='OT'&&t.oStart&&t.oStart>=today&&t.oStart<=in30).forEach(t=>ev.push({d:t.oStart,s:`🔧 ${otPeriod(t)} Outage${t.outage?' '+t.outage:''}\n   ${t.title}${otHours(t)?' ('+otHours(t)+')':''}`}));
+    S.tasks.filter(t=>t.cat==='OT'&&t.status==='กำลังดำเนินการ').forEach(t=>ev.push({d:'0',s:`🔧 กำลังดำเนินการ: ${t.title}${t.outage?' ('+t.outage+')':''}`}));
+    S.tests.filter(t=>t.date&&t.date>=today&&t.date<=in30&&!tDone(t)).forEach(t=>ev.push({d:t.date,s:`🧪 ${thDate(t.date)} ทดสอบ ${t.equip}${needOut(t)?' (หยุดเครื่อง '+t.unit+')':''}`}));
+    const mt={};S.tests.filter(t=>t.meet&&t.meet>=today&&t.meet<=in30&&!tDone(t)).forEach(t=>(mt[t.meet]=mt[t.meet]||[]).push(t.equip));
+    Object.keys(mt).forEach(m=>ev.push({d:m,s:`📅 ${thDate(m)} ประชุมเตรียมงานทดสอบ (${mt[m].length} รายการ)`}));
+    if(ev.length){ev.sort((a,b)=>a.d<b.d?-1:1);o.push('','🗓️ แผนงาน 30 วันข้างหน้า');ev.slice(0,8).forEach(e=>o.push(e.s));if(ev.length>8)o.push(`   …และอีก ${ev.length-8} รายการ`)}
+  }
+  if($('sBud').checked)budgetLines(o);
+  if($('sPpl').checked&&S.people.length){const off=S.people.filter(p=>p.avail&&p.avail!=='ปฏิบัติงาน');
+    o.push('',`👷 กำลังพล: ปฏิบัติงาน ${S.people.length-off.length}/${S.people.length} คน`);off.forEach(p=>o.push(`• ${p.name} – ${p.avail}${p.note?' ('+p.note+')':''}`))}
+  if($('sAll').checked){o.push('','📎 รายการงานเปิดทั้งหมด');catsInUse().forEach(k=>{const L=S.tasks.filter(t=>t.cat===k);if(!L.length)return;o.push(`【${CATS[k].full}】`);
+    L.sort((a,b)=>a.pri-b.pri).forEach(t=>o.push(t.cat==='OT'?`• ${t.title} – ${t.status}${otPeriod(t)?' · '+otPeriod(t):''}`:`• ${t.wo?t.wo+' ':''}${t.title} – ${t.status}${t.owner?' · '+t.owner:''}${t.due?' · ครบ '+thDate(t.due):''}`))})}
+  foot(o);return o.join('\n');
+}
+function buildMonthly(){
+  const ym=$('mMonth').value,[Y,M]=ym.split('-').map(Number);
+  const first=ym+'-01',last=ym+'-'+String(new Date(Y,M,0).getDate()).padStart(2,'0');
+  const isCur=todayISO()<=last,cut=isCur?todayISO():last;
+  const label=new Date(Y,M-1,1).toLocaleDateString('th-TH',{month:'long',year:'numeric'});
+  const inM=d=>d&&d>=first&&d<=last;
+  const closed=S.log.filter(t=>inM(t.closedAt)).sort((a,b)=>a.closedAt<b.closedAt?-1:1);
+  const opened=[...S.tasks,...S.log].filter(t=>inM(t.createdAt));
+  const open=[...S.tasks.filter(t=>!t.createdAt||t.createdAt<=last),...S.log.filter(t=>t.closedAt>last&&(!t.createdAt||t.createdAt<=last))];
+  const lateAt=open.filter(t=>{const d=t.cat==='OT'?t.oEnd:t.due;return d&&d<cut&&!(t.cat==='OT'&&t.status===OT_DONE&&S.tasks.includes(t))});
+  const rate=closed.length+open.length?Math.round(closed.length/(closed.length+open.length)*100):0;
+  const o=[];
+  head(o,'📊 รายงานผลการดำเนินงานประจำเดือน',`แผนกบำรุงรักษาเครื่องกล · ${label}${isCur?` (ข้อมูลถึง ${thDate(todayISO(),true)})`:''}`);
+  o.push('📈 สรุปผลการดำเนินงาน',`▪️ งานใหม่ ${opened.length} · ปิดงาน ${closed.length} · คงค้าง ${open.length}`,`▪️ อัตราการปิดงาน ${rate}%`,`▪️ เกินกำหนด ${lateAt.length} งาน`);
+  if(pmOn()){const st=pmStats(ym),pct=st.L.length?Math.round(st.done/st.L.length*100):0;
+    o.push('',`🛠️ แผน PM ประจำเดือน: เสร็จ ${st.done}/${st.L.length} (${pct}%)`,`▪️ Man-hour ตามแผน ${st.mh.toLocaleString('th-TH')}`);
+    const lt=st.L.filter(x=>x.planDate<cut&&pmOpen(x));if(lt.length){o.push(`▪️ ยังไม่เสร็จตามแผน ${lt.length} รายการ`);more(o,lt,x=>`   • ${x.desc} (${x.unit}) – ${x.status}`)}}
+  o.push('','📂 แยกตามประเภทงาน (ปิด / คงค้าง)');
+  catsInUse().forEach(k=>{const c=closed.filter(t=>t.cat===k).length,n=open.filter(t=>t.cat===k).length;if(k==='PM'&&pmOn()&&!c&&!n)return;if(c||n||k!=='PR')o.push(`▪️ ${CATS[k].name}: ${c} / ${n}`)});
+  if($('mOT').checked){const ot=[...S.tasks,...S.log].filter(t=>t.cat==='OT'&&t.oStart&&t.oStart<=last&&(t.oEnd||t.oStart)>=first);
+    if(ot.length){const hrs=ot.reduce((a,t)=>a+(Number(t.oHours)||0),0);o.push('',`🔧 งาน Outage ในเดือน (${ot.length})${hrs?` · รวม ${hrs.toLocaleString('th-TH')} ชม.`:''}`);
+      ot.forEach(t=>o.push(`• ${t.title}${t.outage?' ('+t.outage+')':''}\n   ${otPeriod(t)} · ${S.log.includes(t)?'ปิดงานแล้ว':t.status}`))}}
+  if($('mTest').checked){const T=S.tests.filter(t=>inM(t.date)).sort(tSort);
+    if(T.length){const d=T.filter(tDone).length,bad=T.filter(t=>t.status==='ทดสอบแล้ว - พบปัญหา').length;
+      o.push('',`🧪 แผนทดสอบอุปกรณ์: ทดสอบแล้ว ${d}/${T.length}${bad?` · พบปัญหา ${bad}`:''}`);
+      T.forEach(t=>o.push(`• ${thDate(t.date)} ${t.equip} – ${t.status.replace('ทดสอบแล้ว - ','')}`))}}
+  if($('mOpen').checked&&lateAt.length){const dd=t=>t.cat==='OT'?t.oEnd:t.due;lateAt.sort((a,b)=>dd(a)<dd(b)?-1:1);
+    o.push('',`⚠️ งานเกินกำหนด (${lateAt.length})`);more(o,lateAt,(t,i)=>`${i+1}. ${tag(t)} ${t.title}\n   เกิน ${daysLate(dd(t),cut)} วัน · ${t.status}${t.cat!=='OT'&&t.owner?' · '+t.owner:''}`)}
+  if($('mList').checked&&closed.length){o.push('',`✅ งานที่ปิดในเดือน (${closed.length})`);closed.forEach(t=>o.push(`• ${thDate(t.closedAt)} ${tag(t)} ${t.title}`))}
+  if($('mPerson').checked){const pc=closed.filter(t=>t.cat!=='OT'),po=open.filter(t=>t.cat!=='OT');const names=[...new Set([...pc,...po].map(t=>t.owner||'ไม่ระบุ'))];
+    if(names.length){o.push('','👷 ผลงานรายบุคคล (ปิด / คงค้าง)');names.map(n=>({n,c:pc.filter(t=>(t.owner||'ไม่ระบุ')===n).length,k:po.filter(t=>(t.owner||'ไม่ระบุ')===n).length}))
+      .sort((a,b)=>b.c-a.c||b.k-a.k).forEach(x=>o.push(`▪️ ${x.n}: ${x.c} / ${x.k}`))}}
+  if($('mBud').checked)budgetLines(o);
+  foot(o);return o.join('\n');
+}
+function buildSummary(){return shareMode==='month'?buildMonthly():buildDaily()}
 function updatePreview(){const s=buildSummary();$('preview').textContent=s;$('lineLink').href='https://line.me/R/share?text='+encodeURIComponent(s)}
 async function copyText(s){
   try{await navigator.clipboard.writeText(s);toast('คัดลอกแล้ว');return}catch(e){}
@@ -587,7 +1003,7 @@ async function exportData(){
 }
 function applyImport(text){
   try{const d=JSON.parse(text);if(!Array.isArray(d.tasks)||!Array.isArray(d.log))throw 0;normalize(d);
-    if(!confirm(`นำเข้างาน ${d.tasks.length} งาน ประวัติ ${d.log.length} รายการ งบประมาณ ${d.budget.length} รายการ และบุคลากร ${d.people.length} คน แทนข้อมูลปัจจุบัน?`))return;S=d;save();toast('นำเข้าแล้ว');return true}
+    if(!confirm(`นำเข้างาน ${d.tasks.length} งาน ประวัติ ${d.log.length} รายการ งบประมาณ ${d.budget.length} รายการ บุคลากร ${d.people.length} คน และแผนทดสอบ ${d.tests.length} รายการ แทนข้อมูลปัจจุบัน?`))return;S=d;save();toast('นำเข้าแล้ว');return true}
   catch(e){toast('ไฟล์นี้ไม่ใช่ข้อมูลสำรองของแอปนี้');return false}
 }
 function importData(file){const r=new FileReader();r.onload=()=>{if(applyImport(r.result)&&$('bkDlg').open)$('bkDlg').close()};r.readAsText(file)}
@@ -615,11 +1031,10 @@ function demo(){
   S.tasks=[
     mk('PM','WO-240812','เปลี่ยนน้ำมันเกียร์ปั๊ม P-101','สมชาย','กำลังทำ',add(2),3,''),
     mk('PM','WO-240815','ตรวจสายพานคอนเวเยอร์ CV-3','วิชัย','รอเครื่องหยุด',add(-3),3,'รอฝ่ายผลิตหยุดไลน์วันเสาร์'),
+    {...mk('OT','','Overhaul กังหันไอน้ำ (Steam turbine) ตามรอบ','','เตรียมอะไหล่/บุคลากร','',3,'รอผู้รับเหมายืนยันทีมงาน'),outage:'Outage Unit 2',oStart:add(40),oEnd:add(48),oHours:192},
     mk('CM','WO-240831','มอเตอร์พัดลม FAN-02 สั่นผิดปกติ','ประยุทธ','รออะไหล่',add(-1),2,'สั่งแบริ่ง 6308 แล้ว รอของเข้า'),
     mk('CM','WO-240833','ซีลวาล์ว V-12 รั่ว','สมชาย','กำลังซ่อม',add(1),1,''),
-    mk('IM','WO-240018','ติดตั้ง VSD ปั๊มน้ำหล่อเย็น','อนันต์','อนุมัติแล้ว',add(17),3,'รอใบเสนอราคาจากผู้รับเหมา 2 ราย'),
-    mk('PR','PR-67-0107','แบริ่ง 6308 จำนวน 20 ตัว','สุดา','รอของ',add(4),2,'ผู้ขายแจ้งส่งภายในสัปดาห์นี้'),
-    mk('PR','PR-67-0109','จ้างเหมาล้างคูลลิ่งทาวเวอร์','สุดา','รออนุมัติ PR',add(12),3,'')];
+    mk('IM','WO-240018','ติดตั้ง VSD ปั๊มน้ำหล่อเย็น','อนันต์','อนุมัติแล้ว',add(17),3,'รอใบเสนอราคาจากผู้รับเหมา 2 ราย')];
   const pp=(name,pos,avail,skill,note)=>({id:uid(),name,full:'',pos,emp:'',tel:'',avail,skill,note});
   S.people=[pp('อนันต์','วิศวกร','ปฏิบัติงาน','ระบบปั๊มและท่อ',''),pp('วิชัย','หัวหน้าช่าง','ปฏิบัติงาน','เครน, คอนเวเยอร์',''),
     pp('สมชาย','ช่างเทคนิค','ปฏิบัติงาน','ปั๊ม, วาล์ว',''),pp('ประยุทธ','ช่างเทคนิค','อบรม/สัมมนา','มอเตอร์, พัดลม','อบรม Vibration analysis ถึงศุกร์นี้'),
@@ -635,15 +1050,26 @@ function demo(){
   save();
 }
 
-$('board').onclick=e=>{const b=e.target.closest('[data-cat]');if(!b)return;filter.cat=filter.cat===b.dataset.cat?'ALL':b.dataset.cat;filter.quick=null;render()};
-$('alerts').onclick=e=>{const b=e.target.closest('[data-q]');if(!b)return;const q=b.dataset.q;if(q==='all'){filter={cat:'ALL',quick:null}}else{filter.quick=filter.quick===q?null:q}render()};
+$('pmSave').onclick=savePm;$('pmCancel').onclick=()=>$('pmDlg').close();
+$('pmStatus').onchange=()=>{if($('pmStatus').value===PM_DONE&&!$('pmActual').value)$('pmActual').value=todayISO()};
+$('mainNav').onclick=e=>{const b=e.target.closest('[data-v]');if(b)setView(b.dataset.v)};
+$('alerts').onclick=e=>{const b=e.target.closest('[data-q]');if(!b)return;const q=b.dataset.q;if(q==='all'){filter.quick=null}else{filter.quick=filter.quick===q?null:q}render()};
 $('openView').onclick=e=>{const b=e.target.closest('.job');if(b)openJob(S.tasks.find(t=>t.id===b.dataset.id))};
 $('logList').onclick=e=>{const b=e.target.closest('[data-reopen]');if(!b)return;const t=S.log.find(x=>x.id===b.dataset.reopen);if(!t)return;
   S.log=S.log.filter(x=>x.id!==t.id);const {closedAt,closeNote,...rest}=t;(rest.history=rest.history||[]).push({d:todayISO(),s:'เปิดงานอีกครั้ง',n:''});S.tasks.push(rest);toast('เปิดงานอีกครั้งแล้ว');save()};
-$('vOpen').onclick=()=>setView('open');
-$('vLog').onclick=()=>setView('log');
-$('vBud').onclick=()=>setView('bud');
-$('vPpl').onclick=()=>setView('ppl');
+$('vOpen').onclick=()=>setView('open',true);
+$('vLog').onclick=()=>setView('log',true);
+$('tYrs').onclick=e=>{const b=e.target.closest('[data-ty]');if(b){testYear=Number(b.dataset.ty);renderTests()}};
+$('tList').onclick=e=>{const b=e.target.closest('[data-t]');if(b)openTest(S.tests.find(x=>x.id===b.dataset.t))};
+$('tNotes').onchange=()=>{const v=$('tNotes').value.trim();if(v)S.testNotes[testYear]=v;else delete S.testNotes[testYear];save()};
+$('tUnitChips').onclick=e=>{const b=e.target.closest('[data-u]');if(b)$('tUnit').value=b.dataset.u};
+$('tStatus').onchange=()=>{$('tMkCm').hidden=!(editingT&&$('tStatus').value==='ทดสอบแล้ว - พบปัญหา')};
+$('tSave').onclick=saveTest;$('tCancel').onclick=()=>$('tDlg').close();
+$('tEquip').oninput=()=>$('errTEquip').textContent='';$('tDate').oninput=$('tMeet').oninput=()=>$('errTDate').textContent='';
+$('tDel').onclick=()=>{if(editingT&&confirm('ลบรายการทดสอบนี้?')){S.tests=S.tests.filter(t=>t.id!==editingT.id);$('tDlg').close();toast('ลบแล้ว');save()}};
+$('tMkCm').onclick=()=>{const t=editingT;if(!t)return;const note=$('tNote').value.trim();
+  S.tasks.push({id:uid(),cat:'CM',createdAt:todayISO(),wo:'',title:'แก้ไขจากผลทดสอบ: '+t.equip,owner:'',due:'',pri:2,status:CATS.CM.st[0],note,outage:'',oStart:'',oEnd:'',oHours:null,history:[{d:todayISO(),s:CATS.CM.st[0],n:note}]});
+  $('tMkCm').hidden=true;toast('สร้างงาน CM แล้ว');save()};
 $('pplList').onclick=e=>{const b=e.target.closest('[data-p]');if(b)openPerson(S.people.find(x=>x.id===b.dataset.p))};
 $('pSave').onclick=savePerson;$('pCancel').onclick=()=>$('pDlg').close();$('pName').oninput=()=>$('errPName').textContent='';
 $('pDel').onclick=()=>{if(editingP&&confirm('ลบ '+editingP.name+' ออกจากรายชื่อ? (งานที่มอบหมายไว้ยังคงชื่อเดิม)')){S.people=S.people.filter(p=>p.id!==editingP.id);$('pDlg').close();toast('ลบแล้ว');save()}};
@@ -656,15 +1082,19 @@ $('bDel').onclick=()=>{if(editingB&&confirm('ลบรายการงบน�
 $('logQ').oninput=renderLog;
 $('catSeg').onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;newCat=b.dataset.k;renderSeg();fillStatus(newCat)};
 $('fTitle').oninput=()=>$('errTitle').textContent='';
-$('addBtn').onclick=()=>view==='bud'?openBud(null):view==='ppl'?openPerson(null):openJob(null);
+['fOStart','fOEnd','fOHours'].forEach(i=>$(i).addEventListener('input',()=>$('errOut').textContent=''));
+$('addBtn').onclick=()=>view==='PM'&&pmOn()?pmFetch(false):view==='bud'?openBud(null):view==='ppl'?openPerson(null):view==='test'?openTest(null):openJob(null);
 $('saveBtn').onclick=saveJob;
 $('cancelBtn').onclick=()=>$('jobDlg').close();
 $('delBtn').onclick=()=>{if(editing&&confirm('ลบงานนี้ถาวร? (ถ้างานเสร็จแล้ว ให้กด "ปิดงาน" แทนเพื่อเก็บไว้ในประวัติ)')){S.tasks=S.tasks.filter(t=>t.id!==editing.id);$('jobDlg').close();toast('ลบแล้ว');save()}};
 $('closeJobBtn').onclick=()=>askClose(editing);
 $('closeCancel').onclick=()=>$('closeDlg').close();
 $('closeOk').onclick=doClose;
-$('shareBtn').onclick=()=>{updatePreview();$('shareDlg').showModal()};
-['sAll','sLate','sClosed','sNote','sBud','sPpl'].forEach(i=>$(i).onchange=updatePreview);
+$('shareBtn').onclick=()=>{monthOptions();try{$('sReporter').value=localStorage.getItem('mech-maint-reporter')||''}catch(e){}updatePreview();$('shareDlg').showModal()};
+$('sReporter').oninput=()=>{try{localStorage.setItem('mech-maint-reporter',$('sReporter').value)}catch(e){}updatePreview()};
+$('modeSeg').onclick=e=>{const b=e.target.closest('[data-m]');if(!b)return;shareMode=b.dataset.m;
+  [...$('modeSeg').children].forEach(x=>x.classList.toggle('on',x===b));$('mOpts').hidden=shareMode!=='month';$('dOpts').hidden=shareMode==='month';updatePreview()};
+['sIssue','sClosed','sNext','sBud','sPpl','sAll','mMonth','mOT','mTest','mOpen','mList','mPerson','mBud'].forEach(i=>$(i).onchange=updatePreview);
 $('shareCancel').onclick=()=>$('shareDlg').close();
 $('copyBtn').onclick=()=>copyText(buildSummary());
 $('exportBtn').onclick=exportData;
@@ -674,7 +1104,7 @@ $('shareFile').onclick=shareBackup;
 $('importBtn').onclick=()=>$('importFile').click();
 $('importFile').onchange=e=>{if(e.target.files[0])importData(e.target.files[0]);e.target.value=''};
 
-load();render();connectDb();
+load();setView(view);connectDb();
 </script>
 <script>
 if('serviceWorker' in navigator&&location.protocol==='https:'){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
