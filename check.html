@@ -94,6 +94,15 @@ button{cursor:pointer}
 .csseg button:last-child{border-right:0}
 .csseg button.on{background:var(--steel);color:#fff;font-weight:600}
 .cszoom{font-size:12px;padding:5px 9px}
+.a4.d1{font-size:8pt}.a4.d1 .bd td{padding:0.6mm 1.3mm}.a4.d1 .nt td{height:12mm}.a4.d1 .sg td{height:18mm}.a4.d1 .sg .nm{margin:4.5mm 0 1mm}
+.a4.d2{font-size:7.3pt;line-height:1.18}.a4.d2 .bd td{padding:0.35mm 1.2mm}.a4.d2 .bd th{padding:0.5mm 1.2mm}.a4.d2 .hd td,.a4.d2 .hd2 td{padding:0.5mm 1.2mm}.a4.d2 .nt td{height:10mm}.a4.d2 .sg td{height:16mm}.a4.d2 .sg .nm{margin:4mm 0 1mm}
+.a4 .bd tr.skip td{color:#999;background:#FAFAFA}
+.a4 .nf{font-size:7pt;color:#444;margin-top:0.8mm}
+.csed .big.b3{grid-template-columns:1fr 1fr 1fr}
+.csed .big button.on.nac{background:var(--ink2);border-color:var(--ink2);color:#fff}
+.csed .u3{display:flex;align-items:center;gap:8px;width:100%}
+.csed .u3>b{width:28px;flex:none}
+.csed .erow label{display:block}
 
 </style>
 </head>
@@ -106,110 +115,261 @@ button{cursor:pointer}
 <div class="bar" id="bar"><button class="btn" id="pdf">PDF</button><button class="btn primary" id="send">ส่งผลการตรวจ</button></div>
 <div class="toast" id="toast"></div>
 <script>
+/* ===== แบบฟอร์ม Inspection sheet ทั้งหมด =====
+   ชนิดหัวข้อ: chk = ปกติ/ผิดปกติ/ไม่มี · num = ตัวเลขตัดสินอัตโนมัติ · man = ตัวเลข/ข้อความ + ผู้ตรวจตัดสิน
+   rec = บันทึกค่าอย่างเดียว · opt = เลือกตัวเลือก · chk3/num3 = แยก U1/U2/U3 · fre = แถวว่างให้กรอกเอง */
+const _c=(n,d,ds,hint)=>({n,d,t:'chk',ds:ds||'',hint});
+const _n=(n,d,ds,u,o)=>Object.assign({n,d,t:'num',ds,u},o);
+const _m=(n,d,ds,u,nom,hint)=>({n,d,t:'man',ds:ds||'',u:u||'',nom,hint});
+const _r=(n,d,u,hint)=>({n,d,t:'rec',ds:'',u:u||'',hint});
+const _o=(n,d,opts)=>({n,d,t:'opt',ds:'',opts});
+const _c3=(n,d,ds)=>({n,d,t:'chk3',ds:ds||''});
+const _n3=(n,d,ds,u,o)=>Object.assign({n,d,t:'num3',ds,u},o);
+const _app=(nom)=>({nom,min:+(nom*0.9).toFixed(3),max:+(nom*1.1).toFixed(3),approx:1});
+const HDR={docLp:'ARPB2MLP #1',planLp:'ARPB2M13LP01'};
+const CS_TPL=[
+{key:'HT',match:/hydraulic\s*turbine/i,title:'Inspection Sheet : Hydraulic Turbine',docNo:'FR-HY-RPB-9845-22-12-001',taskList:'ARPB2MME #1',plan:'ARPB2M0_ME01',units:['#1','#2','#3'],
+ sections:[
+  ['1. Turbine',[_c('1.1','Eccentric pin no.1-24 visual check'),_c('1.2','Shear pin no.1-24 visual check'),_c('1.3','Guide & Thrust stripe wearing','No wearing sign','ไม่พบผงใต้ Operating ring'),_c('1.4','Guide vane key no.1-24 visual check')]],
+  ['2. Oil reservoir',[_n('2.1','Oil sump level','± 5 mm','mm',{nom:0,min:-5,max:5}),_c('2.2','Oil leakage (at joining point)')]],
+  ['3. Lube oil pump',[_c('3.1','Suction filter indicator','Not red'),_n('3.2','Lube oil pump no.1 press.','4-7 kgf/cm²','kgf/cm²',{nom:5.5,min:4,max:7}),_n('3.4','Lube oil pump no.1 flowrate','~ 9 l/min','l/min',_app(9)),
+    _n('3.5','Lube oil pump no.2 press.','4-7 kgf/cm²','kgf/cm²',{nom:5.5,min:4,max:7}),_n('3.7','Lube oil pump no.2 flowrate','~ 9 l/min','l/min',_app(9))]],
+  ['4. Turbine oil cooler',[_n('4.1','CW flowrate','> 60 l/min','l/min',{nom:60,min:60,gt:1})]],
+  ['5. Turbine shaft seal',[_n('5.1','Turbine shaft seal c.w. pressure','> 50 mAq','mAq',{nom:50,min:50,gt:1}),_c('5.2','Sediment in sand separator','Not high'),_c('5.3','Shaft seal c.w. strainer no.1 (Manual)'),_c('5.4','Shaft seal c.w. strainer no.2 (Manual)'),_c('5.5','Motorize drain valve (Manual open-close)')]],
+  ['6. Turbine runner seal',[_n('6.1','C.W flowrate','300 l/min','l/min',_app(300)),_c('6.2','No leakage in piping system','Visual'),_m('6.3','Pressure for runner seal (W079)','~ waterhead','')]],
+  ['7. Jet pump',[_c('7.1','Jet valve oil leakage (visual check)','No leakage'),_c('7.2','Jet valve water leakage (visual check)','No leakage'),_c('7.3','Air check valve','No leakage'),
+    _n('7.4','Jet valve opening time','9 ± 2 sec','sec',{nom:9,min:7,max:11}),_n('7.5','Jet valve closing time','9 ± 2 sec','sec',{nom:9,min:7,max:11})]]]},
+{key:'GEN',match:x=>/generator\s*pm\s*outage|unit\s*protection.*co2/i.test(x.desc||''),title:'Inspection Sheet : Generator',docNo:'FR-HY-RPB-9845-22-12-002',taskList:'ARPB2MMK #1',plan:'ARPB2M0_MK01',units:['#1','#2','#3'],
+ sections:[
+  ['1. Generator',[_c('1.1','Upper bracket','No loosen part'),_c('1.2','Lower bracket','No loosen part'),_c('1.3','Collector shaft','No loosen part')]],
+  ['2. Generator oil reservoir',[_n('2.1','Oil sump level','0 ± 5 mm','mm',{nom:0,min:-5,max:5}),_c('2.2','Oil leakage at oil pan and joining point')]],
+  ['3. Generator lube oil pump',[_m('3.1','Lube oil pump no.1 press.','1.2 kgf/cm²','kgf/cm²',1.2),_m('3.2','Lube oil pump no.1 flowrate','400 l/min','l/min',400),_m('3.3','Lube oil pump no.2 press.','1.2 kgf/cm²','kgf/cm²',1.2),_m('3.4','Lube oil pump no.2 flowrate','400 l/min','l/min',400),_c('3.5','Oil leakage (visual check)','No leakage')]],
+  ['4. Generator brake system',[_c('4.1','Brake ring visual check','No loosen part'),_n('4.2','Brake shoes air pressure (No-operate)','12-15 kgf/cm²','kgf/cm²',{nom:13.5,min:12,max:15}),_c('4.3','Brake operate (6 ea working well)','6 ea OK'),_c('4.4','Air leakage check','No leakage')]],
+  ['5. Air cooler',[_n('5.1','Air cooler C.W. flowrate','> 4000 l/min','l/min',{nom:4000,min:4000,gt:1}),_c('5.2','Air cooler leakage (visual check)','No leakage'),_c('5.3','Air cooler auto back wash (Manual operate)','OK')]],
+  ['6. Generator oil cooler',[_n('6.1','Oil cooler C.W. flowrate','> 1000 l/min','l/min',{nom:1000,min:1000,gt:1}),_c('6.2','Water leakage (visual check)','No leakage'),_c('6.3','Oil cooler auto back wash operation (Manual)')]],
+  ['7. Generator high pressure oil lifting system',[_c('7.1','Suction filter indicator','Not red'),_c('7.2','Delivery filter indicator','Not red'),_n('7.3','H.P. oil lifting pump no.1 oil press.','~ 65 kgf/cm²','kgf/cm²',_app(65)),
+    _n('7.4','H.P. oil lifting pump no.1 lift up distance','≥ 0.07 mm','mm',{nom:0.07,min:0.07}),_n('7.6','H.P. oil lifting pump no.2 oil press.','~ 65 kgf/cm²','kgf/cm²',_app(65)),_n('7.7','H.P. oil lifting pump no.2 lift up distance','≥ 0.07 mm','mm',{nom:0.07,min:0.07})]],
+  ['8. Generator CO2 fire fighting',[_n('8.1','Initial CO2 weight','≥ 1600 kg','kg',{nom:1600,min:1600}),_c('8.2','Initial CO2 general condition (visual check)'),_n('8.3','Extend CO2 weight','≥ 2275 kg','kg',{nom:2275,min:2275}),_c('8.4','Extend CO2 general condition (visual check)'),_c('8.5','Reserve CO2 condition (visual check)')]]]},
+{key:'GOV',match:/governor/i,title:'Inspection Sheet : Turbine Control',docNo:'FR-HY-RPB-QSHE-22-12-003',taskList:'ARPB2MME #5',plan:'ARPB2M0_ME05',units:['#1','#2','#3'],
+ sections:[
+  ['1. Governor oil sump',[_n('1.1','Oil sump level (×10 cm)','(-0.7) ถึง (+0.3)','×10 cm',{nom:0,min:-0.7,max:0.3}),_n('1.2','Oil temp','< 45 °C','°C',{nom:45,max:45,lt:1}),_c('1.3','Oil leakage','No leakage'),_n('1.4','Water detector indicator','< 70 µA','µA',{nom:70,max:70,lt:1})]],
+  ['2. Governor actuator & solenoid valve in cabinet',[_n('2.1','Actuator oil pressure','35 kgf/cm²','kgf/cm²',{nom:35,min:34,hint:'ถ้าต่ำกว่า 34 แสดงว่า Filter ตัน ให้สลับใช้อีกตัว'}),_c('2.2','Oil leakage all control valve (visual check)','No leakage')]],
+  ['3. Governor oil pump',[_m('3.1','Pump no.1 unloader start','47 kgf/cm²','kgf/cm²',47),_m('3.2','Pump no.1 unloader stop','50 kgf/cm²','kgf/cm²',50),_m('3.3','Pump no.1 capacity','340 l/min','l/min',340,'test before MI'),_c('3.4','Pump no.1 coupling bush condition','OK','เสียงเงียบ'),
+    _m('3.5','Pump no.2 unloader start','47 kgf/cm²','kgf/cm²',47),_m('3.6','Pump no.2 unloader stop','50 kgf/cm²','kgf/cm²',50),_m('3.7','Pump no.2 capacity','340 l/min','l/min',340,'test before MI'),_c('3.8','Pump no.2 coupling bush condition','OK','เสียงเงียบ'),
+    _m('3.9','Stand-by pump (63Q4) start/stop','…/49.5 kgf/cm²','kgf/cm²'),_c('3.10','Clean up oil filter of unloader 2 set','Clean')]],
+  ['5. Leakage tank',[_r('5.1','Oil level','','ถ้ามากกว่าเกณฑ์ ให้ Operate Pump'),_c('5.2','Oil leakage (visual check)','No leakage')]],
+  ['6. Pressure tank',[_n('6.1','Pressure','47-50 kgf/cm²','kgf/cm²',{nom:48.5,min:47,max:50}),_n('6.2','Oil level','0-10 cm','cm',{nom:5,min:0,max:10}),_c('6.3','Oil leakage (visual check)','No leakage'),_c('6.4','Air leakage (visual check)','No leakage')]]]},
+{key:'PWS',match:/penst?r?ock\s*pm\s*outage/i,title:'Inspection Sheet : Power Water Supply',docNo:'FR-HY-RPB-9845-22-12-004',taskList:'ARPB2MME #2',plan:'ARPB2M0_ME02',units:['#1','#2','#3'],
+ sections:[
+  ['1. Penstock',[_m('1.1','Penstock pressure','Forebay head'),_c('1.2','Water leakage','/')]],
+  ['2. Spiral case',[_c('2.1','Water leakage (all pipe, valve, manhole)','/')]],
+  ['3. By-pass valve',[_c('3.1','Oil leakage','/'),_c('3.2','Water leakage','/')]],
+  ['4. Main inlet valve',[_c('4.1','Water leakage (all pipe, valve, manhole)','/'),_c('4.3','Inlet valve servomotor (Visual no leak)','/')]],
+  ['5. Water leakage valve',[_c('5.1','Water leakage (Visual)','/')]],
+  ['6. Draft tube',[_c('6.1','Water leakage (Visual lower bush, upper drafttube liner)','/')]]]},
+{key:'MCW',match:/main\s*cooling\s*water/i,title:'Inspection Sheet : Main Cooling Water System',docNo:'FR-HY-RPB-9845-22-12-005',taskList:'ARPB2MPA #1',plan:'ARPB2M0_PA01',units:['#1','#2','#3'],
+ sections:[
+  ['1. Main cooling water auto strainer',[_o('1.0','Strainer no.',['1','2']),_c('1.1','Water leakage','Visual'),_r('1.2','Inlet pressure (W127)','mAq'),_r('1.3','Outlet pressure (W043)','mAq')]],
+  ['2. Main cooling water valve',[_c('2.1','Water leakage','Visual')]],
+  ['3. Main cooling water reducing valve',[_n('3.1','Outlet pressure (W148)','50-55 mAq','mAq',{nom:52.5,min:50,max:55,hint:'ถ้าไม่ได้ ให้ล้าง filter และปรับ Pilot valve'}),_c('3.2','Water leakage','Visual')]],
+  ['4. Main cooling water relief valve',[_c('4.1','Water leakage','Visual')]]]},
+{key:'HPA',match:/high\s*pressure\s*air/i,title:'Inspection Sheet : High Pressure Air Compressor',docNo:'FR-HY-RPB-9845-22-12-006',taskList:'ARPB2MQF #1',plan:'ARPB2M13QF01',units:['#13'],equip:1,
+ sections:[1,2,3].map(k=>[`${k}. High pressure air compressor no.${k}`,[_c(`${k}.1`,'Lubricating oil level','ระดับตาม side glass'),_c(`${k}.2`,'Belt','','ความตึง ไม่ขาด'),_c(`${k}.3`,'Air suction filter','','สะอาด ไม่มีฝุ่น'),_n(`${k}.4`,'Pressure','52-58 kgf/cm²','kgf/cm²',{nom:55,min:52,max:58})]]).concat([
+  ['4. High pressure air tank',[_c('4.1','Air tank no.1 condition (Visual)'),_c('4.2','Air tank no.2 condition (Visual)'),_c('4.3','Air tank water drain (Visual)'),_n('4.4','Air tank pressure','52-58 kgf/cm²','kgf/cm²',{nom:55,min:52,max:58})]],
+  ['5. High pressure air compressor operation',[_m('5.1','Main comp. start/stop (63A2)','52/58 kgf/cm²'),_m('5.2','Stand-by comp. start/stop (63A3)','51/56 kgf/cm²')]]])},
+{key:'LPA',match:/low\s*pressure\s*air/i,title:'Inspection Sheet : Low Pressure Air Compressor',docNo:'FR-HY-RPB-9845-22-12-007',taskList:'ARPB2MQF #1',plan:'ARPB2M13QF01',units:['#13'],equip:1,
+ sections:[['a','1'],['b','2']].map(([s,k])=>[`${k}. Low pressure air compressor no.${k}`,[_c(`${k}.1`,'Lubricating oil level','ระดับ Side glass'),_c(`${k}.2`,'Belt','','ตึง ไม่ฉีกขาด'),_c(`${k}.3`,`Air suction oil bath air cleaner (401${s})`,'','สะอาด ไม่มีฝุ่นเกาะ'),_r(`${k}.4`,`1st stage air pressure (หลัง V410${s})`,'kgf/cm²'),_r(`${k}.5`,`2nd stage air pressure (หลัง V411${s})`,'kgf/cm²')]]).concat([
+  ['3. Low pressure air tank',[_c('3.1','Air tank visual'),_c('3.2','Air tank water drain','','Manual drain จน Pump start'),_n('3.3','Air tank pressure','12-15 kgf/cm²','kgf/cm²',{nom:13.5,min:12,max:15})]],
+  ['4. Low pressure air compressor operation',[_m('4.1','Main comp. start/stop (63AC1)','12/15 kgf/cm²'),_m('4.2','Stand-by comp. start/stop (63AC3)','10/13 kgf/cm²')]]])},
+{key:'PIN',match:/intake\s*&\s*penstock/i,title:'Inspection Sheet : Power Intake',docNo:'FR-HY-RPB-9845-22-12-008',taskList:HDR.docLp,plan:HDR.planLp,units:['#13'],equip:1,
+ sections:[
+  ['1. Oil sump tank',[_c('1.1','Oil level'),_c('1.2','Oil leakage'),_c('1.3','Oil filter')]],
+  ['2. Recovering system',[_m('2.1','1st gate restoration stroke (1S3)','100 mm','mm',100),_r('2.2','1st gate restoration pressure'),_r('2.3','1st gate restoration counter'),_m('2.4','2nd gate restoration stroke (2S3)','100 mm','mm',100),_r('2.5','2nd gate restoration pressure'),_r('2.6','2nd gate restoration counter')]],
+  ['3. Accumulator system',[_n('3.1','Accu. oil pressure (V.72)','> 80 bar','bar',{nom:80,min:80,gt:1})]],
+  ['4. Intake air compressor',[_c('4.1','Oil level'),_n('4.2','Air pressure','8-10.5 kg/cm²','kg/cm²',{nom:9.25,min:8,max:10.5}),_m('4.3','Start pressure','8 kg/cm²','kg/cm²',8),_m('4.4','Stop pressure','10.5 kg/cm²','kg/cm²',10.5)]],
+  ['5. Water supply to resettlement area (ส่งน้ำไปหมู่บ้าน)',[_c('5.1','Stop valve level'),_c('5.2','Motor drive valve level'),_c('5.3','Drainage pump operation'),_c('5.4','Main pump operation'),_c('5.5','Stand by pump operation')]],
+  ['6. Maintenance room (Gate support, Chain hoist, Turn buckle)',[_c('6.1','Rust removal (ทำความสะอาด ฝุ่น คราบต่างๆ)'),_c('6.2','Lubricate all joint & connector (ใส่สารหล่อลื่น)')]]]},
+{key:'SPW',match:/spill-?\s*way/i,title:'Inspection Sheet : Spillway',docNo:'FR-HY-RPB-9845-22-12-009',taskList:'ARPB2MLR #1',plan:'ARPB2M13LR01',units:['#00'],equip:1,
+ sections:[1,2,3,4].map(k=>[`${k}. Spillway radial gate no.${k}`,[_c(`${k}.1`,'Lube oil','Drain water'),_c(`${k}.2`,'Gear (lube oil level)'),_c(`${k}.3`,'Wire rope','','ขาดไม่เกิน 3 เส้นในช่วงเกลียว'),_c(`${k}.4`,'Gate seal'),_c(`${k}.5`,'Water leakage')]]).concat([
+  ['5. Emergency diesel engine',[_c('5.1','Lube oil','Std level'),_r('5.2','Fuel oil level','%'),_c('5.3','Air filter','Clean'),_r('5.4','Operation speed','rpm'),_r('5.5','Operation temp','°C')]],
+  ['6. Gasoline standby unit',[_c('6.1','Lube oil'),_c('6.2','Fuel oil'),_c('6.3','Air filter'),_c('6.4','Operation'),_c('6.5','Drive shaft'),_c('6.6','Hydraulic hose')]],
+  ['7. Spillway gallery (PM ประจำปี)',[_c('7.1','By-pass valve')]]])},
+{key:'LLO',match:/low\s*level\s*outlet/i,title:'Inspection Sheet : Low Level Outlet',docNo:'FR-HY-RPB-9845-22-12-010',taskList:'ARPB2MLR #3',plan:'ARPB2M13LR03',units:['#00'],equip:1,
+ sections:[
+  ['1. Low level outlet power unit',[_c('1.1','Oil level'),_c('1.2','Oil filter'),_c('1.3','Oil pump 12M1 operation'),_r('1.4','Oil pump 12M1 noload pressure','bar'),_r('1.5','Oil pump 12M1 noload current','A'),_c('1.6','Oil pump 12M2 operation'),_r('1.7','Oil pump 12M2 noload pressure','bar'),_r('1.8','Oil pump 12M2 noload current','A'),_c('1.9','ชุดดูดความชื้น (Silica gel)','สีน้ำเงินเข้ม'),_c('1.10','Oil leakage')]],
+  ['2. Locking device',[_c('2.1','Locked position'),_r('2.2','Oil pump pressure','bar'),_r('2.3','Oil pump current','A'),_c('2.4','Unlocked position'),_r('2.5','Oil pump pressure','bar'),_r('2.6','Oil pump current','A'),_r('2.7','Stroke left','mm'),_r('2.8','Stroke right','mm'),_c('2.9','Oil leakage')]],
+  ['3. Maintenance gate',[_r('3.1','Closing time','min'),_r('3.2','Closing pressure','bar'),_r('3.3','Closing current','A'),_r('3.4','Opening time','min'),_r('3.5','Opening pressure','bar'),_r('3.6','Opening current','A'),_c('3.7','Oil leakage'),_c('3.8','Water leakage')]],
+  ['4. Radial gate',[_r('4.1','Closing time','min'),_r('4.2','Closing pressure','bar'),_r('4.3','Closing current','A'),_r('4.4','Opening time','min'),_r('4.5','Opening pressure','bar'),_r('4.6','Opening current','A'),_c('4.7','Oil leakage'),_c('4.8','Water leakage')]],
+  ['5. By-pass valve',[_c('5.1','By-pass valve'),_c('5.2','Air vent valve'),_r('5.3','Balance pressure','bar'),_c('5.4','Water leakage')]]]},
+{key:'IRR',match:/irrigation\s*outlet/i,title:'Inspection Sheet : Irrigation Outlet',docNo:'FR-HY-RPB-9845-22-12-011',taskList:'ARPB2MLR #2',plan:'ARPB2M13LR02',units:['#00'],equip:1,
+ sections:[
+  ['1. Irrigation outlet power unit',[_c('1.1','Oil level'),_c('1.2','Oil filter'),_c('1.3','Oil pump M1 operation'),_n('1.4','Oil pump M1 noload pressure','110 ± 5 bar','bar',{nom:110,min:105,max:115}),_r('1.5','Oil pump M1 noload current','A'),_c('1.6','Oil pump M2 operation'),_n('1.7','Oil pump M2 noload pressure','110 ± 5 bar','bar',{nom:110,min:105,max:115}),_r('1.8','Oil pump M2 noload current','A'),_c('1.9','ชุดดูดความชื้น (Silica gel)','สีน้ำเงินเข้ม'),_c('1.10','Oil leakage')]],
+  ['2. Ring follower gate',[_m('2.1','Closing time','1.475 min','min',1.475),_r('2.2','Closing pressure','bar'),_r('2.3','Closing current','A'),_m('2.4','Opening time','1.35 min','min',1.35),_r('2.5','Opening pressure','bar'),_r('2.6','Opening current','A'),_c('2.7','Oil leakage'),_c('2.8','Water leakage')]],
+  ['3. Hollow jet valve',[_m('3.1','Closing time','0.5 min','min',0.5),_m('3.2','Closing pressure','80 bar','bar',80),_r('3.3','Closing current','A'),_m('3.4','Opening time','0.5 min','min',0.5),_r('3.5','Opening pressure','bar'),_r('3.6','Opening current','A'),_c('3.7','Oil leakage'),_c('3.8','Water leakage')]],
+  ['4. By-pass valve',[_c('4.1','By-pass valve'),_r('4.2','Balance pressure','bar'),_c('4.3','Water leakage')]],
+  ['5. Other',[_c('5.1','Hand pump'),_c('5.2','Submersible pump 1 (Control power unit)'),_c('5.3','Stoplog'),_c('5.4','Stoplog chain hoist'),_c('5.5','Submersible pump 2 (Stoplog)'),_c('5.6','Ventilation 1 (Air in)'),_c('5.7','Ventilation 2 (Air out)')]]]},
+{key:'EDG',match:/^emergency\s*diesel\s*engine/i,title:'Inspection Sheet : P/H Emergency Diesel',docNo:'FR-HY-RPB-9845-22-12-012',taskList:HDR.docLp,plan:HDR.planLp,units:['#00'],intervals:['1M','6M'],
+ noteFixed:'Fuel/water separator filter, Lube oil filter, Water filter, ES complete, Cummins oil เปลี่ยนปีละ 1 ครั้ง',
+ sections:[
+  ['Check before start (1 day before start)',[_r('1','Operated hour','hr'),_n('2.1','Daily fuel tank – oil level','> 500 litres','litres',{nom:500,min:500,gt:1,hint:'น้อยกว่า 500 litres ให้เติม'}),Object.assign(_c('2.2','Daily fuel tank – drain','เปิดวาล์ว Drain','Drain ตะกอนและน้ำใต้ถัง'),{only:'6M'}),
+    _c('3','Fuel filter 1 ea (FS 19765)','Filter ไม่ดำ'),_c('4','Fuel/water separator 2 ea','เปิดวาล์ว Drain','Drain น้ำ')]],
+  ['5. Engine',[_c('5.1','Air cleaner unobstructed','ไส้กรองอากาศสะอาด'),_c('5.2','Water coolant level','น้ำหล่อเย็นระดับปกติ'),_c('5.3','Radiator leakage','ข้อต่อ หม้อน้ำไม่รั่ว'),_c('5.4','Proper engine oil level','น้ำมันเครื่องระดับปกติ'),_c('5.5','Fan belt tension','ความตึงสายพานปกติ'),_c('5.6','No leaking anywhere','ไม่มีจุดรั่ว')]],
+  ['Check during running 10 minutes (Operator test)',[_c('6.1','Fuel pump – operate','เสียงปกติ'),_c('6.2','Fuel pump – leakage','ไม่มีจุดรั่ว'),_n('7','Water coolant temperature','< 85 °C','°C',{nom:85,max:85,lt:1}),
+    _n('8.1','Oil pressure','350-650 kPa','kPa',{nom:500,min:350,max:650}),_m('8.2','Run speed','1500 rpm','rpm',1500),_m('9','Frequency','50 Hz','Hz',50),_c('10','Clear exhaust smoke','ควันไม่ดำ ควันไม่มาก')]]]},
+{key:'PHAC',match:x=>/chiller|fan\s*coil|air\s*handling|air\s*condition/i.test(x.desc||'')&&!/LNG/.test(x.location||''),title:'Inspection Sheet : P/H Air Condition System',docNo:'FR-HY-RPB-9845-22-12-013',taskList:HDR.docLp,plan:HDR.planLp,units:['#00'],equip:1,
+ fields:[['chiller','Chiller No.'],['ahu','Air handling unit No.']],
+ sections:[
+  ['1. Evaporator',[_r('1.1','Evap entering water temp.','°F'),_r('1.2','Evap leaving water temp.','°F'),_r('1.3','Evap sat rfgt temp.','°F'),_r('1.4','Evap rfgt pressure','psi'),_r('1.5','Evap approach temp.','°F'),_r('1.6','Expansion valve position','%')]],
+  ['2. Condenser',[_r('2.1','Cond. entering water temp.','°F'),_r('2.2','Cond. leaving water temp.','°F'),_r('2.3','Cond. sat rfgt temp.','°F'),_r('2.4','Cond. rfgt pressure','psi'),_n('2.5','Cond. approach temp.','< 10 °F','°F',{nom:10,max:10,lt:1})]],
+  ['3. Compressor',[_r('3.1','System rfgt diff pressure','psid'),_r('3.2','Compressor rfgt discharge temp.','°F'),_r('3.3','Discharge superheat','°F')]],
+  ['4. Air handling unit',[_r('4.1','Entering water temp.','°C'),_r('4.2','Leaving water temp.','°C'),_c('4.3','Filter (ล้างปีละ 1 ครั้ง ช่วงเดือน มิ.ย.)','Clean','Clean 1 time/year'),_c('4.4','Inspect fresh air roll filter','Clean','ถ้าสกปรกให้หมุน Roll')]],
+  ['5. Fan coil unit 1-20',[_c('5.1','Filter (จ้างบริษัทล้าง ปีละ 1 ครั้ง ช่วงเดือน ก.ค.)'),_c('5.2','Leakage')]],
+  ['6. Fresh air intake',[_c('6.1','Fresh air intake (Clean up)','Clean','Clean 1 time/year')]],
+  ['7. Chill water pump (No.1-5)',[_c('7.1','Visual','OK','เสียงปกติ น้ำไม่รั่วซึม'),_c('7.2','อัดจารบี','หมุนลื่น/เสียงปกติ','ผิดปกติให้อัดจารบี')]]]},
+{key:'SWYAC',match:x=>/chiller/i.test(x.desc||'')&&/LNG/.test(x.location||''),title:'Inspection Sheet : SWY Air Condition',docNo:'FR-HY-RPB-9845-22-12-012',taskList:HDR.docLp,plan:HDR.planLp,units:['#00'],equip:1,
+ sections:[['รายการตรวจ (กรอกหัวข้อเอง)',Array.from({length:20},(_,i)=>({n:String(i+1),d:'',t:'fre',ds:''}))]]},
+{key:'FFS',match:/service\s*water\s*system|oil\s*treatment\s*room\s*fire/i,title:'Inspection Sheet : Fire Fighting System & Service Water',docNo:'FR-HY-RPB-9845-22-12-015',taskList:HDR.docLp,plan:HDR.planLp,units:['#00'],equip:1,
+ noteFixed:'ข้อ 2 Unit protection fire fighting อยู่ใน Inspection sheet ของ Generator · ข้อ 4 PH fire hydrant system อยู่ใน Operator task',
+ sections:[
+  ['1. Main transformer fire fighting (Floor 7) – U1/U2/U3',[_c3('1.1','Fire detector head (Visual)','/'),_c3('1.2','Water spray nozzle (Visual)','/'),_c3('1.3','Deluge control valve (Visual)','/'),_c3('1.5','Solenoid valve (3.1, 3.2, 3.3)','/'),_c3('1.6','Air pipe (Visual)','/'),_c3('1.7','Water pipe (Visual)','/'),
+    _n3('1.8','Air pressure','4-6 kgf/cm²','kgf/cm²',{nom:5,min:4,max:6}),_n('1.9','Air receiver pressure','4-6 kgf/cm²','kgf/cm²',{nom:5,min:4,max:6}),_c('1.10','Air receiver tank (Visual)','/')]],
+  ['3. Oil treatment fire fighting (Floor 1)',[_c('3.1','Sprinkler head','/'),_c('3.2','Water pipe','/'),_c('3.3','CO2 pipe nozzle','/'),_c('3.4','Leakage','/')]],
+  ['5. Air tank and air water tank (Floor 1)',[_c('5.1','Air tank (Visual)','/'),_c('5.2','Safety valve (Visual)','/'),_c('5.3','All gate valve & globe valve (Visual)','/'),_n('5.4','Pressure gauge air water tank','7-12 kgf/cm²','kgf/cm²',{nom:9.5,min:7,max:12}),_c('5.5','Filling pump – bearing oil level','/','ถ้าน้ำมันพร่อง ให้เติมจนถึงระดับ')]],
+  ['6. Fire fighting system',[_n('6.1','Pressure different of auto strainer (Working)','< 2 kgf/cm²','kgf/cm²',{nom:2,max:2,lt:1}),_c('6.2','Fire fighting pump (Visual check)','/'),_c('6.3','Jockey pump (Visual check)','/')]],
+  ['7. Service water floor 1',[_n('7.1','Pressure different of auto strainer (Working)','< 2 kgf/cm²','kgf/cm²',{nom:2,max:2,lt:1}),_c('7.2','Sand separator visual check (Leak)'),_c('7.3','Service water pump no.1 (Visual check)'),_c('7.4','Service water pump no.2 (Visual check)')]]]},
+{key:'DRN',match:/drainage|dewatering/i,title:'Inspection Sheet : Drainage & Dewatering System',docNo:'FR-HY-RPB-9845-22-12-019',taskList:HDR.docLp,plan:HDR.planLp,units:['#00'],equip:1,
+ sections:[
+  ['1. Drainage pump no.1',[_m('1.1','Head (kg/cm²)','6 kgf/cm²','kgf/cm²',6,'No operate'),_m('1.2','Cap. (l/s)','15 l/s','l/s',15,'No operate'),_c('1.3','Leakage','No leak')]],
+  ['2. Drainage pump no.2',[_m('2.1','Head (kg/cm²)','6 kgf/cm²','kgf/cm²',6,'No operate'),_m('2.2','Cap. (l/s)','15 l/s','l/s',15,'No operate'),_c('2.3','Leakage','No leak')]],
+  ['3. Dewatering pump no.1',[_m('3.1','Press. (bar)','6 kgf/cm²','kgf/cm²',6,'No operate'),_m('3.2','Cap.','110 l/s','l/s',110,'No operate'),_c('3.3','Leakage','No leak')]],
+  ['4. Dewatering pump no.2',[_m('4.1','Press. (bar)','6 kgf/cm²','kgf/cm²',6,'No operate'),_m('4.2','Cap.','110 l/s','l/s',110,'No operate'),_c('4.3','Leakage','No leak')]],
+  ['5. Skimmer pump (2 ชุด)',[_c('5.1','Test run no.1'),_c('5.2','Test run no.2')]],
+  ['6. ถังดักไขมัน 600 L (2 ถัง)',[_c('6.1','Inspection no.1 (ถ้าไขมันเต็มถังให้ตักไปทิ้ง)'),_c('6.2','Inspection no.2 (ถ้าไขมันเต็มถังให้ตักไปทิ้ง)')]]]},
+{key:'SEW',match:/sewage/i,title:'Inspection Sheet : Sewage System',docNo:'FR-HY-RPB-9845-22-12-021',taskList:HDR.docLp,plan:HDR.planLp,units:['#00'],equip:1,
+ sections:[1,2].map(k=>[`${k}. Pump no.${k}`,[_m(`${k}.1`,'Head (kg/cm²)','4.5 kgf/cm²','kgf/cm²',4.5,'No operate'),_m(`${k}.2`,'Cap. (l/s)','15 l/s','l/s',15,'No operate'),_c(`${k}.3`,'Test run'),_c(`${k}.4`,'Leakage','No leak'),
+   _n(`${k}.5`,'Electric current','50 A','A',{nom:50,min:20,max:50,hint:'< 20 A Suction ตัน, > 50 A Discharge ตัน'})]])}
+];
+CS_TPL.forEach(t=>{t.items=t.sections.flatMap(s=>s[1]);t.units=t.units||['#1','#2','#3'];t.intervals=t.intervals||['4W','3M','6M','1Y']});
+
 /* ===== E-Check sheet core (ใช้ร่วมกันระหว่างแอปและหน้ากรอกของช่าง) ===== */
-const CS_TPL=[{key:'HT',match:/hydraulic\s*turbine/i,title:'Inspection Sheet : Hydraulic Turbine',docNo:'FR-HY-RPB-9845-22-12-001',taskList:'ARPB2MME #1',plan:'ARPB2M0_ME01',
-  sections:[
-  ['1. Turbine',[
-    {n:'1.1',d:'Eccentric pin no.1-24 visual check',t:'chk',ds:''},
-    {n:'1.2',d:'Shear pin no.1-24 visual check',t:'chk',ds:''},
-    {n:'1.3',d:'Guide & Thrust stripe wearing',t:'chk',ds:'No wearing sign',hint:'ไม่พบผงใต้ Operating ring'},
-    {n:'1.4',d:'Guide vane key no.1-24 visual check',t:'chk',ds:''}]],
-  ['2. Oil reservoir',[
-    {n:'2.1',d:'Oil sump level',t:'num',ds:'± 5 mm',u:'mm',nom:0,min:-5,max:5},
-    {n:'2.2',d:'Oil leakage (at joining point)',t:'chk',ds:''}]],
-  ['3. Lube oil pump',[
-    {n:'3.1',d:'Suction filter indicator',t:'chk',ds:'Not red'},
-    {n:'3.2',d:'Lube oil pump no.1 press.',t:'num',ds:'4-7 kgf/cm²',u:'kgf/cm²',nom:5.5,min:4,max:7},
-    {n:'3.4',d:'Lube oil pump no.1 flowrate',t:'num',ds:'~ 9 l/min',u:'l/min',nom:9,min:8.1,max:9.9,approx:1},
-    {n:'3.5',d:'Lube oil pump no.2 press.',t:'num',ds:'4-7 kgf/cm²',u:'kgf/cm²',nom:5.5,min:4,max:7},
-    {n:'3.7',d:'Lube oil pump no.2 flowrate',t:'num',ds:'~ 9 l/min',u:'l/min',nom:9,min:8.1,max:9.9,approx:1}]],
-  ['4. Turbine oil cooler',[
-    {n:'4.1',d:'CW flowrate',t:'num',ds:'> 60 l/min',u:'l/min',nom:60,min:60,gt:1}]],
-  ['5. Turbine shaft seal',[
-    {n:'5.1',d:'Turbine shaft seal c.w. pressure',t:'num',ds:'> 50 mAq',u:'mAq',nom:50,min:50,gt:1},
-    {n:'5.2',d:'Sediment in sand separator',t:'chk',ds:'Not high'},
-    {n:'5.3',d:'Shaft seal c.w. strainer no.1 (Manual)',t:'chk',ds:''},
-    {n:'5.4',d:'Shaft seal c.w. strainer no.2 (Manual)',t:'chk',ds:''},
-    {n:'5.5',d:'Motorize drain valve (Manual open-close)',t:'chk',ds:''}]],
-  ['6. Turbine runner seal',[
-    {n:'6.1',d:'C.W flowrate',t:'num',ds:'300 l/min',u:'l/min',nom:300,min:270,max:330,approx:1},
-    {n:'6.2',d:'No leakage in piping system',t:'chk',ds:'Visual'},
-    {n:'6.3',d:'Pressure for runner seal (W079)',t:'man',ds:'~ waterhead'}]],
-  ['7. Jet pump',[
-    {n:'7.1',d:'Jet valve oil leakage (visual check)',t:'chk',ds:'No leakage'},
-    {n:'7.2',d:'Jet valve water leakage (visual check)',t:'chk',ds:'No leakage'},
-    {n:'7.3',d:'Air check valve',t:'chk',ds:'No leakage'},
-    {n:'7.4',d:'Jet valve opening time',t:'num',ds:'9 ± 2 sec',u:'sec',nom:9,min:7,max:11},
-    {n:'7.5',d:'Jet valve closing time',t:'num',ds:'9 ± 2 sec',u:'sec',nom:9,min:7,max:11}]]
-  ]}];
-CS_TPL.forEach(t=>t.items=t.sections.flatMap(s=>s[1]));
+
 function csE(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function csToday(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function csThD(iso){if(!iso)return '';const [y,m,d]=iso.split('-').map(Number);return new Date(y,m-1,d).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'})}
-function csTplFor(x){return x?CS_TPL.find(t=>t.match.test(x.desc||''))||null:null}
-function csIntervalOf(w){return {4:'4W',12:'3M',24:'6M',48:'1Y'}[Number(w)]||''}
-function csUnitNo(u){const m=String(u||'').match(/Unit\s*(\d)/);return m?'#'+m[1]:''}
-function csNew(x,tpl){return {tpl:tpl.key,date:csToday(),wo:x.wo||'',interval:csIntervalOf(x.freqWeeks),unitStatus:'',unitNo:csUnitNo(x.unit),v:{},note:'',sign:{i:x.owner||'',id:'',a:'',ad:'',g:'',gd:''},savedAt:0,synced:false}}
+
+function csTplFor(x){return x?CS_TPL.find(t=>t.match instanceof RegExp?t.match.test(x.desc||''):t.match(x))||null:null}
+function csIntervalOf(w,tpl){const v={4:'4W',12:'3M',24:'6M',48:'1Y'}[Number(w)]||'';return tpl&&tpl.intervals.indexOf(v)<0?'':v}
+function csUnitNo(u,tpl){if(tpl&&tpl.units.length===1)return tpl.units[0];const m=String(u||'').match(/Unit\s*(\d)/);return m?'#'+m[1]:''}
+function csNew(x,tpl){return {tpl:tpl.key,date:csToday(),wo:x.wo||'',interval:csIntervalOf(x.freqWeeks,tpl),unitStatus:'',equipStatus:'',unitNo:csUnitNo(x.unit,tpl),f:{},v:{},note:'',sign:{i:x.owner||'',id:'',a:'',ad:'',g:'',gd:''},savedAt:0,synced:false}}
 function csNum(v){const n=parseFloat(String(v??'').replace(/,/g,'.').replace(/[^0-9.\-]/g,''));return isFinite(n)?n:NaN}
-function csEval(it,v){
+const CS_U=['u1','u2','u3'];
+function csNumJudge(it,a){const lo=it.min==null||(it.gt?a>it.min:a>=it.min),hi=it.max==null||(it.lt?a<it.max:a<=it.max);
+  let pct=null,lbl='';if(it.nom)pct=(a-it.nom)/it.nom*100;else if(it.max){pct=Math.abs(a)/it.max*100;lbl='พิกัด'}return {ok:lo&&hi,pct,lbl}}
+/** ข้อนี้ไม่ต้องตรวจในรอบนี้ (เช่น เฉพาะรอบ 6M) */
+function csSkip(it,raw){return !!(it.only&&raw.interval&&raw.interval!==it.only)}
+function csEval(it,v,raw){
   v=v||{};
-  if(it.t==='chk'){if(!v.a)return {s:'empty'};return {s:v.a==='OK'?'pass':'fail'}}
-  if(it.t==='man'){if(!v.j)return {s:'empty'};return {s:v.j==='OK'?'pass':'fail'}}
-  if(v.a==null||String(v.a).trim()==='')return {s:'empty'};
-  const a=csNum(v.a);if(isNaN(a))return {s:'bad'};
-  const lo=it.min==null||(it.gt?a>it.min:a>=it.min),hi=it.max==null||a<=it.max;
-  let pct=null,lbl='';
-  if(it.nom)pct=(a-it.nom)/it.nom*100;else if(it.max){pct=Math.abs(a)/it.max*100;lbl='พิกัด'}
-  return {s:lo&&hi?'pass':'fail',a,pct,lbl};
+  if(raw&&csSkip(it,raw))return {s:'skip'};
+  switch(it.t){
+  case 'chk': if(!v.a)return {s:'empty'};return {s:v.a==='OK'?'pass':v.a==='NA'?'na':'fail'};
+  case 'man':{if(!v.j)return {s:'empty'};const a=csNum(v.a);const pct=it.nom&&!isNaN(a)?(a-it.nom)/it.nom*100:null;return {s:v.j==='OK'?'pass':'fail',pct}}
+  case 'rec': return v.a!=null&&String(v.a).trim()!==''?{s:'info'}:{s:'empty'};
+  case 'opt': return v.a?{s:'info'}:{s:'empty'};
+  case 'fre': if(!v.d&&!v.j)return {s:'unused'};if(!v.j)return {s:'empty'};return {s:v.j==='OK'?'pass':v.j==='NA'?'na':'fail'};
+  case 'chk3':{const a=CS_U.map(u=>v[u]);if(a.some(x=>!x))return {s:'empty'};const bad=a.map((x,i)=>x==='NG'?'U'+(i+1):'').filter(Boolean);return {s:bad.length?'fail':'pass',bad}}
+  case 'num3':{const a=CS_U.map(u=>v[u]);if(a.some(x=>x==null||String(x).trim()===''))return {s:'empty'};const n=a.map(csNum);if(n.some(isNaN))return {s:'bad'};
+    const j=n.map(x=>csNumJudge(it,x));const bad=j.map((z,i)=>z.ok?'':'U'+(i+1)).filter(Boolean);return {s:bad.length?'fail':'pass',bad}}
+  default:{
+    if(v.a==null||String(v.a).trim()==='')return {s:'empty'};
+    const a=csNum(v.a);if(isNaN(a))return {s:'bad'};const j=csNumJudge(it,a);return {s:j.ok?'pass':'fail',a,pct:j.pct,lbl:j.lbl}}
+  }
 }
 function csPctText(r){if(r.pct==null||!isFinite(r.pct))return '';if(r.lbl)return `${Math.round(r.pct)}% ${r.lbl}`;const p=Math.round(r.pct*10)/10;return (p>0?'+':'')+p.toFixed(1)+'%'}
-function csStats(tpl,raw){let f=0,p=0,n=0;const fails=[];tpl.items.forEach(it=>{const r=csEval(it,(raw.v||{})[it.n]);if(r.s==='pass'){f++;p++}else if(r.s==='fail'){f++;n++;fails.push(it.n)}});return {total:tpl.items.length,filled:f,pass:p,fail:n,fails}}
-function csActText(it,v){v=v||{};if(it.t==='chk')return v.a==='OK'?'ปกติ':v.a==='NG'?'ผิดปกติ':'';
-  if(it.t==='man')return (v.a||'')+(v.j?` (${v.j==='OK'?'ปกติ':'ผิดปกติ'})`:'');return v.a!=null&&String(v.a)!==''?v.a+' '+(it.u||''):''}
+function csStats(tpl,raw){let tot=0,f=0,p=0,n=0;const fails=[];raw.v=raw.v||{};
+  tpl.items.forEach(it=>{const r=csEval(it,raw.v[it.n],raw);if(r.s==='skip'||r.s==='unused')return;tot++;
+    if(r.s==='pass'){f++;p++}else if(r.s==='fail'){f++;n++;fails.push(it.n)}else if(r.s==='info'||r.s==='na')f++});
+  return {total:tot,filled:f,pass:p,fail:n,fails}}
+const CS_JT={OK:'ปกติ',NG:'ผิดปกติ',NA:'ไม่มี'};
+function csActText(it,v,short){v=v||{};const sym={OK:'✓',NG:'✗',NA:'–'};
+  switch(it.t){
+  case 'chk': return CS_JT[v.a]||'';
+  case 'man': return (v.a?v.a+(it.u&&!isNaN(csNum(v.a))&&!/[a-zA-Z°%]/.test(v.a)?' '+it.u:''):'')+(v.j&&!v.a?CS_JT[v.j]:'');
+  case 'rec': return v.a!=null&&String(v.a)!==''?v.a+(it.u&&!/[a-zA-Z°%]/.test(v.a)?' '+it.u:''):'';
+  case 'opt': return v.a?'No. '+v.a:'';
+  case 'fre': return (v.a||'')+(v.j?(v.a?' ':'')+(short?sym[v.j]:CS_JT[v.j]):'');
+  case 'chk3': return CS_U.some(u=>v[u])?CS_U.map((u,i)=>'U'+(i+1)+(sym[v[u]]||'·')).join(' '):'';
+  case 'num3': return CS_U.some(u=>v[u])?CS_U.map(u=>v[u]||'·').join(' / '):'';
+  default: return v.a!=null&&String(v.a)!==''?v.a+' '+(it.u||''):'';
+  }}
 /** ฟอร์ม A4: mode 'edit' = แตะแก้ได้, 'print' = สำหรับพิมพ์/PDF */
 function csA4HTML(x,tpl,raw,mode,active){
-  const ed=mode==='edit',st=csStats(tpl,raw),box=on=>on?'☑':'☐';
+  const ed=mode==='edit',st=csStats(tpl,raw),box=on=>on?'☑':'☐';raw.f=raw.f||{};
   const ph=t=>ed?`<span class="ph">${t}</span>`:'';
-  const rows=tpl.sections.map(([title,items])=>`<tr class="sec"><td colspan="7">${csE(title)}</td></tr>`+items.map(it=>{const v=raw.v[it.n]||{},r=csEval(it,v),a=csActText(it,v);
-    return `<tr${ed?` data-ed="n:${it.n}"`:''} class="${ed&&r.s==='fail'?'failrow ':''}${active==='n:'+it.n?'act':''}"><td class="c">${it.n}</td><td class="dsc">${csE(it.d)}</td><td class="c">${csE(it.ds)}</td><td class="c">${a?csE(a):ph('แตะเพื่อกรอก')}</td><td class="c">${csPctText(r)}</td><td class="c ${r.s==='fail'?'ng':r.s==='pass'?'okm':''}">${r.s==='pass'?'✓':r.s==='fail'?'✗':''}</td><td class="rm">${csE(v.r||'')}</td></tr>`}).join('')).join('');
+  const nrows=tpl.items.filter(it=>!csSkip(it,raw)).length+tpl.sections.length;
+  const dense=nrows>44?' d2':nrows>34?' d1':'';
+  const rows=tpl.sections.map(([title,items])=>`<tr class="sec"><td colspan="7">${csE(title)}</td></tr>`+items.map(it=>{const v=raw.v[it.n]||{},r=csEval(it,v,raw);
+    if(r.s==='skip')return `<tr class="skip"><td class="c">${csE(it.n)}</td><td class="dsc">${csE(it.d)}</td><td class="c">${csE(it.ds)}</td><td class="c" colspan="3">เฉพาะรอบ ${it.only}</td><td></td></tr>`;
+    const a=csActText(it,v,true),desc=it.t==='fre'?(v.d||''):it.d,ds=it.t==='fre'?(v.ds||''):it.ds;
+    return `<tr${ed?` data-ed="n:${csE(it.n)}"`:''} class="${ed&&r.s==='fail'?'failrow ':''}${active==='n:'+it.n?'act':''}"><td class="c">${csE(it.n)}</td><td class="dsc">${desc?csE(desc):(it.t==='fre'?ph('แตะเพื่อเพิ่มหัวข้อ'):'')}</td><td class="c">${csE(ds)}</td><td class="c">${a?csE(a):(it.t==='fre'&&!desc?'':ph('แตะเพื่อกรอก'))}</td><td class="c">${csPctText(r)}</td><td class="c ${r.s==='fail'?'ng':r.s==='pass'?'okm':''}">${r.s==='pass'?'✓':r.s==='fail'?'✗':r.s==='na'?'–':''}</td><td class="rm">${csE(v.r||'')}</td></tr>`}).join('')).join('');
   const blank=n=>'&nbsp;'.repeat(n);
-  return `<div class="a4${ed?' edit':''}"><table class="hd"><tr><td colspan="4" class="egat"><b>EGAT :</b> Electricity Generating Authority of Thailand ; Rajjaprabha Hydro Power Plant (RPBH)</td></tr>
+  const fixedUnit=tpl.units.length===1;
+  const extra=(tpl.fields||[]).map(([k,l])=>`${csE(l)} : <u>${csE(raw.f[k])||blank(10)}</u>`).join('&nbsp;&nbsp;&nbsp;');
+  return `<div class="a4${ed?' edit':''}${dense}"><table class="hd"><tr><td colspan="4" class="egat"><b>EGAT :</b> Electricity Generating Authority of Thailand ; Rajjaprabha Hydro Power Plant (RPBH)</td></tr>
     <tr><td style="width:22%"><b>System</b> QSHEEnP</td><td style="width:36%">แผนกบำรุงรักษาเครื่องกล</td><td style="width:9%">doc. no.</td><td class="docno">${csE(tpl.docNo)}</td></tr>
     <tr><td>Task list : ${csE(tpl.taskList)}</td><td>Maint. plan : ${csE(tpl.plan)}</td><td colspan="2" class="c"><b>${csE(tpl.title)}</b></td></tr></table>
     <table class="hd2${active==='hdr'?' act':''}"${ed?' data-ed="hdr"':''}><colgroup><col style="width:42%"><col style="width:24%"><col></colgroup>
-    <tr><td>Unit no. : ${['#1','#2','#3'].map(u=>box(raw.unitNo===u)+' '+u).join('&nbsp;&nbsp;')}</td><td>Date : <u>${raw.date?csThD(raw.date):blank(16)}</u></td><td>Work order no. : <u>${csE(raw.wo)||blank(16)}</u></td></tr>
-    <tr><td>PM interval : ${['4W','3M','6M','1Y'].map(u=>box(raw.interval===u)+' '+u).join('&nbsp;&nbsp;')}</td><td colspan="2">Unit status : ${box(raw.unitStatus==='operate')} operate&nbsp;&nbsp;${box(raw.unitStatus==='shut down')} shut down ${ed?'<span class="ph">(แตะเพื่อแก้ส่วนหัว)</span>':''}</td></tr></table>
-    <table class="bd"><thead><tr><th style="width:5%">Item</th><th>Description</th><th style="width:14.5%">Design</th><th style="width:12.5%">Actual</th><th style="width:9.5%">ต่าง</th><th style="width:4.5%">ผล</th><th style="width:17%">Remark</th></tr></thead><tbody>${rows}</tbody></table>
-    <table class="nt"><tr><td${ed?' data-ed="note"':''} class="${active==='note'?'act':''}"><b>สรุปผล:</b> ตรวจ ${st.filled}/${st.total} รายการ · ผ่าน ${st.pass} · ไม่ผ่าน ${st.fail}${st.fail?` (ข้อ ${st.fails.join(', ')})`:''}<br><b>Note:</b> ${raw.note?csE(raw.note).replace(/\n/g,'<br>'):ph('แตะเพื่อเขียนหมายเหตุ')}</td></tr></table>
+    <tr><td>Unit no. : ${fixedUnit?'☑ '+csE(tpl.units[0]):tpl.units.map(u=>box(raw.unitNo===u)+' '+u).join('&nbsp;&nbsp;')}</td><td>Date : <u>${raw.date?csThD(raw.date):blank(16)}</u></td><td>Work order no. : <u>${csE(raw.wo)||blank(16)}</u></td></tr>
+    <tr><td>PM interval : ${tpl.intervals.map(u=>box(raw.interval===u)+' '+u).join('&nbsp;&nbsp;')}</td><td colspan="2">Unit status : ${box(raw.unitStatus==='operate')} operate&nbsp;&nbsp;${box(raw.unitStatus==='shut down')} shut down${tpl.equip?`&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;Equipment status : ${box(raw.equipStatus==='operate')} operate&nbsp;&nbsp;${box(raw.equipStatus==='shut down')} shut down`:''} ${ed?'<span class="ph">(แตะเพื่อแก้ส่วนหัว)</span>':''}</td></tr>
+    ${extra?`<tr><td colspan="3">${extra}</td></tr>`:''}</table>
+    <table class="bd"><thead><tr><th style="width:5%">Item</th><th>Description</th><th style="width:14.5%">Design</th><th style="width:13%">Actual</th><th style="width:9%">ต่าง</th><th style="width:4.5%">ผล</th><th style="width:17%">Remark</th></tr></thead><tbody>${rows}</tbody></table>
+    <table class="nt"><tr><td${ed?' data-ed="note"':''} class="${active==='note'?'act':''}"><b>สรุปผล:</b> ตรวจ ${st.filled}/${st.total} รายการ · ผ่าน ${st.pass} · ไม่ผ่าน ${st.fail}${st.fail?` (ข้อ ${st.fails.join(', ')})`:''}<br><b>Note:</b> ${raw.note?csE(raw.note).replace(/\n/g,'<br>'):ph('แตะเพื่อเขียนหมายเหตุ')}${tpl.noteFixed?`<div class="nf">${csE(tpl.noteFixed)}</div>`:''}</td></tr></table>
     <table class="sg${active==='sign'?' act':''}"${ed?' data-ed="sign"':''}><tr>${[['inspection by','i','id'],['approve by','a','ad'],['register by','g','gd']].map(([l,n,dd])=>`<td><div class="c">${l}</div><div class="c nm">( ${raw.sign[n]?csE(raw.sign[n]):(ed&&n==='i'?'<span class="ph">แตะเพื่อลงชื่อ</span>':blank(30))} )</div><div>date : ${csThD(raw.sign[dd])}</div></td>`).join('')}</tr></table>
     <div class="foot">${csE(x.pmnum||'')} · ${csE(x.desc||'')}${x.planDate?' · แผน '+csThD(x.planDate):''}</div></div>`;
 }
-function csSeg(k,opts,val){return `<span class="csseg">${opts.map(o=>`<button type="button" data-set="${k}" data-val="${csE(o)}" class="${val===o?'on':''}">${o}</button>`).join('')}</span>`}
+function csSeg(k,opts,val){return `<span class="csseg">${opts.map(o=>`<button type="button" data-set="${k}" data-val="${csE(o)}" class="${val===o?'on':''}">${csE(o)}</button>`).join('')}</span>`}
+function csJudge(path,val,withNA){return `<div class="big${withNA?' b3':''}"><button type="button" data-set="${path}" data-val="OK" class="okc ${val==='OK'?'on':''}">ปกติ</button><button type="button" data-set="${path}" data-val="NG" class="ngc ${val==='NG'?'on':''}">ผิดปกติ</button>${withNA?`<button type="button" data-set="${path}" data-val="NA" class="nac ${val==='NA'?'on':''}">ไม่มี</button>`:''}</div>`}
 /** แผงแก้ไขด้านล่าง */
 function csEditorHTML(tpl,raw,target){
+  raw.f=raw.f||{};
   if(target==='hdr')return `<div class="eh"><div class="en">ส่วนหัวแบบฟอร์ม</div></div>
     <div class="g2"><label><span class="lb">Date</span><input type="date" data-k="date" value="${csE(raw.date)}"></label><label><span class="lb">Work order no.</span><input data-k="wo" value="${csE(raw.wo)}"></label></div>
-    <span class="lb">Unit no.</span>${csSeg('unitNo',['#1','#2','#3'],raw.unitNo)}
-    <span class="lb">PM interval</span>${csSeg('interval',['4W','3M','6M','1Y'],raw.interval)}
+    ${tpl.units.length>1?`<span class="lb">Unit no.</span>${csSeg('unitNo',tpl.units,raw.unitNo)}`:''}
+    <span class="lb">PM interval</span>${csSeg('interval',tpl.intervals,raw.interval)}
     <span class="lb">Unit status</span>${csSeg('unitStatus',['operate','shut down'],raw.unitStatus)}
-    <div class="enav" style="grid-template-columns:1fr 1fr"><button class="btn" data-nav="close">ปิด</button><button class="btn primary" data-nav="first">เริ่มกรอกข้อ 1.1 ▶</button></div>`;
+    ${tpl.equip?`<span class="lb">Equipment status</span>${csSeg('equipStatus',['operate','shut down'],raw.equipStatus)}`:''}
+    ${(tpl.fields||[]).map(([k,l])=>`<label><span class="lb">${csE(l)}</span><input data-k="f.${k}" value="${csE(raw.f[k]||'')}"></label>`).join('')}
+    <div class="enav" style="grid-template-columns:1fr 1fr"><button class="btn" data-nav="close">ปิด</button><button class="btn primary" data-nav="first">เริ่มกรอกข้อแรก ▶</button></div>`;
   if(target==='note')return `<div class="en">Note</div><textarea rows="3" data-k="note" style="margin-top:6px">${csE(raw.note)}</textarea><div class="enav" style="grid-template-columns:1fr"><button class="btn primary" data-nav="close">เสร็จ</button></div>`;
   if(target==='sign')return `<div class="en">ลงชื่อ</div>${[['i','id','Inspection by'],['a','ad','Approve by'],['g','gd','Register by']].map(([n,d,l])=>`<div class="g2"><label><span class="lb">${l}</span><input data-k="sign.${n}" value="${csE(raw.sign[n]||'')}"></label><label><span class="lb">Date</span><input type="date" data-k="sign.${d}" value="${csE(raw.sign[d]||'')}"></label></div>`).join('')}<div class="enav" style="grid-template-columns:1fr"><button class="btn primary" data-nav="close">เสร็จ</button></div>`;
-  const n=target.slice(2),i=tpl.items.findIndex(z=>z.n===n),it=tpl.items[i],v=raw.v[n]||{};
+  const n=target.slice(2),items=csVisibleItems(tpl,raw),i=items.findIndex(z=>z.n===n),it=items[i]||tpl.items.find(z=>z.n===n),v=raw.v[n]||{},P=f=>`v|${n}|${f}`;
   let ctl='';
-  if(it.t==='chk')ctl=`<div class="big"><button type="button" data-set="v.${n}.a" data-val="OK" class="okc ${v.a==='OK'?'on':''}">ปกติ</button><button type="button" data-set="v.${n}.a" data-val="NG" class="ngc ${v.a==='NG'?'on':''}">ผิดปกติ</button></div>`;
-  else if(it.t==='man')ctl=`<div class="numw"><input data-k="v.${n}.a" value="${csE(v.a||'')}" placeholder="ค่าที่วัดได้"></div><div class="big"><button type="button" data-set="v.${n}.j" data-val="OK" class="okc ${v.j==='OK'?'on':''}">ปกติ</button><button type="button" data-set="v.${n}.j" data-val="NG" class="ngc ${v.j==='NG'?'on':''}">ผิดปกติ</button></div>`;
-  else ctl=`<div class="numw"><input inputmode="decimal" data-k="v.${n}.a" value="${csE(v.a??'')}" placeholder="Actual" enterkeyhint="next"><em>${csE(it.u)}</em></div>`;
-  return `<div class="eh"><div><div class="en">${it.n} ${csE(it.d)}</div><div class="edz">Design: ${it.ds?csE(it.ds):'–'}${it.approx?' (ยอมรับ ±10%)':''}</div></div><div class="res2" id="csRes">${csResHTML(it,v)}</div></div>
+  switch(it.t){
+  case 'chk': ctl=csJudge(P('a'),v.a,true);break;
+  case 'man': ctl=`<div class="numw"><input data-k="${P('a')}" value="${csE(v.a||'')}" placeholder="ค่าที่วัดได้"${it.nom!=null?' inputmode="decimal"':''}><em>${csE(it.u)}</em></div>${csJudge(P('j'),v.j,false)}`;break;
+  case 'rec': ctl=`<div class="numw"><input data-k="${P('a')}" value="${csE(v.a??'')}" placeholder="ค่าที่วัดได้" enterkeyhint="next"><em>${csE(it.u)}</em></div>`;break;
+  case 'opt': ctl=`<span class="lb">เลือก</span>${csSeg(P('a'),it.opts,v.a)}`;break;
+  case 'chk3': ctl=CS_U.map((u,k)=>`<div class="u3"><b>U${k+1}</b>${csJudge(P(u),v[u],true)}</div>`).join('');break;
+  case 'num3': ctl=CS_U.map((u,k)=>`<div class="numw" style="width:100%"><b style="width:28px">U${k+1}</b><input inputmode="decimal" data-k="${P(u)}" value="${csE(v[u]??'')}" placeholder="Actual"><em>${csE(it.u)}</em></div>`).join('');break;
+  case 'fre': ctl=`<label style="width:100%"><span class="lb">หัวข้อที่ตรวจ</span><input data-k="${P('d')}" value="${csE(v.d||'')}" placeholder="เช่น Compressor no.1 – oil level"></label>
+    <div class="g2" style="width:100%"><label><span class="lb">Design</span><input data-k="${P('ds')}" value="${csE(v.ds||'')}"></label><label><span class="lb">Actual</span><input data-k="${P('a')}" value="${csE(v.a||'')}"></label></div>${csJudge(P('j'),v.j,true)}`;break;
+  default: ctl=`<div class="numw"><input inputmode="decimal" data-k="${P('a')}" value="${csE(v.a??'')}" placeholder="Actual" enterkeyhint="next"><em>${csE(it.u)}</em></div>`;
+  }
+  const last=i===items.length-1;
+  return `<div class="eh"><div><div class="en">${csE(it.n)} ${csE(it.t==='fre'?(v.d||'แถวว่าง'):it.d)}</div><div class="edz">Design: ${it.ds?csE(it.ds):'–'}${it.approx?' (ยอมรับ ±10%)':''}${it.only?' · เฉพาะรอบ '+it.only:''}</div></div><div class="res2" id="csRes">${csResHTML(it,v,raw)}</div></div>
     <div class="erow">${ctl}</div>
-    <input data-k="v.${n}.r" value="${csE(v.r||'')}" placeholder="${it.hint?csE('Remark เช่น '+it.hint):'Remark'}">
-    <div class="enav"><button class="btn" data-nav="prev" ${i===0?'disabled':''}>◀ ก่อนหน้า</button><button class="btn" data-nav="close">ปิด</button><button class="btn primary" data-nav="next">${i===tpl.items.length-1?'ลงชื่อ ▶':'ถัดไป ▶'}</button></div>`;
+    <input data-k="${P('r')}" value="${csE(v.r||'')}" placeholder="${it.hint?csE('Remark เช่น '+it.hint):'Remark'}">
+    <div class="enav"><button class="btn" data-nav="prev" ${i<=0?'disabled':''}>◀ ก่อนหน้า</button><button class="btn" data-nav="close">ปิด</button><button class="btn primary" data-nav="next">${last?'ลงชื่อ ▶':'ถัดไป ▶'}</button></div>`;
 }
-function csResHTML(it,v){const r=csEval(it,v);if(r.s==='empty')return '<span style="color:var(--ink3)">ยังไม่กรอก</span>';if(r.s==='bad')return '<span class="no">ค่าไม่ถูกต้อง</span>';const p=csPctText(r);return `<span class="${r.s==='pass'?'ok':'no'}">${r.s==='pass'?'✓ ผ่าน':'✗ ไม่ผ่าน'}</span>${p?`<br><small>${p}</small>`:''}`}
-function csSetPath(raw,path,val){const p=path.split('.');
-  if(p[0]==='v'){const n=p[1]+'.'+p[2];const o=raw.v[n]=raw.v[n]||{};o[p[3]]=val;return n}
-  let o=raw;for(let i=0;i<p.length-1;i++)o=o[p[i]];o[p[p.length-1]]=val;return null}
-function csGetPath(raw,path){const p=path.split('.');if(p[0]==='v')return (raw.v[p[1]+'.'+p[2]]||{})[p[3]];let o=raw;for(const k of p)o=o==null?o:o[k];return o}
+function csVisibleItems(tpl,raw){return tpl.items.filter(it=>!csSkip(it,raw))}
+function csResHTML(it,v,raw){const r=csEval(it,v,raw);
+  if(r.s==='empty'||r.s==='unused')return '<span style="color:var(--ink3)">ยังไม่กรอก</span>';if(r.s==='bad')return '<span class="no">ค่าไม่ถูกต้อง</span>';
+  if(r.s==='info')return '<span class="ok">บันทึกแล้ว</span>';if(r.s==='na')return '<span style="color:var(--ink2)">ไม่มีรายการนี้</span>';
+  const p=csPctText(r);return `<span class="${r.s==='pass'?'ok':'no'}">${r.s==='pass'?'✓ ผ่าน':'✗ ไม่ผ่าน'}${r.bad&&r.bad.length?' ('+r.bad.join(', ')+')':''}</span>${p?`<br><small>${p}</small>`:''}`}
+function csSetPath(raw,path,val){
+  if(path.startsWith('v|')){const [,n,f]=path.split('|');const o=raw.v[n]=raw.v[n]||{};o[f]=val;return n}
+  const p=path.split('.');let o=raw;for(let i=0;i<p.length-1;i++){o[p[i]]=o[p[i]]||{};o=o[p[i]]}o[p[p.length-1]]=val;return null}
+function csGetPath(raw,path){if(path.startsWith('v|')){const [,n,f]=path.split('|');return (raw.v[n]||{})[f]}const p=path.split('.');let o=raw;for(const k of p)o=o==null?o:o[k];return o}
+
 /** ตัวควบคุมฟอร์ม: ผูก A4 + แผงแก้ไขเข้ากับ element ที่กำหนด */
 function csController(o){
   // o: {page, scroll, ed, tpl, x, raw, onChange, onSum}
@@ -220,20 +380,20 @@ function csController(o){
     o.page.style.width='';const w=o.scroll.clientWidth-16,sc=Math.min(1,w/pg.offsetWidth);o.page.style.transform=`scale(${sc})`;o.page.style.height=(pg.offsetHeight*sc)+'px'};
   C.open=(t)=>{C.active=t;o.ed.innerHTML=csEditorHTML(o.tpl,C.raw,t);o.ed.hidden=false;if(o.onEd)o.onEd(true);C.render();
     requestAnimationFrame(()=>{const el=o.page.querySelector('.act');if(el){const r=el.getBoundingClientRect(),s=o.scroll.getBoundingClientRect();o.scroll.scrollTop+=r.top-s.top-Math.max(20,(s.height)*0.25)}
-      const inp=o.ed.querySelector('input[inputmode],input[data-k^="v."]:not([data-k$=".r"])');if(inp&&t.startsWith('n:')&&o.tpl.items.find(z=>'n:'+z.n===t).t!=='chk')inp.focus({preventScroll:true})})};
+      if(t.startsWith('n:')){const it=o.tpl.items.find(z=>'n:'+z.n===t);if(it&&/^(num|num3|rec|man|fre)$/.test(it.t)){const inp=o.ed.querySelector('input[data-k^="v|"]:not([data-k$="|r"])');if(inp)inp.focus({preventScroll:true})}}})};
   C.close=()=>{C.active=null;o.ed.hidden=true;o.ed.innerHTML='';if(o.onEd)o.onEd(false);C.render()};
-  C.step=(d)=>{const items=o.tpl.items;if(!C.active||!C.active.startsWith('n:')){C.open('n:'+items[0].n);return}
+  C.step=(d)=>{const items=csVisibleItems(o.tpl,C.raw);if(!C.active||!C.active.startsWith('n:')){C.open('n:'+items[0].n);return}
     const i=items.findIndex(z=>'n:'+z.n===C.active)+d;if(i<0)return;if(i>=items.length){C.open('sign');return}C.open('n:'+items[i].n)};
-  C.changed=(n)=>{if(n){const it=o.tpl.items.find(z=>z.n===n);const el=o.ed.querySelector('#csRes');if(el)el.innerHTML=csResHTML(it,C.raw.v[n])}C.render();if(o.onChange)o.onChange(C.raw)};
+  C.changed=(n,k)=>{if(n){const it=o.tpl.items.find(z=>z.n===n);const el=o.ed.querySelector('#csRes');if(el)el.innerHTML=csResHTML(it,C.raw.v[n],C.raw)}C.render();if(k==='interval'&&C.active==='hdr'){/* interval may hide rows */}if(o.onChange)o.onChange(C.raw)};
   o.page.addEventListener('click',e=>{const t=e.target.closest('[data-ed]');if(t)C.open(t.dataset.ed)});
-  o.ed.addEventListener('input',e=>{const k=e.target.dataset.k;if(!k)return;C.changed(csSetPath(C.raw,k,e.target.value))});
+  o.ed.addEventListener('input',e=>{const k=e.target.dataset.k;if(!k)return;C.changed(csSetPath(C.raw,k,e.target.value),k)});
   o.ed.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.tagName==='INPUT'){e.preventDefault();C.step(1)}});
   o.ed.addEventListener('click',e=>{const b=e.target.closest('[data-set]');
     if(b){const k=b.dataset.set,v=b.dataset.val,nv=csGetPath(C.raw,k)===v?'':v;const n=csSetPath(C.raw,k,nv);
-      b.parentElement.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.val===nv));C.changed(n);
-      if(n&&nv&&k.endsWith('.a')&&o.tpl.items.find(z=>z.n===n).t==='chk')setTimeout(()=>C.step(1),180);return}
+      b.parentElement.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.val===nv));C.changed(n,k);
+      if(n&&nv){const it=o.tpl.items.find(z=>z.n===n);const done=it.t==='chk'||it.t==='opt'||(it.t==='chk3'&&CS_U.every(u=>(C.raw.v[n]||{})[u]));if(done)setTimeout(()=>C.step(1),180)}return}
     const nv=e.target.closest('[data-nav]');if(!nv)return;const a=nv.dataset.nav;
-    if(a==='close')C.close();else if(a==='next')C.step(1);else if(a==='prev')C.step(-1);else if(a==='first')C.open('n:'+o.tpl.items[0].n)});
+    if(a==='close')C.close();else if(a==='next')C.step(1);else if(a==='prev')C.step(-1);else if(a==='first')C.open('n:'+csVisibleItems(o.tpl,C.raw)[0].n)});
   window.addEventListener('resize',()=>C.fit());
   return C;
 }
@@ -260,7 +420,7 @@ function csPrintHTML(html){let r=document.getElementById('printRoot');if(!r){r=d
 
 function csPayloadOf(x,tpl,raw){const st=csStats(tpl,raw);
   return {pmnum:x.pmnum,tpl:tpl.title,date:raw.date,wo:raw.wo,unit:raw.unitNo||x.unit,interval:raw.interval,unitStatus:raw.unitStatus,total:st.total,filled:st.filled,pass:st.pass,fail:st.fail,inspector:raw.sign.i,note:raw.note,
-    items:tpl.items.map(it=>{const v=raw.v[it.n]||{},r=csEval(it,v);return {n:it.n,d:it.d,design:it.ds,actual:csActText(it,v),unit:it.u||'',pct:csPctText(r),result:r.s==='pass'?'ผ่าน':r.s==='fail'?'ไม่ผ่าน':'',remark:v.r||''}}),raw}}
+    items:tpl.items.filter(it=>!csSkip(it,raw)).map(it=>{const v=raw.v[it.n]||{},r=csEval(it,v,raw);return {n:it.n,d:it.t==='fre'?(v.d||''):it.d,design:it.t==='fre'?(v.ds||''):it.ds,actual:csActText(it,v),unit:it.u||'',pct:csPctText(r),result:r.s==='pass'?'ผ่าน':r.s==='fail'?'ไม่ผ่าน':r.s==='na'?'ไม่มี':'',remark:v.r||''}}).filter(z=>z.d),raw}}
 
 /* ===== หน้ากรอกผลของช่าง (เปิดจากลิงก์ใน LINE) ===== */
 const $=id=>document.getElementById(id);
