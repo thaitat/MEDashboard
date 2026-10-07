@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ใบตรวจ PM</title>
+<meta name="theme-color" content="#2F5D7C">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EEF1F3;--panel:#FFFFFF;--ink:#1C2430;--ink2:#566273;--ink3:#8A95A3;--line:#D6DCE2;--steel:#2F5D7C;--steel-soft:#E1EAF1;--danger:#B3261E;--ok:#1E6B45;color-scheme:light}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;font-size:15px;line-height:1.5;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:9px 14px;font-weight:500}
+.btn.primary{background:var(--steel);border-color:var(--steel);color:#fff}
+.btn:disabled{opacity:.6}
+.linkbtn{background:none;border:0;color:var(--steel);text-decoration:underline;padding:0}
+.top{display:flex;gap:10px;justify-content:space-between;align-items:flex-start;padding:10px 14px 8px;background:var(--panel);border-bottom:1px solid var(--line)}
+.top h1{font-size:15px;margin:0}
+.sub{font-size:13px;color:var(--ink2)}
+.sum .ok{color:var(--ok)}.sum .no{color:var(--danger)}
+#scroll{flex:1;overflow:auto;padding:8px}
+#page{transform-origin:top left}
+.bar{display:grid;grid-template-columns:1fr 2fr;gap:8px;padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);background:var(--panel)}
+.bar .btn{padding:12px 6px}
+.msg{margin:16px;padding:14px;border-radius:10px;background:var(--panel);border:1px solid var(--line);text-align:center}
+.msg.err{color:var(--danger)}
+#pdfLink{font-size:13px;padding:0 14px 6px;background:var(--panel)}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:8px 16px;border-radius:8px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90%;text-align:center}
+.toast.show{opacity:1}
+/* ===== E-Check sheet (A4) ===== */
+.a4{width:194mm;background:#fff;color:#000;font:8.8pt/1.25 Arial,"IBM Plex Sans Thai",Tahoma,sans-serif;padding:0;box-shadow:0 1px 6px rgba(0,0,0,.25)}
+.a4 table{width:100%;border-collapse:collapse;table-layout:fixed}
+.a4 td,.a4 th{border:0.6pt solid #000;padding:0.7mm 1.4mm;vertical-align:middle;word-wrap:break-word}
+.a4 th{background:#E8EDF1;font-weight:700}
+.a4 .c{text-align:center}
+.a4 .bd td{padding:1mm 1.4mm}
+.a4 .bd td.c,.a4 .bd td.dsc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.a4 .bd td.rm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.a4 .egat{color:#1F3F8F;border:0;padding-left:0}
+.a4 .docno{color:#C00000;font-weight:700;text-align:center}
+.a4 .hd2 td{border:0;padding:0.9mm 0}
+.a4 .bd tr.sec td{font-weight:700;background:#F3F5F7}
+.a4 .bd td.ng{color:#C00000;font-weight:700}
+.a4 .bd td.okm{color:#1E6B45;font-weight:700}
+.a4 .nt td{height:16mm;vertical-align:top}
+.a4 .sg td{height:22mm;vertical-align:top}
+.a4 .sg .nm{margin:6mm 0 1mm}
+.a4 .foot{font-size:7pt;color:#555;margin-top:1.5mm}
+.a4.edit [data-ed]{cursor:pointer}
+.a4.edit tr[data-ed]:hover td{background:#F4F8FB}
+.a4.edit .ph{color:#9AA3AD;font-size:7.5pt}
+.a4.edit tr.failrow td{background:#FDECEA}
+.a4.edit .act td,.a4.edit td.act,.a4.edit table.act{outline:2px solid #2F5D7C;outline-offset:-2px;background:#E1EAF1!important}
+.a4.edit .hdtap{border:1px dashed #9AB;border-radius:2px;padding:0.6mm}
+#printRoot{display:none}
+@media print{
+  @page{size:A4;margin:8mm}
+  body{background:#fff}
+  body>*:not(#printRoot){display:none!important}
+  dialog{display:none!important}
+  #printRoot{display:block!important}
+  #printRoot .a4{box-shadow:none}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+/* editor panel */
+.csed{border-top:1px solid var(--line);background:var(--panel);padding:10px 14px 12px;box-shadow:0 -4px 14px rgba(0,0,0,.08)}
+.csed .eh{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.csed .en{font-weight:600;font-size:15px}
+.csed .edz{font-size:13px;color:var(--ink2);margin:2px 0 8px}
+.csed .erow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.csed input[type=text],.csed input:not([type]),.csed input[inputmode],.csed input[type=date],.csed textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-size:16px}
+.csed .numw{display:flex;align-items:center;gap:8px;flex:1;min-width:150px}
+.csed .numw input{flex:1}
+.csed .numw em{font-style:normal;color:var(--ink2)}
+.csed .big{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:1;min-width:200px}
+.csed .big button{padding:11px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-weight:600;font-size:15px}
+.csed .big button.on.okc{background:var(--ok);border-color:var(--ok);color:#fff}
+.csed .big button.on.ngc{background:var(--danger);border-color:var(--danger);color:#fff}
+.csed .res2{font-size:14px;min-width:90px;text-align:right}
+.csed .res2 .ok{color:var(--ok);font-weight:600}.csed .res2 .no{color:var(--danger);font-weight:600}
+.csed .enav{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px}
+.csed .enav button{padding:10px 4px}
+.csed .lb{font-size:13px;color:var(--ink2);margin:4px 0 3px;display:block}
+.csed .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.csseg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel)}
+.csseg button{border:0;border-right:1px solid var(--line);background:none;padding:8px 12px;font-size:14px;color:var(--ink2)}
+.csseg button:last-child{border-right:0}
+.csseg button.on{background:var(--steel);color:#fff;font-weight:600}
+.cszoom{font-size:12px;padding:5px 9px}
+
+</style>
+</head>
+<body>
+<div class="top"><div style="min-width:0"><h1 id="title">ใบตรวจ PM</h1><div class="sub" id="sub"></div><div class="sub sum" id="sum"></div><div class="sub" id="status" style="color:var(--ok)"></div></div><button class="btn" id="zoom" style="flex:none;font-size:12px;padding:5px 9px">ขยาย</button></div>
+<div class="msg" id="msg" hidden></div>
+<div id="scroll"><div id="page"></div></div>
+<div class="csed" id="ed" hidden></div>
+<div id="pdfLink"></div>
+<div class="bar" id="bar"><button class="btn" id="pdf">PDF</button><button class="btn primary" id="send">ส่งผลการตรวจ</button></div>
+<div class="toast" id="toast"></div>
+<script>
+/* ===== E-Check sheet core (ใช้ร่วมกันระหว่างแอปและหน้ากรอกของช่าง) ===== */
+const CS_TPL=[{key:'HT',match:/hydraulic\s*turbine/i,title:'Inspection Sheet : Hydraulic Turbine',docNo:'FR-HY-RPB-9845-22-12-001',taskList:'ARPB2MME #1',plan:'ARPB2M0_ME01',
+  sections:[
+  ['1. Turbine',[
+    {n:'1.1',d:'Eccentric pin no.1-24 visual check',t:'chk',ds:''},
+    {n:'1.2',d:'Shear pin no.1-24 visual check',t:'chk',ds:''},
+    {n:'1.3',d:'Guide & Thrust stripe wearing',t:'chk',ds:'No wearing sign',hint:'ไม่พบผงใต้ Operating ring'},
+    {n:'1.4',d:'Guide vane key no.1-24 visual check',t:'chk',ds:''}]],
+  ['2. Oil reservoir',[
+    {n:'2.1',d:'Oil sump level',t:'num',ds:'± 5 mm',u:'mm',nom:0,min:-5,max:5},
+    {n:'2.2',d:'Oil leakage (at joining point)',t:'chk',ds:''}]],
+  ['3. Lube oil pump',[
+    {n:'3.1',d:'Suction filter indicator',t:'chk',ds:'Not red'},
+    {n:'3.2',d:'Lube oil pump no.1 press.',t:'num',ds:'4-7 kgf/cm²',u:'kgf/cm²',nom:5.5,min:4,max:7},
+    {n:'3.4',d:'Lube oil pump no.1 flowrate',t:'num',ds:'~ 9 l/min',u:'l/min',nom:9,min:8.1,max:9.9,approx:1},
+    {n:'3.5',d:'Lube oil pump no.2 press.',t:'num',ds:'4-7 kgf/cm²',u:'kgf/cm²',nom:5.5,min:4,max:7},
+    {n:'3.7',d:'Lube oil pump no.2 flowrate',t:'num',ds:'~ 9 l/min',u:'l/min',nom:9,min:8.1,max:9.9,approx:1}]],
+  ['4. Turbine oil cooler',[
+    {n:'4.1',d:'CW flowrate',t:'num',ds:'> 60 l/min',u:'l/min',nom:60,min:60,gt:1}]],
+  ['5. Turbine shaft seal',[
+    {n:'5.1',d:'Turbine shaft seal c.w. pressure',t:'num',ds:'> 50 mAq',u:'mAq',nom:50,min:50,gt:1},
+    {n:'5.2',d:'Sediment in sand separator',t:'chk',ds:'Not high'},
+    {n:'5.3',d:'Shaft seal c.w. strainer no.1 (Manual)',t:'chk',ds:''},
+    {n:'5.4',d:'Shaft seal c.w. strainer no.2 (Manual)',t:'chk',ds:''},
+    {n:'5.5',d:'Motorize drain valve (Manual open-close)',t:'chk',ds:''}]],
+  ['6. Turbine runner seal',[
+    {n:'6.1',d:'C.W flowrate',t:'num',ds:'300 l/min',u:'l/min',nom:300,min:270,max:330,approx:1},
+    {n:'6.2',d:'No leakage in piping system',t:'chk',ds:'Visual'},
+    {n:'6.3',d:'Pressure for runner seal (W079)',t:'man',ds:'~ waterhead'}]],
+  ['7. Jet pump',[
+    {n:'7.1',d:'Jet valve oil leakage (visual check)',t:'chk',ds:'No leakage'},
+    {n:'7.2',d:'Jet valve water leakage (visual check)',t:'chk',ds:'No leakage'},
+    {n:'7.3',d:'Air check valve',t:'chk',ds:'No leakage'},
+    {n:'7.4',d:'Jet valve opening time',t:'num',ds:'9 ± 2 sec',u:'sec',nom:9,min:7,max:11},
+    {n:'7.5',d:'Jet valve closing time',t:'num',ds:'9 ± 2 sec',u:'sec',nom:9,min:7,max:11}]]
+  ]}];
+CS_TPL.forEach(t=>t.items=t.sections.flatMap(s=>s[1]));
+function csE(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function csToday(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function csThD(iso){if(!iso)return '';const [y,m,d]=iso.split('-').map(Number);return new Date(y,m-1,d).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'})}
+function csTplFor(x){return x?CS_TPL.find(t=>t.match.test(x.desc||''))||null:null}
+function csIntervalOf(w){return {4:'4W',12:'3M',24:'6M',48:'1Y'}[Number(w)]||''}
+function csUnitNo(u){const m=String(u||'').match(/Unit\s*(\d)/);return m?'#'+m[1]:''}
+function csNew(x,tpl){return {tpl:tpl.key,date:csToday(),wo:x.wo||'',interval:csIntervalOf(x.freqWeeks),unitStatus:'',unitNo:csUnitNo(x.unit),v:{},note:'',sign:{i:x.owner||'',id:'',a:'',ad:'',g:'',gd:''},savedAt:0,synced:false}}
+function csNum(v){const n=parseFloat(String(v??'').replace(/,/g,'.').replace(/[^0-9.\-]/g,''));return isFinite(n)?n:NaN}
+function csEval(it,v){
+  v=v||{};
+  if(it.t==='chk'){if(!v.a)return {s:'empty'};return {s:v.a==='OK'?'pass':'fail'}}
+  if(it.t==='man'){if(!v.j)return {s:'empty'};return {s:v.j==='OK'?'pass':'fail'}}
+  if(v.a==null||String(v.a).trim()==='')return {s:'empty'};
+  const a=csNum(v.a);if(isNaN(a))return {s:'bad'};
+  const lo=it.min==null||(it.gt?a>it.min:a>=it.min),hi=it.max==null||a<=it.max;
+  let pct=null,lbl='';
+  if(it.nom)pct=(a-it.nom)/it.nom*100;else if(it.max){pct=Math.abs(a)/it.max*100;lbl='พิกัด'}
+  return {s:lo&&hi?'pass':'fail',a,pct,lbl};
+}
+function csPctText(r){if(r.pct==null||!isFinite(r.pct))return '';if(r.lbl)return `${Math.round(r.pct)}% ${r.lbl}`;const p=Math.round(r.pct*10)/10;return (p>0?'+':'')+p.toFixed(1)+'%'}
+function csStats(tpl,raw){let f=0,p=0,n=0;const fails=[];tpl.items.forEach(it=>{const r=csEval(it,(raw.v||{})[it.n]);if(r.s==='pass'){f++;p++}else if(r.s==='fail'){f++;n++;fails.push(it.n)}});return {total:tpl.items.length,filled:f,pass:p,fail:n,fails}}
+function csActText(it,v){v=v||{};if(it.t==='chk')return v.a==='OK'?'ปกติ':v.a==='NG'?'ผิดปกติ':'';
+  if(it.t==='man')return (v.a||'')+(v.j?` (${v.j==='OK'?'ปกติ':'ผิดปกติ'})`:'');return v.a!=null&&String(v.a)!==''?v.a+' '+(it.u||''):''}
+/** ฟอร์ม A4: mode 'edit' = แตะแก้ได้, 'print' = สำหรับพิมพ์/PDF */
+function csA4HTML(x,tpl,raw,mode,active){
+  const ed=mode==='edit',st=csStats(tpl,raw),box=on=>on?'☑':'☐';
+  const ph=t=>ed?`<span class="ph">${t}</span>`:'';
+  const rows=tpl.sections.map(([title,items])=>`<tr class="sec"><td colspan="7">${csE(title)}</td></tr>`+items.map(it=>{const v=raw.v[it.n]||{},r=csEval(it,v),a=csActText(it,v);
+    return `<tr${ed?` data-ed="n:${it.n}"`:''} class="${ed&&r.s==='fail'?'failrow ':''}${active==='n:'+it.n?'act':''}"><td class="c">${it.n}</td><td class="dsc">${csE(it.d)}</td><td class="c">${csE(it.ds)}</td><td class="c">${a?csE(a):ph('แตะเพื่อกรอก')}</td><td class="c">${csPctText(r)}</td><td class="c ${r.s==='fail'?'ng':r.s==='pass'?'okm':''}">${r.s==='pass'?'✓':r.s==='fail'?'✗':''}</td><td class="rm">${csE(v.r||'')}</td></tr>`}).join('')).join('');
+  const blank=n=>'&nbsp;'.repeat(n);
+  return `<div class="a4${ed?' edit':''}"><table class="hd"><tr><td colspan="4" class="egat"><b>EGAT :</b> Electricity Generating Authority of Thailand ; Rajjaprabha Hydro Power Plant (RPBH)</td></tr>
+    <tr><td style="width:22%"><b>System</b> QSHEEnP</td><td style="width:36%">แผนกบำรุงรักษาเครื่องกล</td><td style="width:9%">doc. no.</td><td class="docno">${csE(tpl.docNo)}</td></tr>
+    <tr><td>Task list : ${csE(tpl.taskList)}</td><td>Maint. plan : ${csE(tpl.plan)}</td><td colspan="2" class="c"><b>${csE(tpl.title)}</b></td></tr></table>
+    <table class="hd2${active==='hdr'?' act':''}"${ed?' data-ed="hdr"':''}><colgroup><col style="width:42%"><col style="width:24%"><col></colgroup>
+    <tr><td>Unit no. : ${['#1','#2','#3'].map(u=>box(raw.unitNo===u)+' '+u).join('&nbsp;&nbsp;')}</td><td>Date : <u>${raw.date?csThD(raw.date):blank(16)}</u></td><td>Work order no. : <u>${csE(raw.wo)||blank(16)}</u></td></tr>
+    <tr><td>PM interval : ${['4W','3M','6M','1Y'].map(u=>box(raw.interval===u)+' '+u).join('&nbsp;&nbsp;')}</td><td colspan="2">Unit status : ${box(raw.unitStatus==='operate')} operate&nbsp;&nbsp;${box(raw.unitStatus==='shut down')} shut down ${ed?'<span class="ph">(แตะเพื่อแก้ส่วนหัว)</span>':''}</td></tr></table>
+    <table class="bd"><thead><tr><th style="width:5%">Item</th><th>Description</th><th style="width:14.5%">Design</th><th style="width:12.5%">Actual</th><th style="width:9.5%">ต่าง</th><th style="width:4.5%">ผล</th><th style="width:17%">Remark</th></tr></thead><tbody>${rows}</tbody></table>
+    <table class="nt"><tr><td${ed?' data-ed="note"':''} class="${active==='note'?'act':''}"><b>สรุปผล:</b> ตรวจ ${st.filled}/${st.total} รายการ · ผ่าน ${st.pass} · ไม่ผ่าน ${st.fail}${st.fail?` (ข้อ ${st.fails.join(', ')})`:''}<br><b>Note:</b> ${raw.note?csE(raw.note).replace(/\n/g,'<br>'):ph('แตะเพื่อเขียนหมายเหตุ')}</td></tr></table>
+    <table class="sg${active==='sign'?' act':''}"${ed?' data-ed="sign"':''}><tr>${[['inspection by','i','id'],['approve by','a','ad'],['register by','g','gd']].map(([l,n,dd])=>`<td><div class="c">${l}</div><div class="c nm">( ${raw.sign[n]?csE(raw.sign[n]):(ed&&n==='i'?'<span class="ph">แตะเพื่อลงชื่อ</span>':blank(30))} )</div><div>date : ${csThD(raw.sign[dd])}</div></td>`).join('')}</tr></table>
+    <div class="foot">${csE(x.pmnum||'')} · ${csE(x.desc||'')}${x.planDate?' · แผน '+csThD(x.planDate):''}</div></div>`;
+}
+function csSeg(k,opts,val){return `<span class="csseg">${opts.map(o=>`<button type="button" data-set="${k}" data-val="${csE(o)}" class="${val===o?'on':''}">${o}</button>`).join('')}</span>`}
+/** แผงแก้ไขด้านล่าง */
+function csEditorHTML(tpl,raw,target){
+  if(target==='hdr')return `<div class="eh"><div class="en">ส่วนหัวแบบฟอร์ม</div></div>
+    <div class="g2"><label><span class="lb">Date</span><input type="date" data-k="date" value="${csE(raw.date)}"></label><label><span class="lb">Work order no.</span><input data-k="wo" value="${csE(raw.wo)}"></label></div>
+    <span class="lb">Unit no.</span>${csSeg('unitNo',['#1','#2','#3'],raw.unitNo)}
+    <span class="lb">PM interval</span>${csSeg('interval',['4W','3M','6M','1Y'],raw.interval)}
+    <span class="lb">Unit status</span>${csSeg('unitStatus',['operate','shut down'],raw.unitStatus)}
+    <div class="enav" style="grid-template-columns:1fr 1fr"><button class="btn" data-nav="close">ปิด</button><button class="btn primary" data-nav="first">เริ่มกรอกข้อ 1.1 ▶</button></div>`;
+  if(target==='note')return `<div class="en">Note</div><textarea rows="3" data-k="note" style="margin-top:6px">${csE(raw.note)}</textarea><div class="enav" style="grid-template-columns:1fr"><button class="btn primary" data-nav="close">เสร็จ</button></div>`;
+  if(target==='sign')return `<div class="en">ลงชื่อ</div>${[['i','id','Inspection by'],['a','ad','Approve by'],['g','gd','Register by']].map(([n,d,l])=>`<div class="g2"><label><span class="lb">${l}</span><input data-k="sign.${n}" value="${csE(raw.sign[n]||'')}"></label><label><span class="lb">Date</span><input type="date" data-k="sign.${d}" value="${csE(raw.sign[d]||'')}"></label></div>`).join('')}<div class="enav" style="grid-template-columns:1fr"><button class="btn primary" data-nav="close">เสร็จ</button></div>`;
+  const n=target.slice(2),i=tpl.items.findIndex(z=>z.n===n),it=tpl.items[i],v=raw.v[n]||{};
+  let ctl='';
+  if(it.t==='chk')ctl=`<div class="big"><button type="button" data-set="v.${n}.a" data-val="OK" class="okc ${v.a==='OK'?'on':''}">ปกติ</button><button type="button" data-set="v.${n}.a" data-val="NG" class="ngc ${v.a==='NG'?'on':''}">ผิดปกติ</button></div>`;
+  else if(it.t==='man')ctl=`<div class="numw"><input data-k="v.${n}.a" value="${csE(v.a||'')}" placeholder="ค่าที่วัดได้"></div><div class="big"><button type="button" data-set="v.${n}.j" data-val="OK" class="okc ${v.j==='OK'?'on':''}">ปกติ</button><button type="button" data-set="v.${n}.j" data-val="NG" class="ngc ${v.j==='NG'?'on':''}">ผิดปกติ</button></div>`;
+  else ctl=`<div class="numw"><input inputmode="decimal" data-k="v.${n}.a" value="${csE(v.a??'')}" placeholder="Actual" enterkeyhint="next"><em>${csE(it.u)}</em></div>`;
+  return `<div class="eh"><div><div class="en">${it.n} ${csE(it.d)}</div><div class="edz">Design: ${it.ds?csE(it.ds):'–'}${it.approx?' (ยอมรับ ±10%)':''}</div></div><div class="res2" id="csRes">${csResHTML(it,v)}</div></div>
+    <div class="erow">${ctl}</div>
+    <input data-k="v.${n}.r" value="${csE(v.r||'')}" placeholder="${it.hint?csE('Remark เช่น '+it.hint):'Remark'}">
+    <div class="enav"><button class="btn" data-nav="prev" ${i===0?'disabled':''}>◀ ก่อนหน้า</button><button class="btn" data-nav="close">ปิด</button><button class="btn primary" data-nav="next">${i===tpl.items.length-1?'ลงชื่อ ▶':'ถัดไป ▶'}</button></div>`;
+}
+function csResHTML(it,v){const r=csEval(it,v);if(r.s==='empty')return '<span style="color:var(--ink3)">ยังไม่กรอก</span>';if(r.s==='bad')return '<span class="no">ค่าไม่ถูกต้อง</span>';const p=csPctText(r);return `<span class="${r.s==='pass'?'ok':'no'}">${r.s==='pass'?'✓ ผ่าน':'✗ ไม่ผ่าน'}</span>${p?`<br><small>${p}</small>`:''}`}
+function csSetPath(raw,path,val){const p=path.split('.');
+  if(p[0]==='v'){const n=p[1]+'.'+p[2];const o=raw.v[n]=raw.v[n]||{};o[p[3]]=val;return n}
+  let o=raw;for(let i=0;i<p.length-1;i++)o=o[p[i]];o[p[p.length-1]]=val;return null}
+function csGetPath(raw,path){const p=path.split('.');if(p[0]==='v')return (raw.v[p[1]+'.'+p[2]]||{})[p[3]];let o=raw;for(const k of p)o=o==null?o:o[k];return o}
+/** ตัวควบคุมฟอร์ม: ผูก A4 + แผงแก้ไขเข้ากับ element ที่กำหนด */
+function csController(o){
+  // o: {page, scroll, ed, tpl, x, raw, onChange, onSum}
+  const C={raw:o.raw,active:null,zoom:'fit',o};
+  C.load=(x,tpl,raw)=>{o.x=x;o.tpl=tpl;C.raw=raw;C.active=null;o.ed.hidden=true;o.ed.innerHTML='';if(o.onEd)o.onEd(false);C.render()};
+  C.render=()=>{o.page.innerHTML=csA4HTML(o.x,o.tpl,C.raw,'edit',C.active);C.fit();if(o.onSum)o.onSum(csStats(o.tpl,C.raw))};
+  C.fit=()=>{const pg=o.page.firstElementChild;if(!pg)return;if(C.zoom==='full'){o.page.style.transform='';o.page.style.height='';o.page.style.width=pg.offsetWidth+'px';return}
+    o.page.style.width='';const w=o.scroll.clientWidth-16,sc=Math.min(1,w/pg.offsetWidth);o.page.style.transform=`scale(${sc})`;o.page.style.height=(pg.offsetHeight*sc)+'px'};
+  C.open=(t)=>{C.active=t;o.ed.innerHTML=csEditorHTML(o.tpl,C.raw,t);o.ed.hidden=false;if(o.onEd)o.onEd(true);C.render();
+    requestAnimationFrame(()=>{const el=o.page.querySelector('.act');if(el){const r=el.getBoundingClientRect(),s=o.scroll.getBoundingClientRect();o.scroll.scrollTop+=r.top-s.top-Math.max(20,(s.height)*0.25)}
+      const inp=o.ed.querySelector('input[inputmode],input[data-k^="v."]:not([data-k$=".r"])');if(inp&&t.startsWith('n:')&&o.tpl.items.find(z=>'n:'+z.n===t).t!=='chk')inp.focus({preventScroll:true})})};
+  C.close=()=>{C.active=null;o.ed.hidden=true;o.ed.innerHTML='';if(o.onEd)o.onEd(false);C.render()};
+  C.step=(d)=>{const items=o.tpl.items;if(!C.active||!C.active.startsWith('n:')){C.open('n:'+items[0].n);return}
+    const i=items.findIndex(z=>'n:'+z.n===C.active)+d;if(i<0)return;if(i>=items.length){C.open('sign');return}C.open('n:'+items[i].n)};
+  C.changed=(n)=>{if(n){const it=o.tpl.items.find(z=>z.n===n);const el=o.ed.querySelector('#csRes');if(el)el.innerHTML=csResHTML(it,C.raw.v[n])}C.render();if(o.onChange)o.onChange(C.raw)};
+  o.page.addEventListener('click',e=>{const t=e.target.closest('[data-ed]');if(t)C.open(t.dataset.ed)});
+  o.ed.addEventListener('input',e=>{const k=e.target.dataset.k;if(!k)return;C.changed(csSetPath(C.raw,k,e.target.value))});
+  o.ed.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.tagName==='INPUT'){e.preventDefault();C.step(1)}});
+  o.ed.addEventListener('click',e=>{const b=e.target.closest('[data-set]');
+    if(b){const k=b.dataset.set,v=b.dataset.val,nv=csGetPath(C.raw,k)===v?'':v;const n=csSetPath(C.raw,k,nv);
+      b.parentElement.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.val===nv));C.changed(n);
+      if(n&&nv&&k.endsWith('.a')&&o.tpl.items.find(z=>z.n===n).t==='chk')setTimeout(()=>C.step(1),180);return}
+    const nv=e.target.closest('[data-nav]');if(!nv)return;const a=nv.dataset.nav;
+    if(a==='close')C.close();else if(a==='next')C.step(1);else if(a==='prev')C.step(-1);else if(a==='first')C.open('n:'+o.tpl.items[0].n)});
+  window.addEventListener('resize',()=>C.fit());
+  return C;
+}
+function csLoadScript(src){return new Promise((ok,no)=>{if(document.querySelector(`script[src="${src}"]`))return ok();const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=()=>no(new Error('load'));document.head.appendChild(s)})}
+/** สร้าง PDF 1 หน้า A4 จากฟอร์ม */
+async function csMakePdf(x,tpl,raw){
+  await csLoadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+  await csLoadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+  const host=document.createElement('div');host.style.cssText='position:fixed;left:-10000px;top:0;background:#fff;padding:0';
+  host.innerHTML=csA4HTML(x,tpl,raw,'print');document.body.appendChild(host);
+  try{if(document.fonts&&document.fonts.ready)await document.fonts.ready;
+    const el=host.firstElementChild;el.style.boxShadow='none';
+    const canvas=await window.html2canvas(el,{scale:2.2,backgroundColor:'#ffffff',logging:false});
+    const pdf=new window.jspdf.jsPDF({unit:'mm',format:'a4',orientation:'portrait'});
+    const mw=194,mh=281;let w=mw,h=canvas.height*mw/canvas.width;if(h>mh){h=mh;w=canvas.width*mh/canvas.height}
+    pdf.addImage(canvas.toDataURL('image/jpeg',0.92),'JPEG',(210-w)/2,8,w,h);
+    return pdf.output('blob');
+  }finally{host.remove()}
+}
+function csPdfName(x,raw){return `CheckSheet_${(x.pmnum||'PM').replace(/[^\w-]+/g,'_')}_${raw.date||csToday()}.pdf`}
+function csBlobToB64(b){return new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(',')[1]);r.onerror=no;r.readAsDataURL(b)})}
+function csPrintHTML(html){let r=document.getElementById('printRoot');if(!r){r=document.createElement('div');r.id='printRoot';document.body.appendChild(r)}r.innerHTML=html;
+  r.style.cssText='display:block;position:absolute;left:-9999px;top:0;visibility:hidden';const pg=r.firstElementChild,mm=96/25.4,maxH=279*mm,h=pg.offsetHeight;pg.style.zoom=h>maxH?(maxH/h).toFixed(3):'';r.style.cssText='';setTimeout(()=>window.print(),50)}
+
+function csPayloadOf(x,tpl,raw){const st=csStats(tpl,raw);
+  return {pmnum:x.pmnum,tpl:tpl.title,date:raw.date,wo:raw.wo,unit:raw.unitNo||x.unit,interval:raw.interval,unitStatus:raw.unitStatus,total:st.total,filled:st.filled,pass:st.pass,fail:st.fail,inspector:raw.sign.i,note:raw.note,
+    items:tpl.items.map(it=>{const v=raw.v[it.n]||{},r=csEval(it,v);return {n:it.n,d:it.d,design:it.ds,actual:csActText(it,v),unit:it.u||'',pct:csPctText(r),result:r.s==='pass'?'ผ่าน':r.s==='fail'?'ไม่ผ่าน':'',remark:v.r||''}}),raw}}
+
+/* ===== หน้ากรอกผลของช่าง (เปิดจากลิงก์ใน LINE) ===== */
+const $=id=>document.getElementById(id);
+const P=new URLSearchParams(location.hash.slice(1));
+const API=P.get('a'),ID=P.get('i'),K=P.get('k');
+let X=null,TPL=null,CTL=null,PDFURL='',pending=null;
+function msg(html,isErr){$('msg').innerHTML=html;$('msg').className='msg'+(isErr?' err':'');$('msg').hidden=!html}
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),2200)}
+async function call(body){const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({id:ID,k:K},body))});const j=await r.json();if(!j.ok)throw new Error(j.error||'error');return j}
+function draftKey(){return 'csd-'+ID}
+async function init(){
+  if(!API||!ID||!K){msg('ลิงก์ไม่สมบูรณ์ กรุณาขอลิงก์ใหม่จากหัวหน้างาน',true);return}
+  msg('กำลังโหลดแบบฟอร์ม…');
+  let j;
+  try{j=await (await fetch(API+(API.includes('?')?'&':'?')+'action=share&id='+encodeURIComponent(ID)+'&k='+encodeURIComponent(K))).json();if(!j.ok)throw new Error(j.error)}
+  catch(e){msg(/ลิงก์/.test(e.message||'')?'ลิงก์นี้ใช้ไม่ได้แล้ว กรุณาขอลิงก์ใหม่จากหัวหน้างาน':'โหลดแบบฟอร์มไม่ได้ ตรวจอินเทอร์เน็ตแล้วลองใหม่ <button class="btn" onclick="init()">ลองใหม่</button>',true);return}
+  X=j.item||{};TPL=csTplFor(X);
+  if(!TPL){msg('งานนี้ยังไม่มีแบบฟอร์ม Check sheet',true);return}
+  let draft=null;try{draft=JSON.parse(localStorage.getItem(draftKey())||'null')}catch(e){}
+  const rem=j.check;
+  let raw=rem||csNew(X,TPL);
+  if(draft&&(draft.editedAt||0)>(rem&&rem.savedAt||0))raw=draft;
+  if(!raw.sign)raw.sign={i:'',id:'',a:'',ad:'',g:'',gd:''};
+  if(!raw.sign.i)raw.sign.i=localStorage.getItem('cs-tech-name')||'';
+  if(!raw.sign.id)raw.sign.id=csToday();
+  document.title='ใบตรวจ – '+(X.desc||'');
+  $('title').textContent=TPL.title;
+  $('sub').textContent=`${X.desc||''} · แผน ${csThD(X.planDate)}`;
+  $('status').textContent=rem&&rem.savedAt?'มีผลที่ส่งไว้แล้ว แก้ไขแล้วส่งใหม่ได้':'';
+  CTL=csController({page:$('page'),scroll:$('scroll'),ed:$('ed'),tpl:TPL,x:X,raw,
+    onChange:r=>{r.editedAt=Date.now();try{localStorage.setItem(draftKey(),JSON.stringify(r));if(r.sign.i)localStorage.setItem('cs-tech-name',r.sign.i)}catch(e){}},
+    onEd:open=>{$('bar').hidden=open},
+    onSum:st=>{$('sum').innerHTML=`กรอก <b>${st.filled}/${st.total}</b> · <span class="ok">ผ่าน ${st.pass}</span> · <span class="no">ไม่ผ่าน ${st.fail}${st.fail?' ('+st.fails.join(', ')+')':''}</span>`}});
+  msg('');CTL.render();
+  if(!rem)setTimeout(()=>CTL.open('hdr'),300);
+}
+async function send(){
+  const raw=CTL.raw,st=csStats(TPL,raw);
+  if(!raw.sign.i){toast('กรุณาลงชื่อผู้ตรวจก่อนส่ง');CTL.open('sign');return}
+  if(st.filled<st.total&&!confirm(`ยังกรอกไม่ครบ (${st.filled}/${st.total}) ต้องการส่งเลยหรือไม่?`))return;
+  const b=$('send');b.disabled=true;b.textContent='กำลังส่ง…';
+  try{raw.savedAt=Date.now();const pl=csPayloadOf(X,TPL,raw);pl.raw=JSON.parse(JSON.stringify(raw));
+    await call({action:'shareSave',check:pl});
+    try{localStorage.setItem(draftKey(),JSON.stringify(raw))}catch(e){}
+    $('status').textContent='ส่งผลแล้ว ✓ '+new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+    toast('ส่งผลการตรวจเรียบร้อย');b.textContent='ส่งอีกครั้ง';
+  }catch(e){b.textContent='ส่งผลการตรวจ';toast(navigator.onLine===false?'ไม่มีอินเทอร์เน็ต ข้อมูลยังเก็บไว้ในเครื่อง ส่งใหม่เมื่อมีสัญญาณ':'ส่งไม่สำเร็จ ลองใหม่อีกครั้ง')}
+  finally{b.disabled=false}
+}
+async function sharePending(){const p=pending;if(!p)return false;try{await navigator.share({files:[p],title:p.name});pending=null;$('pdf').textContent='PDF';return true}catch(e){if(e.name==='AbortError'){pending=null;$('pdf').textContent='PDF';return true}return false}}
+async function pdf(){
+  if(pending&&await sharePending())return;
+  const b=$('pdf');b.disabled=true;b.textContent='กำลังสร้าง…';
+  try{const raw=CTL.raw,blob=await csMakePdf(X,TPL,raw),name=csPdfName(X,raw);
+    b.textContent='PDF';
+    try{const d=await csBlobToB64(blob);const j=await call({action:'pdf',name,data:d});PDFURL=j.url||'';
+      if(PDFURL)$('pdfLink').innerHTML=`<a href="${PDFURL}" target="_blank" rel="noopener">เปิดไฟล์ PDF</a> · <button class="linkbtn" id="cpy">คัดลอกลิงก์</button>`;
+      if($('cpy'))$('cpy').onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(PDFURL).then(()=>toast('คัดลอกลิงก์แล้ว'),()=>prompt('คัดลอกลิงก์',PDFURL))};
+      toast('บันทึก PDF ลงไดรฟ์แล้ว')}catch(e){}
+    const file=new File([blob],name,{type:'application/pdf'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){pending=file;if(!(await sharePending()))b.textContent='แตะเพื่อแชร์ PDF';return}
+    if(!PDFURL){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove()}
+  }catch(e){b.textContent='PDF';toast('สร้าง PDF ไม่ได้ ตรวจอินเทอร์เน็ตแล้วลองใหม่')}
+  finally{b.disabled=false}
+}
+$('send').onclick=send;$('pdf').onclick=pdf;
+$('zoom').onclick=()=>{if(!CTL)return;CTL.zoom=CTL.zoom==='fit'?'full':'fit';$('zoom').textContent=CTL.zoom==='fit'?'ขยาย':'พอดีจอ';CTL.fit()};
+init();
+
+</script>
+</body>
+</html>
