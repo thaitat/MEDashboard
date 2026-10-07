@@ -457,7 +457,21 @@ pre.preview{white-space:pre-wrap;background:var(--bg);border:1px solid var(--lin
   <div class="cshdr"><div id="csHead" style="min-width:0"></div><div class="cshb"><button class="btn cszoom" id="csZoom">ขยาย</button><button class="btn cszoom" id="csClose">ปิด</button></div></div>
   <div id="csScroll"><div id="csA4Page"></div></div>
   <div class="csed" id="csEd" hidden></div>
-  <div class="csact" id="csAct"><button class="btn" id="csShare">แชร์ LINE</button><button class="btn" id="csPmBtn">สถานะ</button><button class="btn" id="csPdf">PDF</button><button class="btn" id="csSave">บันทึก</button><button class="btn primary" id="csDone">ปิดงาน ✓</button></div>
+  <div class="csact" id="csAct"><button class="btn" id="csShare">แชร์</button><button class="btn" id="csPmBtn">สถานะ</button><button class="btn" id="csPdf">PDF</button><button class="btn" id="csSave">บันทึก</button><button class="btn primary" id="csDone">ปิดงาน ✓</button></div>
+</dialog>
+
+<dialog id="shDlg">
+  <div class="dlg">
+    <h2>ลิงก์ให้ช่างกรอกผลตรวจ</h2>
+    <p class="sub" id="shTitle" style="margin-top:-6px"></p>
+    <label class="f"><span>ลิงก์</span><input id="shLink" readonly onfocus="this.select()"></label>
+    <p class="sub" style="margin:-4px 0 10px">ช่างเปิดลิงก์แล้วกรอกได้ทันที ไม่ต้องติดตั้งแอปหรือล็อกอิน ลิงก์นี้แก้ไขได้เฉพาะใบตรวจนี้</p>
+    <div class="acts">
+      <button class="btn grow" id="shClose">ปิด</button>
+      <button class="btn" id="shCopy">คัดลอกลิงก์</button>
+      <button class="btn primary" id="shNative">แชร์…</button>
+    </div>
+  </div>
 </dialog>
 
 <dialog id="closeDlg">
@@ -806,9 +820,25 @@ async function pmFetch(silent){
   }catch(e){if(!silent)toast(e.name==='AbortError'?'Sheet ตอบช้าเกินไป ลองใหม่อีกครั้ง':/รหัส/.test(e.message)?'รหัสเชื่อมต่อ (TOKEN) ไม่ถูกต้อง':'ดึงข้อมูลจาก Sheet ไม่ได้ ตรวจลิงก์และอินเทอร์เน็ต');pmBusy=false;clearTimeout(tm);render();return false}
   pmBusy=false;clearTimeout(tm);render();return true;
 }
+/* เรียก Google Apps Script: บางครั้ง (โดยเฉพาะบน iPhone) Google ตอบกลับเป็นหน้า HTML แทน JSON
+   ทั้งที่บันทึกสำเร็จแล้ว จึงตรวจซ้ำจากข้อมูลจริงใน Sheet ก่อนตัดสินว่าล้มเหลว */
+const gasSleep=ms=>new Promise(r=>setTimeout(r,ms));
+function gasUrl(params){const u=S.pmSheet.url;return u+(u.includes('?')?'&':'?')+new URLSearchParams(Object.assign({token:S.pmSheet.token},params)).toString()}
+async function gasGet(params){const r=await fetch(gasUrl(params),{cache:'no-store'});const t=await r.text();let j;try{j=JSON.parse(t)}catch(e){throw new Error('BADRESP')}if(!j.ok)throw new Error(j.error||'error');return j}
+async function gasPost(body,verify){
+  let j;
+  try{const r=await fetch(S.pmSheet.url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({token:S.pmSheet.token},body))});
+    const t=await r.text();try{j=JSON.parse(t)}catch(e){j=null}}
+  catch(e){if(!verify)throw e;j=null}
+  if(j){if(!j.ok)throw new Error(j.error||'error');return j}
+  if(verify){for(const w of [700,1800,3500]){await gasSleep(w);try{const v=await verify();if(v)return v}catch(e){}}}
+  throw new Error('Sheet ตอบกลับไม่สมบูรณ์ กดรีเฟรชเพื่อตรวจว่าบันทึกแล้วหรือไม่');
+}
+const pmSame=(a,b)=>String(a??'')===String(b??'');
 async function pmPost(id,fields){
-  const r=await fetch(S.pmSheet.url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({token:S.pmSheet.token,action:'update',id,fields})});
-  const j=await r.json();if(!j.ok)throw new Error(j.error||'error');return j.item;
+  const j=await gasPost({action:'update',id,fields},async()=>{const L=await gasGet({action:'list'});const it=(L.items||[]).find(x=>x.id===id);
+    if(it&&Object.keys(fields).every(k=>pmSame(it[k],fields[k]))){PMC.items=L.items;PMC.fetchedAt=Date.now();pmSaveCache();return {ok:true,item:it}}return null});
+  return j.item;
 }
 function pmCfgHTML(first){
   return `<div class="cfg"><h2>${first?'เชื่อมต่อแผน PM จาก Google Sheet':'ตั้งค่าการเชื่อมต่อ'}</h2>
@@ -1040,7 +1070,7 @@ function csPayloadOf(x,tpl,raw){const st=csStats(tpl,raw);
     items:tpl.items.map(it=>{const v=raw.v[it.n]||{},r=csEval(it,v);return {n:it.n,d:it.d,design:it.ds,actual:csActText(it,v),unit:it.u||'',pct:csPctText(r),result:r.s==='pass'?'ผ่าน':r.s==='fail'?'ไม่ผ่าน':'',remark:v.r||''}}),raw}}
 
 /* ---------- E-Check sheet (ส่วนของแอปหัวหน้างาน) ---------- */
-let csItem=null,csTpl=null,csRaw=null,csTimer=null,csCtl=null,csPending=null;
+let csItem=null,csTpl=null,csRaw=null,csTimer=null,csCtl=null,csPending=null,csShareData=null;
 function csIsHosted(){return location.protocol==='https:'&&!(window.claude&&window.claude.use)}
 function csCtlInit(){if(csCtl)return;
   csCtl=csController({page:$('csA4Page'),scroll:$('csScroll'),ed:$('csEd'),tpl:CS_TPL[0],x:{},raw:{v:{},sign:{}},
@@ -1067,7 +1097,7 @@ async function csFetchRemote(id){
   }catch(e){}
 }
 function csAutosave(){csRaw.synced=false;csRaw.editedAt=Date.now();clearTimeout(csTimer);csTimer=setTimeout(()=>{S.checks[csItem.id]=JSON.parse(JSON.stringify(csRaw));save()},600)}
-async function csPost(body){const r=await fetch(S.pmSheet.url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({token:S.pmSheet.token},body))});const j=await r.json();if(!j.ok)throw new Error(j.error||'error');return j}
+async function csPost(body,verify){return gasPost(body,verify)}
 async function saveCS(close,quiet){
   const st=csStats(csTpl,csRaw);
   if(close&&st.filled<st.total&&!confirm(`ยังกรอกไม่ครบ (${st.filled}/${st.total}) ต้องการปิดงาน PM เลยหรือไม่?`))return false;
@@ -1076,7 +1106,8 @@ async function saveCS(close,quiet){
   const btn=close?$('csDone'):$('csSave');btn.disabled=true;
   try{
     const pl=csPayloadOf(csItem,csTpl,csRaw);pl.raw=JSON.parse(JSON.stringify(csRaw));delete pl.raw.synced;
-    await csPost({action:'saveCheck',id:csItem.id,check:pl});
+    const sv=csRaw.savedAt,cid=csItem.id;
+    await csPost({action:'saveCheck',id:cid,check:pl},async()=>{const r=await gasGet({action:'check',id:cid});return r.check&&r.check.savedAt===sv?{ok:true}:null});
     csRaw.synced=true;S.checks[csItem.id]=JSON.parse(JSON.stringify(csRaw));save();
     if(close){const f={status:PM_DONE,actualDate:csRaw.date||todayISO()};if(csRaw.wo)f.wo=csRaw.wo;if(csRaw.sign.i&&!csItem.owner)f.owner=csRaw.sign.i;
       const it=await pmPost(csItem.id,f);Object.assign(csItem,it||f);pmSaveCache();$('csDlg').close();toast('บันทึกผลตรวจและปิดงาน PM แล้ว');render();return true}
@@ -1090,11 +1121,14 @@ async function csShare(){
   const b=$('csShare');b.disabled=true;
   try{
     if(!(await saveCS(false,true)))return;
-    const j=await csPost({action:'shareCreate',id:csItem.id});
+    const j=await csPost({action:'shareCreate',id:csItem.id},async()=>{const r=await gasPost({action:'shareCreate',id:csItem.id});return r.key?r:null});
     const base=location.origin+location.pathname.replace(/[^/]*$/,'')+'check.html';
+    try{const r=await fetch(base,{cache:'no-store'});if(!r.ok){toast(`ไม่พบไฟล์ check.html บนเว็บ (${r.status}) ให้อัปโหลดไฟล์นี้ไว้ข้าง index.html ใน GitHub`);return}}catch(e){toast('ตรวจไฟล์ check.html ไม่ได้ ตรวจอินเทอร์เน็ต');return}
     const link=base+'#'+new URLSearchParams({a:S.pmSheet.url,i:csItem.id,k:j.key}).toString();
-    const msg=`📋 ใบตรวจ ${csTpl.title.replace('Inspection Sheet : ','')} ${csItem.unit||''}\nแผน ${thDate(csItem.planDate,true)}${csRaw.wo?' · '+csRaw.wo:''}\nกรอกผลการตรวจได้ที่ลิงก์นี้ 👇\n${link}`;
-    window.open('https://line.me/R/share?text='+encodeURIComponent(msg),'_blank');
+    const title=`ใบตรวจ ${csTpl.title.replace('Inspection Sheet : ','')} ${csItem.unit||''}`;
+    const text=`📋 ${title}\nแผน ${thDate(csItem.planDate,true)}${csRaw.wo?' · '+csRaw.wo:''}\nกรอกผลการตรวจได้ที่ลิงก์นี้`;
+    csShareData={title,text,url:link};
+    $('shTitle').textContent=title;$('shLink').value=link;$('shNative').hidden=!navigator.share;$('shDlg').showModal();
   }catch(e){toast(/ไม่รู้จักคำสั่ง/.test(e.message)?'ต้องอัปเดตสคริปต์ใน Sheet เป็นเวอร์ชันล่าสุดก่อน':'สร้างลิงก์ไม่สำเร็จ ลองใหม่อีกครั้ง')}
   finally{b.disabled=false}
 }
@@ -1129,7 +1163,7 @@ async function savePm(){
   if(!Object.keys(changed).length){$('pmDlg').close();return}
   $('pmSave').disabled=true;$('pmSave').textContent='กำลังบันทึก…';$('pmErr').textContent='';
   try{const item=await pmPost(x.id,changed);Object.assign(x,item||changed);pmSaveCache();$('pmDlg').close();toast('บันทึกลง Sheet แล้ว');render()}
-  catch(e){$('pmErr').textContent=/รหัส/.test(e.message)?'TOKEN ไม่ถูกต้อง':navigator.onLine===false?'ไม่มีอินเทอร์เน็ต บันทึกไม่ได้':'บันทึกไม่สำเร็จ: '+e.message;$('pmSave').disabled=false;$('pmSave').textContent='บันทึกลง Sheet'}
+  catch(e){$('pmErr').textContent=/รหัส/.test(e.message)?'TOKEN ไม่ถูกต้อง':navigator.onLine===false?'ไม่มีอินเทอร์เน็ต บันทึกไม่ได้':e.message.startsWith('Sheet')?e.message:'บันทึกไม่สำเร็จ: '+e.message;$('pmSave').disabled=false;$('pmSave').textContent='บันทึกลง Sheet'}
 }
 const MONTHS_TH_FULL=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
 function renderNav(){
@@ -1363,7 +1397,10 @@ $('pmStatus').onchange=()=>{if($('pmStatus').value===PM_DONE&&!$('pmActual').val
 $('csClose').onclick=()=>{clearTimeout(csTimer);if(csItem){S.checks[csItem.id]=JSON.parse(JSON.stringify(csRaw));save()}$('csDlg').close()};
 $('csZoom').onclick=()=>{if(!csCtl)return;csCtl.zoom=csCtl.zoom==='fit'?'full':'fit';$('csZoom').textContent=csCtl.zoom==='fit'?'ขยาย':'พอดีจอ';csCtl.fit()};
 $('csSave').onclick=()=>saveCS(false);$('csDone').onclick=()=>saveCS(true);
-$('csPmBtn').onclick=()=>openPm(csItem);$('csShare').onclick=csShare;$('csPdf').onclick=csExportPdf;
+$('csPmBtn').onclick=()=>openPm(csItem);
+$('shClose').onclick=()=>$('shDlg').close();
+$('shCopy').onclick=async()=>{const v=$('shLink').value;try{await navigator.clipboard.writeText(v);toast('คัดลอกลิงก์แล้ว')}catch(e){$('shLink').focus();$('shLink').select();try{document.execCommand('copy');toast('คัดลอกลิงก์แล้ว')}catch(x){toast('กดค้างที่ลิงก์เพื่อคัดลอก')}}};
+$('shNative').onclick=async()=>{if(!csShareData)return;try{await navigator.share(csShareData)}catch(e){}};$('csShare').onclick=csShare;$('csPdf').onclick=csExportPdf;
 $('mainNav').onclick=e=>{const b=e.target.closest('[data-v]');if(b)setView(b.dataset.v)};
 $('alerts').onclick=e=>{const b=e.target.closest('[data-q]');if(!b)return;const q=b.dataset.q;if(q==='all'){filter.quick=null}else{filter.quick=filter.quick===q?null:q}render()};
 $('openView').onclick=e=>{const b=e.target.closest('.job');if(b)openJob(S.tasks.find(t=>t.id===b.dataset.id))};
