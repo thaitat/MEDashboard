@@ -163,6 +163,71 @@ pre.preview{white-space:pre-wrap;background:var(--bg);border:1px solid var(--lin
 .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--panel);padding:8px 16px;border-radius:8px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s}
 .toast.show{opacity:1}
 .sync{font-size:12px;color:var(--ink3)}
+#csDlg{width:100%;max-width:760px;height:100%;max-height:100%;margin:0 auto;border-radius:0;padding:0}
+#csDlg[open]{display:flex;flex-direction:column}
+.cshdr{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 10px;border-bottom:1px solid var(--line);background:var(--panel)}
+.cst{font-weight:600;font-size:16px}
+#csScroll{flex:1;overflow:auto;padding:10px 14px 16px;background:var(--bg)}
+.csgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.csline{display:flex;align-items:center;gap:10px;margin:0 0 8px;flex-wrap:wrap}
+.csline .lb{font-size:13px;color:var(--ink2);min-width:84px}
+.csseg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel)}
+.csseg button{border:0;border-right:1px solid var(--line);background:none;padding:6px 10px;font-size:13px;color:var(--ink2)}
+.csseg button:last-child{border-right:0}
+.csseg button.on{background:var(--steel);color:var(--panel);font-weight:600}
+.csseg button.on.okc{background:var(--ok);color:var(--panel)}
+.csseg button.on.ngc{background:var(--danger);color:var(--panel)}
+.cssum{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--ink2);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:4px 0 6px}
+#csSum{position:sticky;top:-10px;z-index:2}
+.cssum b{color:var(--ink)} .okt b{color:var(--ok)} .ngt,.ngt b{color:var(--danger)}
+.cs-sec{font-weight:600;font-size:14px;background:var(--steel-soft);color:var(--steel);padding:5px 10px;border-radius:6px;margin:12px 0 2px}
+.cs-row{border-bottom:1px solid var(--line);padding:8px 2px;background:var(--panel)}
+.cs-row .l1{display:flex;gap:8px;font-size:14px}
+.cs-row .no{width:28px;flex:none;color:var(--ink2);font-variant-numeric:tabular-nums}
+.cs-row .l2{display:grid;grid-template-columns:minmax(70px,1fr) auto minmax(78px,auto);gap:8px;align-items:center;margin:6px 0 0 36px}
+.cs-row .dz{font-size:13px;color:var(--ink2)}
+.cs-row .dz i{color:var(--ink3)}
+.csnum{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:8px;background:var(--bg);overflow:hidden}
+.csnum input{width:72px;border:0;background:none;padding:6px 8px;text-align:right}
+.csnum em{font-style:normal;font-size:12px;color:var(--ink2);padding-right:8px}
+.csman{display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap}
+.csman input{width:84px;border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:6px 8px}
+.res{display:flex;flex-direction:column;align-items:flex-end;gap:1px;text-align:right}
+.csb{font-size:12px;font-weight:600;color:var(--ink3)}
+.csb.ok{color:var(--ok)} .csb.no{color:var(--danger)}
+.csp{font-size:11px;color:var(--ink2)}
+.rmk{display:block;width:calc(100% - 36px);margin:6px 0 0 36px;border:0;border-bottom:1px dashed var(--line);background:none;padding:4px 2px;font-size:13px}
+.csact{display:flex;gap:8px;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);background:var(--panel)}
+.csact .btn{flex:1;padding:10px 6px;font-size:14px}
+#csA4{padding:8px;overflow:hidden}
+#csA4Page{transform-origin:top left}
+.a4{width:194mm;background:#fff;color:#000;font:8.8pt/1.25 Arial,"IBM Plex Sans Thai",Tahoma,sans-serif;padding:0;box-shadow:0 1px 6px rgba(0,0,0,.25)}
+.a4 table{width:100%;border-collapse:collapse;table-layout:fixed}
+.a4 td,.a4 th{border:0.6pt solid #000;padding:0.7mm 1.2mm;vertical-align:middle;word-wrap:break-word}
+.a4 .bd td.c,.a4 .bd td.dsc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.a4 .bd td{padding:1mm 1.4mm}
+.a4 th{background:#E8EDF1;font-weight:700}
+.a4 .c{text-align:center}
+.a4 .egat{color:#1F3F8F;border:0;padding-left:0}
+.a4 .docno{color:#C00000;font-weight:700;text-align:center}
+.a4 .hd2 td{border:0;padding:0.9mm 0}
+.a4 .bd tr.sec td{font-weight:700;background:#F3F5F7}
+.a4 .bd td.ng{color:#C00000;font-weight:700}
+.a4 .nt td{height:16mm;vertical-align:top}
+.a4 .sg td{height:22mm;vertical-align:top}
+.a4 .sg .nm{margin:6mm 0 1mm}
+.a4 .foot{font-size:7pt;color:#555;margin-top:1.5mm}
+#printRoot{display:none}
+@media print{
+  @page{size:A4;margin:8mm}
+  body{background:#fff}
+  body>*:not(#printRoot){display:none!important}
+  dialog{display:none!important}
+  #printRoot{display:block!important}
+  #printRoot .a4{box-shadow:none}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
 @media (max-width:420px){.board .n{font-size:21px}.board .k{font-size:11px}.board .late{font-size:10px}.seg button{font-size:12px}.row2{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){.toast{transition:none}}
 </style>
@@ -383,6 +448,13 @@ pre.preview{white-space:pre-wrap;background:var(--bg);border:1px solid var(--lin
   </div>
 </dialog>
 
+<dialog id="csDlg">
+  <div class="cshdr"><div id="csHead"></div><button class="btn" id="csClose" style="flex:none">ปิด</button></div>
+  <div id="csScroll"><div id="csForm"></div><div id="csA4" hidden><div id="csA4Page"></div></div></div>
+  <div class="csact" id="csActForm"><button class="btn" id="csPmBtn">สถานะ PM</button><button class="btn" id="csA4Btn">ดูแบบ A4</button><button class="btn" id="csSave">บันทึก</button><button class="btn primary" id="csDone">บันทึก + ปิดงาน</button></div>
+  <div class="csact" id="csActA4" hidden><button class="btn" id="csBack">กลับไปแก้ไข</button><button class="btn primary" id="csPrint">พิมพ์ / บันทึก PDF</button></div>
+</dialog>
+
 <dialog id="closeDlg">
   <div class="dlg">
     <h2>ปิดงาน</h2>
@@ -451,7 +523,7 @@ const POS=['หัวหน้าแผนก','วิศวกร','หัว�
 const AVAIL=['ปฏิบัติงาน','ลา','อบรม/สัมมนา','ปฏิบัติงานนอกพื้นที่'];
 let editingP=null;
 function normalize(d){
-  if(!d.pmSheet||typeof d.pmSheet!=='object')d.pmSheet={url:'',token:''};
+  if(!d.pmSheet||typeof d.pmSheet!=='object')d.pmSheet={url:'',token:''};if(!d.checks||typeof d.checks!=='object')d.checks={};
   if(!Array.isArray(d.budget))d.budget=[];if(!Array.isArray(d.people))d.people=[];if(!Array.isArray(d.tests))d.tests=[];if(!d.testNotes||typeof d.testNotes!=='object')d.testNotes={};
   const otMap={'วางแผนงาน':'เตรียมอะไหล่/บุคลากร','เตรียมอะไหล่/ผู้รับเหมา':'เตรียมอะไหล่/บุคลากร','ทดสอบหลังซ่อม':'กำลังดำเนินการ'};
   [...(d.tasks||[]),...(d.log||[])].forEach(t=>{if(t.cat!=='OT')return;if(otMap[t.status])t.status=otMap[t.status];
@@ -791,7 +863,7 @@ function renderPM(){
       return `<button class="job" style="--c:var(${x.cat==='PM Outage'?'--ot':'--pm'})" data-pm="${esc(x.id)}">
         <div class="top"><span><span class="wo">${thDate(x.planDate)}</span> · ${esc(x.unit)}${x.cat==='PM Outage'?' · Outage':''}</span><span>${x.freqWeeks?esc(x.freqWeeks)+'W':''}</span></div>
         <div class="t">${esc(x.desc)}</div>
-        <div class="meta"><span class="st ${st}">${esc(x.status)}</span>${pmLate(x)?`<span class="due late">เลยกำหนด ${daysLate(x.planDate,todayISO())} วัน</span>`:''}${x.actualDate?`<span>ทำจริง ${thDate(x.actualDate)}</span>`:''}${x.men&&x.hours?`<span>${x.men} คน × ${x.hours} ชม.</span>`:''}${x.wo?`<span>${esc(x.wo)}</span>`:''}${x.owner?`<span>${esc(x.owner)}</span>`:''}</div>
+        <div class="meta"><span class="st ${st}">${esc(x.status)}</span>${pmLate(x)?`<span class="due late">เลยกำหนด ${daysLate(x.planDate,todayISO())} วัน</span>`:''}${x.actualDate?`<span>ทำจริง ${thDate(x.actualDate)}</span>`:''}${x.men&&x.hours?`<span>${x.men} คน × ${x.hours} ชม.</span>`:''}${x.wo?`<span>${esc(x.wo)}</span>`:''}${x.owner?`<span>${esc(x.owner)}</span>`:''}${(()=>{const t=csTplFor(x);if(!t)return '';const c=S.checks[x.id];if(!c)return '<span class="st">📋 Check sheet</span>';const q=csStats(t,c);return `<span class="st ${q.fail?'no':q.filled===q.total?'ok':''}">📋 ${q.filled}/${q.total}${q.fail?' · ไม่ผ่าน '+q.fail:''}</span>`})()}</div>
         ${x.note?`<div class="note">${esc(x.note)}</div>`:''}</button>`}).join('')}</div>
     <button class="linkbtn" id="pmCfgBtn">ตั้งค่าการเชื่อมต่อ Google Sheet</button>
     ${legacyHTML}`;
@@ -801,11 +873,148 @@ function renderPM(){
   $('pmUnit').onchange=e=>{pmF.unit=e.target.value;renderPM()};
   $('pmCat').onchange=e=>{pmF.cat=e.target.value;renderPM()};
   el.querySelector('.alerts').onclick=e=>{const b=e.target.closest('[data-pq]');if(!b)return;const q=b.dataset.pq;pmF.quick=pmF.quick===q?'':q;renderPM()};
-  $('pmList').onclick=e=>{const b=e.target.closest('[data-pm]');if(b)openPm(PMC.items.find(x=>x.id===b.dataset.pm))};
+  $('pmList').onclick=e=>{const b=e.target.closest('[data-pm]');if(b)openCS(PMC.items.find(x=>x.id===b.dataset.pm))};
   $('pmCfgBtn').onclick=()=>{pmCfgOpen=!pmCfgOpen;renderPM();window.scrollTo(0,0)};
   bindLegacy();
 }
 function bindLegacy(){$('pmView').querySelectorAll('[data-legacy]').forEach(b=>b.onclick=()=>openJob(S.tasks.find(t=>t.id===b.dataset.legacy)))}
+/* ---------- E-Check sheet ---------- */
+const CS_TPL=[{key:'HT',match:/hydraulic\s*turbine/i,title:'Inspection Sheet : Hydraulic Turbine',docNo:'FR-HY-RPB-9845-22-12-001',taskList:'ARPB2MME #1',plan:'ARPB2M0_ME01',
+  sections:[
+  ['1. Turbine',[
+    {n:'1.1',d:'Eccentric pin no.1-24 visual check',t:'chk',ds:''},
+    {n:'1.2',d:'Shear pin no.1-24 visual check',t:'chk',ds:''},
+    {n:'1.3',d:'Guide & Thrust stripe wearing',t:'chk',ds:'No wearing sign',hint:'ไม่พบผงใต้ Operating ring'},
+    {n:'1.4',d:'Guide vane key no.1-24 visual check',t:'chk',ds:''}]],
+  ['2. Oil reservoir',[
+    {n:'2.1',d:'Oil sump level',t:'num',ds:'± 5 mm',u:'mm',nom:0,min:-5,max:5},
+    {n:'2.2',d:'Oil leakage (at joining point)',t:'chk',ds:''}]],
+  ['3. Lube oil pump',[
+    {n:'3.1',d:'Suction filter indicator',t:'chk',ds:'Not red'},
+    {n:'3.2',d:'Lube oil pump no.1 press.',t:'num',ds:'4-7 kgf/cm²',u:'kgf/cm²',nom:5.5,min:4,max:7},
+    {n:'3.4',d:'Lube oil pump no.1 flowrate',t:'num',ds:'~ 9 l/min',u:'l/min',nom:9,min:8.1,max:9.9,approx:1},
+    {n:'3.5',d:'Lube oil pump no.2 press.',t:'num',ds:'4-7 kgf/cm²',u:'kgf/cm²',nom:5.5,min:4,max:7},
+    {n:'3.7',d:'Lube oil pump no.2 flowrate',t:'num',ds:'~ 9 l/min',u:'l/min',nom:9,min:8.1,max:9.9,approx:1}]],
+  ['4. Turbine oil cooler',[
+    {n:'4.1',d:'CW flowrate',t:'num',ds:'> 60 l/min',u:'l/min',nom:60,min:60,gt:1}]],
+  ['5. Turbine shaft seal',[
+    {n:'5.1',d:'Turbine shaft seal c.w. pressure',t:'num',ds:'> 50 mAq',u:'mAq',nom:50,min:50,gt:1},
+    {n:'5.2',d:'Sediment in sand separator',t:'chk',ds:'Not high'},
+    {n:'5.3',d:'Shaft seal c.w. strainer no.1 (Manual)',t:'chk',ds:''},
+    {n:'5.4',d:'Shaft seal c.w. strainer no.2 (Manual)',t:'chk',ds:''},
+    {n:'5.5',d:'Motorize drain valve (Manual open-close)',t:'chk',ds:''}]],
+  ['6. Turbine runner seal',[
+    {n:'6.1',d:'C.W flowrate',t:'num',ds:'300 l/min',u:'l/min',nom:300,min:270,max:330,approx:1},
+    {n:'6.2',d:'No leakage in piping system',t:'chk',ds:'Visual'},
+    {n:'6.3',d:'Pressure for runner seal (W079)',t:'man',ds:'~ waterhead'}]],
+  ['7. Jet pump',[
+    {n:'7.1',d:'Jet valve oil leakage (visual check)',t:'chk',ds:'No leakage'},
+    {n:'7.2',d:'Jet valve water leakage (visual check)',t:'chk',ds:'No leakage'},
+    {n:'7.3',d:'Air check valve',t:'chk',ds:'No leakage'},
+    {n:'7.4',d:'Jet valve opening time',t:'num',ds:'9 ± 2 sec',u:'sec',nom:9,min:7,max:11},
+    {n:'7.5',d:'Jet valve closing time',t:'num',ds:'9 ± 2 sec',u:'sec',nom:9,min:7,max:11}]]
+  ]}];
+CS_TPL.forEach(t=>t.items=t.sections.flatMap(s=>s[1]));
+let csItem=null,csTpl=null,csRaw=null,csTimer=null;
+function csTplFor(x){return x?CS_TPL.find(t=>t.match.test(x.desc||''))||null:null}
+function csIntervalOf(w){return {4:'4W',12:'3M',24:'6M',48:'1Y'}[Number(w)]||''}
+function csUnitNo(u){const m=String(u||'').match(/Unit\s*(\d)/);return m?'#'+m[1]:''}
+function csNew(x,tpl){return {tpl:tpl.key,date:todayISO(),wo:x.wo||'',interval:csIntervalOf(x.freqWeeks),unitStatus:'',unitNo:csUnitNo(x.unit),v:{},note:'',sign:{i:x.owner||'',id:'',a:'',ad:'',g:'',gd:''},savedAt:0,synced:false}}
+function csNum(v){const n=parseFloat(String(v??'').replace(/,/g,'.').replace(/[^0-9.\-]/g,''));return isFinite(n)?n:NaN}
+function csEval(it,v){
+  v=v||{};
+  if(it.t==='chk'){if(!v.a)return {s:'empty'};return {s:v.a==='OK'?'pass':'fail'}}
+  if(it.t==='man'){if(!v.j)return {s:v.a?'empty':'empty'};return {s:v.j==='OK'?'pass':'fail'}}
+  if(v.a==null||String(v.a).trim()==='')return {s:'empty'};
+  const a=csNum(v.a);if(isNaN(a))return {s:'bad'};
+  const lo=it.min==null||(it.gt?a>it.min:a>=it.min),hi=it.max==null||a<=it.max;
+  let pct=null,lbl='';
+  if(it.nom)pct=(a-it.nom)/it.nom*100;else if(it.max){pct=Math.abs(a)/it.max*100;lbl='พิกัด'}
+  return {s:lo&&hi?'pass':'fail',a,pct,lbl};
+}
+function csPctText(r){if(r.pct==null||!isFinite(r.pct))return '';if(r.lbl)return `${Math.round(r.pct)}% ${r.lbl}`;const p=Math.round(r.pct*10)/10;return (p>0?'+':'')+p.toFixed(1)+'%'}
+function csStats(tpl,raw){let f=0,p=0,n=0;const fails=[];tpl.items.forEach(it=>{const r=csEval(it,raw.v[it.n]);if(r.s==='pass'){f++;p++}else if(r.s==='fail'){f++;n++;fails.push(it.n)}});return {total:tpl.items.length,filled:f,pass:p,fail:n,fails}}
+function csBadge(it,raw){const r=csEval(it,raw.v[it.n]);
+  if(r.s==='empty')return '<span class="csb">–</span>';if(r.s==='bad')return '<span class="csb no">ค่าไม่ถูกต้อง</span>';
+  const pt=csPctText(r);return `<span class="csb ${r.s==='pass'?'ok':'no'}">${r.s==='pass'?'✓ ผ่าน':'✗ ไม่ผ่าน'}</span>${pt?`<span class="csp">${pt}</span>`:''}`}
+function seg(k,opts,val){return `<span class="csseg">${opts.map(o=>`<button type="button" data-set="${k}" data-val="${esc(o[0])}" class="${val===o[0]?'on '+(o[2]||''):''}">${o[1]}</button>`).join('')}</span>`}
+function openCS(x){
+  const tpl=csTplFor(x);if(!tpl){openPm(x);return}
+  csItem=x;csTpl=tpl;csRaw=S.checks[x.id]?JSON.parse(JSON.stringify(S.checks[x.id])):csNew(x,tpl);
+  $('csA4').hidden=true;$('csForm').hidden=false;renderCS();$('csDlg').showModal();$('csScroll').scrollTop=0;
+  if(!S.checks[x.id]&&pmOn()&&navigator.onLine!==false)csFetchRemote(x.id);
+}
+async function csFetchRemote(id){
+  try{const u=S.pmSheet.url+(S.pmSheet.url.includes('?')?'&':'?')+'action=check&id='+encodeURIComponent(id)+'&token='+encodeURIComponent(S.pmSheet.token);
+    const j=await (await fetch(u)).json();
+    if(j.ok&&j.check&&csItem&&csItem.id===id&&!csRaw.savedAt){csRaw=j.check;csRaw.synced=true;S.checks[id]=JSON.parse(JSON.stringify(csRaw));save();renderCS();toast('โหลดผลตรวจที่บันทึกไว้ใน Sheet แล้ว')}}catch(e){}
+}
+function renderCS(){
+  const x=csItem,tpl=csTpl,raw=csRaw,st=csStats(tpl,raw);
+  $('csHead').innerHTML=`<div class="cst">${esc(tpl.title)}</div><div class="sub">${esc(x.desc)} · แผน ${thDate(x.planDate,true)}</div>`;
+  const hdr=`<div class="csgrid">
+    <label class="f"><span>Date</span><input type="date" data-k="date" value="${esc(raw.date)}"></label>
+    <label class="f"><span>Work order no.</span><input data-k="wo" value="${esc(raw.wo)}" placeholder="WO-123456"></label></div>
+    <div class="csline"><span class="lb">Unit no.</span>${seg('unitNo',[['#1','#1'],['#2','#2'],['#3','#3']],raw.unitNo)}</div>
+    <div class="csline"><span class="lb">PM interval</span>${seg('interval',[['4W','4W'],['3M','3M'],['6M','6M'],['1Y','1Y']],raw.interval)}</div>
+    <div class="csline"><span class="lb">Unit status</span>${seg('unitStatus',[['operate','operate'],['shut down','shut down']],raw.unitStatus)}</div>`;
+  const rows=tpl.sections.map(([title,items])=>`<div class="cs-sec">${esc(title)}</div>`+items.map(it=>{const v=raw.v[it.n]||{};
+    let inp='';
+    if(it.t==='chk')inp=seg('v.'+it.n+'.a',[['OK','ปกติ','okc'],['NG','ผิดปกติ','ngc']],v.a);
+    else if(it.t==='man')inp=`<span class="csman"><input data-k="v.${it.n}.a" value="${esc(v.a||'')}" placeholder="ค่าที่วัดได้">${seg('v.'+it.n+'.j',[['OK','ปกติ','okc'],['NG','ผิดปกติ','ngc']],v.j)}</span>`;
+    else inp=`<span class="csnum"><input inputmode="decimal" data-k="v.${it.n}.a" value="${esc(v.a??'')}" placeholder="Actual"><em>${esc(it.u)}</em></span>`;
+    return `<div class="cs-row" data-row="${it.n}"><div class="l1"><span class="no">${it.n}</span><span class="ds">${esc(it.d)}</span></div>
+      <div class="l2"><span class="dz" title="Design">${it.ds?esc(it.ds):'<i>–</i>'}${it.approx?'<sup title="ประมาณ ±10%">≈</sup>':''}</span>${inp}<span class="res" id="csr-${it.n.replace('.','-')}">${csBadge(it,raw)}</span></div>
+      <input class="rmk" data-k="v.${it.n}.r" value="${esc(v.r||'')}" placeholder="${it.hint?esc('Remark เช่น '+it.hint):'Remark'}"></div>`}).join('')).join('');
+  const sign=[['i','id','Inspection by'],['a','ad','Approve by'],['g','gd','Register by']].map(([n,d,l])=>`<div class="csgrid"><label class="f"><span>${l}</span><input data-k="sign.${n}" value="${esc(raw.sign[n]||'')}"></label><label class="f"><span>Date</span><input type="date" data-k="sign.${d}" value="${esc(raw.sign[d]||'')}"></label></div>`).join('');
+  $('csForm').innerHTML=hdr+`<div id="csSum">${csSumHTML(st)}</div>`+rows+`<label class="f" style="margin-top:12px"><span>Note</span><textarea rows="2" data-k="note">${esc(raw.note)}</textarea></label>`+sign+
+    `<div class="sub" style="margin:6px 0 4px">${raw.savedAt?`บันทึกล่าสุด ${new Date(raw.savedAt).toLocaleString('th-TH',{dateStyle:'medium',timeStyle:'short'})} · ${raw.synced?'อยู่ใน Sheet แล้ว':'ยังไม่ได้ส่งขึ้น Sheet'}`:'ยังไม่ได้บันทึก'}</div>`;
+}
+function csSumHTML(st){return `<div class="cssum"><span>กรอกแล้ว <b>${st.filled}/${st.total}</b></span><span class="okt">ผ่าน <b>${st.pass}</b></span><span class="ngt">ไม่ผ่าน <b>${st.fail}</b></span>${st.fail?`<span class="ngt">(${st.fails.join(', ')})</span>`:''}</div>`}
+function csSet(path,val){const p=path.split('.');let o=csRaw;
+  if(p[0]==='v'){const n=p[1]+'.'+p[2];o=csRaw.v[n]=csRaw.v[n]||{};o[p[3]]=val;return n}
+  for(let i=0;i<p.length-1;i++)o=o[p[i]];o[p[p.length-1]]=val;return null}
+function csAutosave(){csRaw.synced=false;clearTimeout(csTimer);csTimer=setTimeout(()=>{S.checks[csItem.id]=JSON.parse(JSON.stringify(csRaw));save()},600)}
+function csPayload(){const x=csItem,tpl=csTpl,raw=csRaw,st=csStats(tpl,raw);
+  return {pmnum:x.pmnum,tpl:tpl.title,date:raw.date,wo:raw.wo,unit:raw.unitNo||x.unit,interval:raw.interval,unitStatus:raw.unitStatus,total:st.total,filled:st.filled,pass:st.pass,fail:st.fail,inspector:raw.sign.i,note:raw.note,
+    items:tpl.items.map(it=>{const v=raw.v[it.n]||{},r=csEval(it,v);return {n:it.n,d:it.d,design:it.ds,actual:it.t==='chk'?(v.a==='OK'?'ปกติ':v.a==='NG'?'ผิดปกติ':''):(v.a||''),unit:it.u||'',pct:csPctText(r),result:r.s==='pass'?'ผ่าน':r.s==='fail'?'ไม่ผ่าน':'',remark:v.r||''}}),raw}}
+async function saveCS(close){
+  const st=csStats(csTpl,csRaw);
+  if(close&&st.filled<st.total&&!confirm(`ยังกรอกไม่ครบ (${st.filled}/${st.total}) ต้องการปิดงาน PM เลยหรือไม่?`))return;
+  clearTimeout(csTimer);csRaw.savedAt=Date.now();S.checks[csItem.id]=JSON.parse(JSON.stringify(csRaw));save();
+  if(!pmOn()){toast('บันทึกในเครื่องแล้ว');renderCS();return}
+  const btn=close?$('csDone'):$('csSave');btn.disabled=true;
+  try{
+    const pl=csPayload();delete pl.raw.synced;
+    const r=await fetch(S.pmSheet.url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({token:S.pmSheet.token,action:'saveCheck',id:csItem.id,check:pl})});
+    const j=await r.json();if(!j.ok)throw new Error(j.error||'error');
+    csRaw.synced=true;S.checks[csItem.id]=JSON.parse(JSON.stringify(csRaw));save();
+    if(close){const f={status:PM_DONE,actualDate:csRaw.date||todayISO()};if(csRaw.wo)f.wo=csRaw.wo;if(csRaw.sign.i&&!csItem.owner)f.owner=csRaw.sign.i;
+      const it=await pmPost(csItem.id,f);Object.assign(csItem,it||f);pmSaveCache();$('csDlg').close();toast('บันทึกผลตรวจและปิดงาน PM แล้ว');render();return}
+    toast('บันทึกผลตรวจลง Sheet แล้ว');
+  }catch(e){toast(/ไม่รู้จักคำสั่ง/.test(e.message)?'บันทึกในเครื่องแล้ว แต่สคริปต์ใน Sheet ยังไม่รองรับ (อัปเดตสคริปต์)':navigator.onLine===false?'บันทึกในเครื่องแล้ว ส่งขึ้น Sheet ไม่ได้เพราะไม่มีเน็ต':'บันทึกในเครื่องแล้ว แต่ส่งขึ้น Sheet ไม่สำเร็จ')}
+  finally{btn.disabled=false}
+  renderCS();render();
+}
+function csA4HTML(){const x=csItem,tpl=csTpl,raw=csRaw,st=csStats(tpl,raw);
+  const box=(on)=>on?'☑':'☐',d=iso=>iso?thDate(iso,true):'';
+  const rows=tpl.sections.map(([title,items])=>`<tr class="sec"><td colspan="7">${esc(title)}</td></tr>`+items.map(it=>{const v=raw.v[it.n]||{},r=csEval(it,v);
+    const act=it.t==='chk'?(v.a==='OK'?'ปกติ':v.a==='NG'?'ผิดปกติ':''):it.t==='man'?(v.a||'')+(v.j?` (${v.j==='OK'?'ปกติ':'ผิดปกติ'})`:''):(v.a!=null&&v.a!==''?esc(v.a)+' '+esc(it.u):'');
+    return `<tr><td class="c">${it.n}</td><td class="dsc">${esc(it.d)}</td><td class="c">${esc(it.ds)}</td><td class="c">${act}</td><td class="c">${csPctText(r)}</td><td class="c ${r.s==='fail'?'ng':''}">${r.s==='pass'?'✓':r.s==='fail'?'✗':''}</td><td>${esc(v.r||'')}</td></tr>`}).join('')).join('');
+  return `<div class="a4"><table class="hd"><tr><td colspan="4" class="egat"><b>EGAT :</b> Electricity Generating Authority of Thailand ; Rajjaprabha Hydro Power Plant (RPBH)</td></tr>
+    <tr><td style="width:22%"><b>System</b> QSHEEnP</td><td style="width:36%">แผนกบำรุงรักษาเครื่องกล</td><td style="width:9%">doc. no.</td><td class="docno">${esc(tpl.docNo)}</td></tr>
+    <tr><td>Task list : ${esc(tpl.taskList)}</td><td>Maint. plan : ${esc(tpl.plan)}</td><td colspan="2" class="c"><b>${esc(tpl.title)}</b></td></tr></table>
+    <table class="hd2"><colgroup><col style="width:42%"><col style="width:24%"><col></colgroup><tr><td>Unit no. : ${['#1','#2','#3'].map(u=>box(raw.unitNo===u)+' '+u).join('&nbsp;&nbsp;')}</td><td>Date : <u>${d(raw.date)||'&nbsp;'.repeat(16)}</u></td><td>Work order no. : <u>${esc(raw.wo)||'&nbsp;'.repeat(16)}</u></td></tr>
+    <tr><td>PM interval : ${['4W','3M','6M','1Y'].map(u=>box(raw.interval===u)+' '+u).join('&nbsp;&nbsp;')}</td><td colspan="2">Unit status : ${box(raw.unitStatus==='operate')} operate&nbsp;&nbsp;${box(raw.unitStatus==='shut down')} shut down</td></tr></table>
+    <table class="bd"><thead><tr><th style="width:5%">Item</th><th>Description</th><th style="width:14.5%">Design</th><th style="width:12.5%">Actual</th><th style="width:9.5%">ต่าง</th><th style="width:4.5%">ผล</th><th style="width:17%">Remark</th></tr></thead><tbody>${rows}</tbody></table>
+    <table class="nt"><tr><td><b>สรุปผล:</b> ตรวจ ${st.filled}/${st.total} รายการ · ผ่าน ${st.pass} · ไม่ผ่าน ${st.fail}${st.fail?` (ข้อ ${st.fails.join(', ')})`:''}<br><b>Note:</b> ${esc(raw.note).replace(/\n/g,'<br>')}</td></tr></table>
+    <table class="sg"><tr>${[['inspection by','i','id'],['approve by','a','ad'],['register by','g','gd']].map(([l,n,dd])=>`<td><div class="c">${l}</div><div class="c nm">( ${esc(raw.sign[n]||'').padEnd(1,' ')||'&nbsp;'} )</div><div>date : ${d(raw.sign[dd])}</div></td>`).join('')}</tr></table>
+    <div class="foot">${esc(x.pmnum)} · ${esc(x.desc)} · พิมพ์จากแอปติดตามงานบำรุงรักษา ${new Date().toLocaleString('th-TH',{dateStyle:'short',timeStyle:'short'})}</div></div>`}
+function csShowA4(){$('csA4Page').innerHTML=csA4HTML();$('csForm').hidden=true;$('csA4').hidden=false;$('csScroll').scrollTop=0;csFit()}
+function csFit(){const w=$('csA4').clientWidth-16,pg=$('csA4Page').firstElementChild;if(!pg)return;const sc=Math.min(1,w/pg.offsetWidth);$('csA4Page').style.transform=`scale(${sc})`;$('csA4Page').style.height=(pg.offsetHeight*sc)+'px'}
+function csPrint(){let r=$('printRoot');if(!r){r=document.createElement('div');r.id='printRoot';document.body.appendChild(r)}r.innerHTML=csA4HTML();
+  r.style.cssText='display:block;position:absolute;left:-9999px;top:0;visibility:hidden';const pg=r.firstElementChild,mm=96/25.4,maxH=279*mm,h=pg.offsetHeight;pg.style.zoom=h>maxH?(maxH/h).toFixed(3):'';r.style.cssText='';const t=document.title;document.title=`CheckSheet_${(csItem.pmnum||'')}_${csRaw.date||''}`;setTimeout(()=>{window.print();document.title=t},50)}
+
 function openPm(x){
   if(!x)return;pmEditing=x;
   $('pmTitle').textContent=x.desc;
@@ -928,11 +1137,13 @@ function buildDaily(){
     const iss=S.tasks.filter(t=>isLate(t)||t.pri==1||WAIT.includes(t.status));
     iss.sort((a,b)=>(isLate(b)-isLate(a))||(a.pri-b.pri));
     const lateT=S.tests.filter(tLate);
-    if(iss.length||lateT.length||(pmOn()&&PMC.items.some(pmLate))){o.push('',`⚠️ เรื่องที่ต้องติดตาม${iss.length?` (${iss.length} งาน)`:''}`);
+    const csFailToday=Object.values(S.checks).some(c=>c.savedAt&&c.date===today&&(()=>{const t=CS_TPL.find(z=>z.key===c.tpl);return t&&csStats(t,c).fail>0})());
+    if(iss.length||lateT.length||csFailToday||(pmOn()&&PMC.items.some(pmLate))){o.push('',`⚠️ เรื่องที่ต้องติดตาม${iss.length?` (${iss.length} งาน)`:''}`);
       more(o,iss,(t,i)=>{const r=[];if(isLate(t))r.push(`เกินกำหนด ${daysLate(dueOf(t),today)} วัน`);else if(t.pri==1)r.push('ด่วนมาก');r.push(t.status);if(t.cat!=='OT'&&t.owner)r.push(t.owner);
         return `${i+1}. ${tag(t)} ${t.title}\n   ${r.join(' · ')}${t.note?`\n   ↳ ${t.note}`:''}`});
       const pl=pmOn()?PMC.items.filter(pmLate).sort((a,b)=>a.planDate<b.planDate?-1:1):[];
       if(pl.length){o.push(`🛠️ PM เลยกำหนด ${pl.length} รายการ`);pl.slice(0,3).forEach(x=>o.push(`   • ${x.desc} (${x.unit}, แผน ${thDate(x.planDate)})`));if(pl.length>3)o.push(`   …และอีก ${pl.length-3} รายการ`)}
+      Object.entries(S.checks).forEach(([id,c])=>{if(!c.savedAt||c.date!==today)return;const t=CS_TPL.find(z=>z.key===c.tpl);if(!t)return;const q=csStats(t,c);if(q.fail){const it=PMC.items.find(z=>z.id===id);o.push(`🔎 ผลตรวจผิดปกติ: ${t.title.replace('Inspection Sheet : ','')} ${c.unitNo||''} – ${q.fail} รายการ (ข้อ ${q.fails.join(', ')})`)}});
       if(lateT.length){lateT.sort(tSort);o.push(`🧪 ทดสอบอุปกรณ์เลยกำหนด ${lateT.length} รายการ`);lateT.slice(0,3).forEach(t=>o.push(`   • ${t.equip} (กำหนด ${thDate(t.date)})`));if(lateT.length>3)o.push(`   …และอีก ${lateT.length-3} รายการ`)}}
   }
   const pmToday=pmOn()?PMC.items.filter(x=>x.status===PM_DONE&&x.actualDate===today):[];
@@ -1052,6 +1263,20 @@ function demo(){
 
 $('pmSave').onclick=savePm;$('pmCancel').onclick=()=>$('pmDlg').close();
 $('pmStatus').onchange=()=>{if($('pmStatus').value===PM_DONE&&!$('pmActual').value)$('pmActual').value=todayISO()};
+$('csClose').onclick=()=>{clearTimeout(csTimer);if(csItem){S.checks[csItem.id]=JSON.parse(JSON.stringify(csRaw));save()}$('csDlg').close()};
+$('csForm').addEventListener('input',e=>{const k=e.target.dataset.k;if(!k)return;const n=csSet(k,e.target.value);
+  if(n){const it=csTpl.items.find(i=>i.n===n);const el=$('csr-'+n.replace('.','-'));if(el)el.innerHTML=csBadge(it,csRaw);$('csSum').innerHTML=csSumHTML(csStats(csTpl,csRaw))}csAutosave()});
+$('csForm').addEventListener('click',e=>{const b=e.target.closest('[data-set]');if(!b)return;const k=b.dataset.set,v=b.dataset.val;
+  const path=k.split('.');let old;if(path[0]==='v'){old=(csRaw.v[path[1]+'.'+path[2]]||{})[path[3]]}else old=csRaw[k];
+  const n=csSet(k,old===v?'':v);
+  b.parentElement.querySelectorAll('button').forEach(x=>{const on=x.dataset.val===(old===v?'':v);x.className=on?('on '+(x.dataset.val==='OK'?'okc':x.dataset.val==='NG'?'ngc':'')):''});
+  if(n){const it=csTpl.items.find(i=>i.n===n);const el=$('csr-'+n.replace('.','-'));if(el)el.innerHTML=csBadge(it,csRaw);$('csSum').innerHTML=csSumHTML(csStats(csTpl,csRaw))}csAutosave()});
+$('csSave').onclick=()=>saveCS(false);$('csDone').onclick=()=>saveCS(true);
+$('csPmBtn').onclick=()=>openPm(csItem);
+$('csA4Btn').onclick=()=>{csShowA4();$('csActForm').hidden=true;$('csActA4').hidden=false};
+$('csBack').onclick=()=>{$('csA4').hidden=true;$('csForm').hidden=false;$('csActForm').hidden=false;$('csActA4').hidden=true};
+$('csPrint').onclick=csPrint;
+window.addEventListener('resize',()=>{if(!$('csA4').hidden)csFit()});
 $('mainNav').onclick=e=>{const b=e.target.closest('[data-v]');if(b)setView(b.dataset.v)};
 $('alerts').onclick=e=>{const b=e.target.closest('[data-q]');if(!b)return;const q=b.dataset.q;if(q==='all'){filter.quick=null}else{filter.quick=filter.quick===q?null:q}render()};
 $('openView').onclick=e=>{const b=e.target.closest('.job');if(b)openJob(S.tasks.find(t=>t.id===b.dataset.id))};
