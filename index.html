@@ -464,7 +464,8 @@ pre.preview{white-space:pre-wrap;background:var(--bg);border:1px solid var(--lin
   <div class="dlg">
     <h2>ลิงก์ให้ช่างกรอกผลตรวจ</h2>
     <p class="sub" id="shTitle" style="margin-top:-6px"></p>
-    <label class="f"><span>ลิงก์</span><input id="shLink" readonly onfocus="this.select()"></label>
+    <p class="sub" id="shStatus" style="margin:0 0 10px"></p>
+    <div id="shLinkWrap" hidden><label class="f"><span>ลิงก์</span><input id="shLink" readonly></label></div>
     <p class="sub" style="margin:-4px 0 10px">ช่างเปิดลิงก์แล้วกรอกได้ทันที ไม่ต้องติดตั้งแอปหรือล็อกอิน ลิงก์นี้แก้ไขได้เฉพาะใบตรวจนี้</p>
     <div class="acts">
       <button class="btn grow" id="shClose">ปิด</button>
@@ -574,7 +575,7 @@ function otPeriod(t){if(!t.oStart&&!t.oEnd)return '';const a=t.oStart?thDate(t.o
 function otHours(t){return t.oHours!=null&&t.oHours!==''?`${Number(t.oHours).toLocaleString('th-TH')} ชม.`:''}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),1800)}
+function toast(m){const t=$('toast');const d=[...document.querySelectorAll('dialog[open]')].pop();const host=d||document.body;if(t.parentNode!==host)host.appendChild(t);t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),1800)}
 
 function load(){try{const r=localStorage.getItem(LS);if(r){const d=JSON.parse(r);if(d&&Array.isArray(d.tasks))S=d}}catch(e){}normalize(S)}
 function save(){
@@ -1115,22 +1116,30 @@ async function saveCS(close,quiet){
   }catch(e){toast(/ไม่รู้จักคำสั่ง/.test(e.message)?'บันทึกในเครื่องแล้ว แต่สคริปต์ใน Sheet ยังไม่รองรับ (อัปเดตสคริปต์)':navigator.onLine===false?'บันทึกในเครื่องแล้ว ส่งขึ้น Sheet ไม่ได้เพราะไม่มีเน็ต':'บันทึกในเครื่องแล้ว แต่ส่งขึ้น Sheet ไม่สำเร็จ');return false}
   finally{btn.disabled=false;render()}
 }
+function shState(msg,isErr,ready){$('shStatus').textContent=msg||'';$('shStatus').style.color=isErr?'var(--danger)':'var(--ink2)';$('shLinkWrap').hidden=!ready;$('shCopy').disabled=!ready;$('shNative').disabled=!ready}
 async function csShare(){
-  if(!pmOn()){toast('ต้องเชื่อมต่อ Google Sheet ในหน้า PM ก่อน');return}
-  if(!csIsHosted()){toast('แชร์ให้ช่างได้จากแอปที่ติดตั้งจาก GitHub Pages เท่านั้น');return}
-  const b=$('csShare');b.disabled=true;
+  csShareData=null;$('shTitle').textContent=`ใบตรวจ ${csTpl.title.replace('Inspection Sheet : ','')} ${csItem.unit||''}`;$('shLink').value='';
+  $('shNative').hidden=!navigator.share;shState('กำลังสร้างลิงก์…',false,false);$('shDlg').showModal();
+  if(!pmOn()){shState('ต้องเชื่อมต่อ Google Sheet ในหน้า PM ก่อน',true,false);return}
+  if(!csIsHosted()){shState('แชร์ให้ช่างได้จากแอปที่ติดตั้งจาก GitHub Pages เท่านั้น (เวอร์ชันลิงก์ Claude ใช้ไม่ได้)',true,false);return}
+  const step=m=>shState(m,false,false);
   try{
-    if(!(await saveCS(false,true)))return;
-    const j=await csPost({action:'shareCreate',id:csItem.id},async()=>{const r=await gasPost({action:'shareCreate',id:csItem.id});return r.key?r:null});
+    step('กำลังบันทึกใบตรวจลง Sheet…');
+    if(!(await saveCS(false,true))){shState('บันทึกใบตรวจลง Sheet ไม่สำเร็จ จึงยังสร้างลิงก์ไม่ได้ ลองกดแชร์อีกครั้ง',true,false);return}
+    step('กำลังขอรหัสลิงก์จาก Sheet…');
+    let j;
+    try{j=await csPost({action:'shareCreate',id:csItem.id},async()=>{const r=await gasPost({action:'shareCreate',id:csItem.id});return r.key?r:null})}
+    catch(e){shState(/ไม่รู้จักคำสั่ง/.test(e.message)?'สคริปต์ใน Sheet ยังเป็นเวอร์ชันเก่า ต้องอัปเดตสคริปต์และ Deploy เป็น New version ก่อน':'ขอรหัสลิงก์ไม่สำเร็จ: '+e.message,true,false);return}
+    if(!j||!j.key){shState('Sheet ไม่ส่งรหัสลิงก์กลับมา ลองใหม่อีกครั้ง',true,false);return}
     const base=location.origin+location.pathname.replace(/[^/]*$/,'')+'check.html';
-    try{const r=await fetch(base,{cache:'no-store'});if(!r.ok){toast(`ไม่พบไฟล์ check.html บนเว็บ (${r.status}) ให้อัปโหลดไฟล์นี้ไว้ข้าง index.html ใน GitHub`);return}}catch(e){toast('ตรวจไฟล์ check.html ไม่ได้ ตรวจอินเทอร์เน็ต');return}
+    step('กำลังตรวจหน้าเว็บสำหรับช่าง…');
+    try{const r=await fetch(base,{cache:'no-store'});if(!r.ok){shState(`ไม่พบไฟล์ check.html บนเว็บ (รหัส ${r.status}) ให้อัปโหลดไฟล์นี้ไว้ข้าง index.html ใน GitHub`,true,false);return}}
+    catch(e){shState('ตรวจไฟล์ check.html ไม่ได้ ตรวจอินเทอร์เน็ตแล้วลองใหม่',true,false);return}
     const link=base+'#'+new URLSearchParams({a:S.pmSheet.url,i:csItem.id,k:j.key}).toString();
-    const title=`ใบตรวจ ${csTpl.title.replace('Inspection Sheet : ','')} ${csItem.unit||''}`;
-    const text=`📋 ${title}\nแผน ${thDate(csItem.planDate,true)}${csRaw.wo?' · '+csRaw.wo:''}\nกรอกผลการตรวจได้ที่ลิงก์นี้`;
-    csShareData={title,text,url:link};
-    $('shTitle').textContent=title;$('shLink').value=link;$('shNative').hidden=!navigator.share;$('shDlg').showModal();
-  }catch(e){toast(/ไม่รู้จักคำสั่ง/.test(e.message)?'ต้องอัปเดตสคริปต์ใน Sheet เป็นเวอร์ชันล่าสุดก่อน':'สร้างลิงก์ไม่สำเร็จ ลองใหม่อีกครั้ง')}
-  finally{b.disabled=false}
+    const title=$('shTitle').textContent;
+    csShareData={title,text:`📋 ${title}\nแผน ${thDate(csItem.planDate,true)}${csRaw.wo?' · '+csRaw.wo:''}\nกรอกผลการตรวจได้ที่ลิงก์นี้`,url:link};
+    $('shLink').value=link;shState('ลิงก์พร้อมแล้ว',false,true);
+  }catch(e){shState('สร้างลิงก์ไม่สำเร็จ: '+(e.message||e),true,false)}
 }
 async function csSharePdf(){const p=csPending;if(!p)return false;try{await navigator.share({files:[p.file],title:p.file.name});csPending=null;$('csPdf').textContent='PDF';return true}catch(e){if(e.name==='AbortError'){csPending=null;$('csPdf').textContent='PDF';return true}return false}}
 async function csExportPdf(){
@@ -1400,7 +1409,7 @@ $('csSave').onclick=()=>saveCS(false);$('csDone').onclick=()=>saveCS(true);
 $('csPmBtn').onclick=()=>openPm(csItem);
 $('shClose').onclick=()=>$('shDlg').close();
 $('shCopy').onclick=async()=>{const v=$('shLink').value;try{await navigator.clipboard.writeText(v);toast('คัดลอกลิงก์แล้ว')}catch(e){$('shLink').focus();$('shLink').select();try{document.execCommand('copy');toast('คัดลอกลิงก์แล้ว')}catch(x){toast('กดค้างที่ลิงก์เพื่อคัดลอก')}}};
-$('shNative').onclick=async()=>{if(!csShareData)return;try{await navigator.share(csShareData)}catch(e){}};$('csShare').onclick=csShare;$('csPdf').onclick=csExportPdf;
+$('shNative').onclick=async()=>{if(!csShareData)return;try{await navigator.share(csShareData)}catch(e){if(e.name!=='AbortError'){try{await navigator.share({url:csShareData.url})}catch(x){if(x.name!=='AbortError')shState('เปิดเมนูแชร์ไม่ได้ ('+x.name+') ใช้ปุ่มคัดลอกลิงก์แทน',true,true)}}}};$('csShare').onclick=csShare;$('csPdf').onclick=csExportPdf;
 $('mainNav').onclick=e=>{const b=e.target.closest('[data-v]');if(b)setView(b.dataset.v)};
 $('alerts').onclick=e=>{const b=e.target.closest('[data-q]');if(!b)return;const q=b.dataset.q;if(q==='all'){filter.quick=null}else{filter.quick=filter.quick===q?null:q}render()};
 $('openView').onclick=e=>{const b=e.target.closest('.job');if(b)openJob(S.tasks.find(t=>t.id===b.dataset.id))};
