@@ -1,5 +1,5 @@
 // เปลี่ยนเลขเวอร์ชันทุกครั้งที่อัปโหลด index.html ใหม่ เพื่อให้มือถือโหลดเวอร์ชันล่าสุด
-const CACHE = 'maint-v15';
+const CACHE = 'maint-v16';
 const SHELL = ['./', './index.html', './check.html', './manifest.json', './icon-192.png', './icon-512.png'];
 const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com', 'cdnjs.cloudflare.com'];
 self.addEventListener('install', e => {
@@ -19,6 +19,6 @@ self.addEventListener('fetch', e => {
       const copy = r.clone();
       caches.open(CACHE).then(c => c.put(e.request, copy)).catch(() => {});
       return r;
-    }).catch(() => caches.match(e.request).then(r => r || (sameOrigin ? caches.match('./index.html') : undefined)))
+    }).catch(() => caches.match(e.request, { ignoreSearch: sameOrigin }).then(r => r || (sameOrigin && e.request.mode === 'navigate' ? caches.match(url.pathname.endsWith('check.html') ? './check.html' : './index.html') : undefined)))
   );
 });

@@ -1135,7 +1135,10 @@ async function csShare(){
     step('กำลังตรวจหน้าเว็บสำหรับช่าง…');
     try{const r=await fetch(base,{cache:'no-store'});if(!r.ok){shState(`ไม่พบไฟล์ check.html บนเว็บ (รหัส ${r.status}) ให้อัปโหลดไฟล์นี้ไว้ข้าง index.html ใน GitHub`,true,false);return}}
     catch(e){shState('ตรวจไฟล์ check.html ไม่ได้ ตรวจอินเทอร์เน็ตแล้วลองใหม่',true,false);return}
-    const link=base+'#'+new URLSearchParams({a:S.pmSheet.url,i:csItem.id,k:j.key}).toString();
+    const sm=S.pmSheet.url.match(/\/macros\/s\/([^/?#]+)\/exec/);
+    const qp=sm?{s:sm[1],i:csItem.id,k:j.key}:{a:S.pmSheet.url,i:csItem.id,k:j.key};
+    qp.openExternalBrowser='1';
+    const link=base+'?'+new URLSearchParams(qp).toString();
     const title=$('shTitle').textContent;
     csShareData={title,text:`📋 ${title}\nแผน ${thDate(csItem.planDate,true)}${csRaw.wo?' · '+csRaw.wo:''}\nกรอกผลการตรวจได้ที่ลิงก์นี้`,url:link};
     $('shLink').value=link;shState('ลิงก์พร้อมแล้ว',false,true);

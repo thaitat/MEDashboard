@@ -264,8 +264,11 @@ function csPayloadOf(x,tpl,raw){const st=csStats(tpl,raw);
 
 /* ===== หน้ากรอกผลของช่าง (เปิดจากลิงก์ใน LINE) ===== */
 const $=id=>document.getElementById(id);
-const P=new URLSearchParams(location.hash.slice(1));
-const API=P.get('a'),ID=P.get('i'),K=P.get('k');
+// รองรับทั้งลิงก์แบบใหม่ (?s=…&i=…&k=…) และแบบเดิม (#a=…&i=…&k=…)
+const Q=new URLSearchParams(location.search),H=new URLSearchParams(location.hash.slice(1));
+const pick=k=>Q.get(k)||H.get(k);
+const SID=pick('s');
+const API=SID?'https://script.google.com/macros/s/'+SID+'/exec':pick('a'),ID=pick('i'),K=pick('k');
 let X=null,TPL=null,CTL=null,PDFURL='',pending=null;
 function msg(html,isErr){$('msg').innerHTML=html;$('msg').className='msg'+(isErr?' err':'');$('msg').hidden=!html}
 function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),2200)}
@@ -280,11 +283,11 @@ async function call(body,verify){let j=null;
   throw new Error('BADRESP')}
 function draftKey(){return 'csd-'+ID}
 async function init(){
-  if(!API||!ID||!K){msg('ลิงก์ไม่สมบูรณ์ กรุณาขอลิงก์ใหม่จากหัวหน้างาน',true);return}
+  if(!API||!ID||!K){msg('ลิงก์ไม่สมบูรณ์ (ข้อมูลในลิงก์หายไประหว่างเปิด) กรุณาขอลิงก์ใหม่จากหัวหน้างาน หรือคัดลอกลิงก์ไปเปิดใน Chrome',true);return}
   msg('กำลังโหลดแบบฟอร์ม…');
   let j;
   try{j=await getShare()}
-  catch(e){msg(/ลิงก์/.test(e.message||'')?'ลิงก์นี้ใช้ไม่ได้แล้ว กรุณาขอลิงก์ใหม่จากหัวหน้างาน':'โหลดแบบฟอร์มไม่ได้ ตรวจอินเทอร์เน็ตแล้วลองใหม่ <button class="btn" onclick="init()">ลองใหม่</button>',true);return}
+  catch(e){const m=String(e&&e.message||e);msg(/ลิงก์/.test(m)?'ลิงก์นี้ใช้ไม่ได้แล้ว กรุณาขอลิงก์ใหม่จากหัวหน้างาน':`โหลดแบบฟอร์มไม่ได้ ตรวจอินเทอร์เน็ตแล้วลองใหม่ <button class="btn" onclick="init()">ลองใหม่</button><div class="sub" style="margin-top:8px">รายละเอียด: ${m.replace(/[<>&]/g,'')}</div>`,true);return}
   X=j.item||{};TPL=csTplFor(X);
   if(!TPL){msg('งานนี้ยังไม่มีแบบฟอร์ม Check sheet',true);return}
   let draft=null;try{draft=JSON.parse(localStorage.getItem(draftKey())||'null')}catch(e){}
