@@ -163,60 +163,40 @@ pre.preview{white-space:pre-wrap;background:var(--bg);border:1px solid var(--lin
 .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--panel);padding:8px 16px;border-radius:8px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s}
 .toast.show{opacity:1}
 .sync{font-size:12px;color:var(--ink3)}
-#csDlg{width:100%;max-width:760px;height:100%;max-height:100%;margin:0 auto;border-radius:0;padding:0}
+#csDlg{width:100%;max-width:820px;height:100%;max-height:100%;margin:0 auto;border-radius:0;padding:0}
 #csDlg[open]{display:flex;flex-direction:column}
-.cshdr{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 10px;border-bottom:1px solid var(--line);background:var(--panel)}
-.cst{font-weight:600;font-size:16px}
-#csScroll{flex:1;overflow:auto;padding:10px 14px 16px;background:var(--bg)}
-.csgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.csline{display:flex;align-items:center;gap:10px;margin:0 0 8px;flex-wrap:wrap}
-.csline .lb{font-size:13px;color:var(--ink2);min-width:84px}
-.csseg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel)}
-.csseg button{border:0;border-right:1px solid var(--line);background:none;padding:6px 10px;font-size:13px;color:var(--ink2)}
-.csseg button:last-child{border-right:0}
-.csseg button.on{background:var(--steel);color:var(--panel);font-weight:600}
-.csseg button.on.okc{background:var(--ok);color:var(--panel)}
-.csseg button.on.ngc{background:var(--danger);color:var(--panel)}
-.cssum{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--ink2);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:4px 0 6px}
-#csSum{position:sticky;top:-10px;z-index:2}
-.cssum b{color:var(--ink)} .okt b{color:var(--ok)} .ngt,.ngt b{color:var(--danger)}
-.cs-sec{font-weight:600;font-size:14px;background:var(--steel-soft);color:var(--steel);padding:5px 10px;border-radius:6px;margin:12px 0 2px}
-.cs-row{border-bottom:1px solid var(--line);padding:8px 2px;background:var(--panel)}
-.cs-row .l1{display:flex;gap:8px;font-size:14px}
-.cs-row .no{width:28px;flex:none;color:var(--ink2);font-variant-numeric:tabular-nums}
-.cs-row .l2{display:grid;grid-template-columns:minmax(70px,1fr) auto minmax(78px,auto);gap:8px;align-items:center;margin:6px 0 0 36px}
-.cs-row .dz{font-size:13px;color:var(--ink2)}
-.cs-row .dz i{color:var(--ink3)}
-.csnum{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:8px;background:var(--bg);overflow:hidden}
-.csnum input{width:72px;border:0;background:none;padding:6px 8px;text-align:right}
-.csnum em{font-style:normal;font-size:12px;color:var(--ink2);padding-right:8px}
-.csman{display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap}
-.csman input{width:84px;border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:6px 8px}
-.res{display:flex;flex-direction:column;align-items:flex-end;gap:1px;text-align:right}
-.csb{font-size:12px;font-weight:600;color:var(--ink3)}
-.csb.ok{color:var(--ok)} .csb.no{color:var(--danger)}
-.csp{font-size:11px;color:var(--ink2)}
-.rmk{display:block;width:calc(100% - 36px);margin:6px 0 0 36px;border:0;border-bottom:1px dashed var(--line);background:none;padding:4px 2px;font-size:13px}
-.csact{display:flex;gap:8px;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);background:var(--panel)}
-.csact .btn{flex:1;padding:10px 6px;font-size:14px}
-#csA4{padding:8px;overflow:hidden}
+.cshdr{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 8px;border-bottom:1px solid var(--line);background:var(--panel)}
+.cshb{display:flex;gap:6px;flex:none}
+.cst{font-weight:600;font-size:15px}
+#csScroll{flex:1;overflow:auto;padding:8px;background:var(--bg)}
 #csA4Page{transform-origin:top left}
+.csact{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);background:var(--panel)}
+.csact .btn{padding:10px 2px;font-size:13px}
+/* ===== E-Check sheet (A4) ===== */
 .a4{width:194mm;background:#fff;color:#000;font:8.8pt/1.25 Arial,"IBM Plex Sans Thai",Tahoma,sans-serif;padding:0;box-shadow:0 1px 6px rgba(0,0,0,.25)}
 .a4 table{width:100%;border-collapse:collapse;table-layout:fixed}
-.a4 td,.a4 th{border:0.6pt solid #000;padding:0.7mm 1.2mm;vertical-align:middle;word-wrap:break-word}
-.a4 .bd td.c,.a4 .bd td.dsc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.a4 .bd td{padding:1mm 1.4mm}
+.a4 td,.a4 th{border:0.6pt solid #000;padding:0.7mm 1.4mm;vertical-align:middle;word-wrap:break-word}
 .a4 th{background:#E8EDF1;font-weight:700}
 .a4 .c{text-align:center}
+.a4 .bd td{padding:1mm 1.4mm}
+.a4 .bd td.c,.a4 .bd td.dsc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.a4 .bd td.rm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .a4 .egat{color:#1F3F8F;border:0;padding-left:0}
 .a4 .docno{color:#C00000;font-weight:700;text-align:center}
 .a4 .hd2 td{border:0;padding:0.9mm 0}
 .a4 .bd tr.sec td{font-weight:700;background:#F3F5F7}
 .a4 .bd td.ng{color:#C00000;font-weight:700}
+.a4 .bd td.okm{color:#1E6B45;font-weight:700}
 .a4 .nt td{height:16mm;vertical-align:top}
 .a4 .sg td{height:22mm;vertical-align:top}
 .a4 .sg .nm{margin:6mm 0 1mm}
 .a4 .foot{font-size:7pt;color:#555;margin-top:1.5mm}
+.a4.edit [data-ed]{cursor:pointer}
+.a4.edit tr[data-ed]:hover td{background:#F4F8FB}
+.a4.edit .ph{color:#9AA3AD;font-size:7.5pt}
+.a4.edit tr.failrow td{background:#FDECEA}
+.a4.edit .act td,.a4.edit td.act,.a4.edit table.act{outline:2px solid #2F5D7C;outline-offset:-2px;background:#E1EAF1!important}
+.a4.edit .hdtap{border:1px dashed #9AB;border-radius:2px;padding:0.6mm}
 #printRoot{display:none}
 @media print{
   @page{size:A4;margin:8mm}
@@ -227,6 +207,31 @@ pre.preview{white-space:pre-wrap;background:var(--bg);border:1px solid var(--lin
   #printRoot .a4{box-shadow:none}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
+/* editor panel */
+.csed{border-top:1px solid var(--line);background:var(--panel);padding:10px 14px 12px;box-shadow:0 -4px 14px rgba(0,0,0,.08)}
+.csed .eh{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.csed .en{font-weight:600;font-size:15px}
+.csed .edz{font-size:13px;color:var(--ink2);margin:2px 0 8px}
+.csed .erow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.csed input[type=text],.csed input:not([type]),.csed input[inputmode],.csed input[type=date],.csed textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-size:16px}
+.csed .numw{display:flex;align-items:center;gap:8px;flex:1;min-width:150px}
+.csed .numw input{flex:1}
+.csed .numw em{font-style:normal;color:var(--ink2)}
+.csed .big{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:1;min-width:200px}
+.csed .big button{padding:11px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-weight:600;font-size:15px}
+.csed .big button.on.okc{background:var(--ok);border-color:var(--ok);color:#fff}
+.csed .big button.on.ngc{background:var(--danger);border-color:var(--danger);color:#fff}
+.csed .res2{font-size:14px;min-width:90px;text-align:right}
+.csed .res2 .ok{color:var(--ok);font-weight:600}.csed .res2 .no{color:var(--danger);font-weight:600}
+.csed .enav{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px}
+.csed .enav button{padding:10px 4px}
+.csed .lb{font-size:13px;color:var(--ink2);margin:4px 0 3px;display:block}
+.csed .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.csseg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel)}
+.csseg button{border:0;border-right:1px solid var(--line);background:none;padding:8px 12px;font-size:14px;color:var(--ink2)}
+.csseg button:last-child{border-right:0}
+.csseg button.on{background:var(--steel);color:#fff;font-weight:600}
+.cszoom{font-size:12px;padding:5px 9px}
 
 @media (max-width:420px){.board .n{font-size:21px}.board .k{font-size:11px}.board .late{font-size:10px}.seg button{font-size:12px}.row2{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){.toast{transition:none}}
@@ -449,10 +454,10 @@ pre.preview{white-space:pre-wrap;background:var(--bg);border:1px solid var(--lin
 </dialog>
 
 <dialog id="csDlg">
-  <div class="cshdr"><div id="csHead"></div><button class="btn" id="csClose" style="flex:none">ปิด</button></div>
-  <div id="csScroll"><div id="csForm"></div><div id="csA4" hidden><div id="csA4Page"></div></div></div>
-  <div class="csact" id="csActForm"><button class="btn" id="csPmBtn">สถานะ PM</button><button class="btn" id="csA4Btn">ดูแบบ A4</button><button class="btn" id="csSave">บันทึก</button><button class="btn primary" id="csDone">บันทึก + ปิดงาน</button></div>
-  <div class="csact" id="csActA4" hidden><button class="btn" id="csBack">กลับไปแก้ไข</button><button class="btn primary" id="csPrint">พิมพ์ / บันทึก PDF</button></div>
+  <div class="cshdr"><div id="csHead" style="min-width:0"></div><div class="cshb"><button class="btn cszoom" id="csZoom">ขยาย</button><button class="btn cszoom" id="csClose">ปิด</button></div></div>
+  <div id="csScroll"><div id="csA4Page"></div></div>
+  <div class="csed" id="csEd" hidden></div>
+  <div class="csact" id="csAct"><button class="btn" id="csShare">แชร์ LINE</button><button class="btn" id="csPmBtn">สถานะ</button><button class="btn" id="csPdf">PDF</button><button class="btn" id="csSave">บันทึก</button><button class="btn primary" id="csDone">ปิดงาน ✓</button></div>
 </dialog>
 
 <dialog id="closeDlg">
@@ -878,7 +883,7 @@ function renderPM(){
   bindLegacy();
 }
 function bindLegacy(){$('pmView').querySelectorAll('[data-legacy]').forEach(b=>b.onclick=()=>openJob(S.tasks.find(t=>t.id===b.dataset.legacy)))}
-/* ---------- E-Check sheet ---------- */
+/* ===== E-Check sheet core (ใช้ร่วมกันระหว่างแอปและหน้ากรอกของช่าง) ===== */
 const CS_TPL=[{key:'HT',match:/hydraulic\s*turbine/i,title:'Inspection Sheet : Hydraulic Turbine',docNo:'FR-HY-RPB-9845-22-12-001',taskList:'ARPB2MME #1',plan:'ARPB2M0_ME01',
   sections:[
   ['1. Turbine',[
@@ -915,16 +920,18 @@ const CS_TPL=[{key:'HT',match:/hydraulic\s*turbine/i,title:'Inspection Sheet : H
     {n:'7.5',d:'Jet valve closing time',t:'num',ds:'9 ± 2 sec',u:'sec',nom:9,min:7,max:11}]]
   ]}];
 CS_TPL.forEach(t=>t.items=t.sections.flatMap(s=>s[1]));
-let csItem=null,csTpl=null,csRaw=null,csTimer=null;
+function csE(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function csToday(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function csThD(iso){if(!iso)return '';const [y,m,d]=iso.split('-').map(Number);return new Date(y,m-1,d).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'})}
 function csTplFor(x){return x?CS_TPL.find(t=>t.match.test(x.desc||''))||null:null}
 function csIntervalOf(w){return {4:'4W',12:'3M',24:'6M',48:'1Y'}[Number(w)]||''}
 function csUnitNo(u){const m=String(u||'').match(/Unit\s*(\d)/);return m?'#'+m[1]:''}
-function csNew(x,tpl){return {tpl:tpl.key,date:todayISO(),wo:x.wo||'',interval:csIntervalOf(x.freqWeeks),unitStatus:'',unitNo:csUnitNo(x.unit),v:{},note:'',sign:{i:x.owner||'',id:'',a:'',ad:'',g:'',gd:''},savedAt:0,synced:false}}
+function csNew(x,tpl){return {tpl:tpl.key,date:csToday(),wo:x.wo||'',interval:csIntervalOf(x.freqWeeks),unitStatus:'',unitNo:csUnitNo(x.unit),v:{},note:'',sign:{i:x.owner||'',id:'',a:'',ad:'',g:'',gd:''},savedAt:0,synced:false}}
 function csNum(v){const n=parseFloat(String(v??'').replace(/,/g,'.').replace(/[^0-9.\-]/g,''));return isFinite(n)?n:NaN}
 function csEval(it,v){
   v=v||{};
   if(it.t==='chk'){if(!v.a)return {s:'empty'};return {s:v.a==='OK'?'pass':'fail'}}
-  if(it.t==='man'){if(!v.j)return {s:v.a?'empty':'empty'};return {s:v.j==='OK'?'pass':'fail'}}
+  if(it.t==='man'){if(!v.j)return {s:'empty'};return {s:v.j==='OK'?'pass':'fail'}}
   if(v.a==null||String(v.a).trim()==='')return {s:'empty'};
   const a=csNum(v.a);if(isNaN(a))return {s:'bad'};
   const lo=it.min==null||(it.gt?a>it.min:a>=it.min),hi=it.max==null||a<=it.max;
@@ -933,87 +940,177 @@ function csEval(it,v){
   return {s:lo&&hi?'pass':'fail',a,pct,lbl};
 }
 function csPctText(r){if(r.pct==null||!isFinite(r.pct))return '';if(r.lbl)return `${Math.round(r.pct)}% ${r.lbl}`;const p=Math.round(r.pct*10)/10;return (p>0?'+':'')+p.toFixed(1)+'%'}
-function csStats(tpl,raw){let f=0,p=0,n=0;const fails=[];tpl.items.forEach(it=>{const r=csEval(it,raw.v[it.n]);if(r.s==='pass'){f++;p++}else if(r.s==='fail'){f++;n++;fails.push(it.n)}});return {total:tpl.items.length,filled:f,pass:p,fail:n,fails}}
-function csBadge(it,raw){const r=csEval(it,raw.v[it.n]);
-  if(r.s==='empty')return '<span class="csb">–</span>';if(r.s==='bad')return '<span class="csb no">ค่าไม่ถูกต้อง</span>';
-  const pt=csPctText(r);return `<span class="csb ${r.s==='pass'?'ok':'no'}">${r.s==='pass'?'✓ ผ่าน':'✗ ไม่ผ่าน'}</span>${pt?`<span class="csp">${pt}</span>`:''}`}
-function seg(k,opts,val){return `<span class="csseg">${opts.map(o=>`<button type="button" data-set="${k}" data-val="${esc(o[0])}" class="${val===o[0]?'on '+(o[2]||''):''}">${o[1]}</button>`).join('')}</span>`}
+function csStats(tpl,raw){let f=0,p=0,n=0;const fails=[];tpl.items.forEach(it=>{const r=csEval(it,(raw.v||{})[it.n]);if(r.s==='pass'){f++;p++}else if(r.s==='fail'){f++;n++;fails.push(it.n)}});return {total:tpl.items.length,filled:f,pass:p,fail:n,fails}}
+function csActText(it,v){v=v||{};if(it.t==='chk')return v.a==='OK'?'ปกติ':v.a==='NG'?'ผิดปกติ':'';
+  if(it.t==='man')return (v.a||'')+(v.j?` (${v.j==='OK'?'ปกติ':'ผิดปกติ'})`:'');return v.a!=null&&String(v.a)!==''?v.a+' '+(it.u||''):''}
+/** ฟอร์ม A4: mode 'edit' = แตะแก้ได้, 'print' = สำหรับพิมพ์/PDF */
+function csA4HTML(x,tpl,raw,mode,active){
+  const ed=mode==='edit',st=csStats(tpl,raw),box=on=>on?'☑':'☐';
+  const ph=t=>ed?`<span class="ph">${t}</span>`:'';
+  const rows=tpl.sections.map(([title,items])=>`<tr class="sec"><td colspan="7">${csE(title)}</td></tr>`+items.map(it=>{const v=raw.v[it.n]||{},r=csEval(it,v),a=csActText(it,v);
+    return `<tr${ed?` data-ed="n:${it.n}"`:''} class="${ed&&r.s==='fail'?'failrow ':''}${active==='n:'+it.n?'act':''}"><td class="c">${it.n}</td><td class="dsc">${csE(it.d)}</td><td class="c">${csE(it.ds)}</td><td class="c">${a?csE(a):ph('แตะเพื่อกรอก')}</td><td class="c">${csPctText(r)}</td><td class="c ${r.s==='fail'?'ng':r.s==='pass'?'okm':''}">${r.s==='pass'?'✓':r.s==='fail'?'✗':''}</td><td class="rm">${csE(v.r||'')}</td></tr>`}).join('')).join('');
+  const blank=n=>'&nbsp;'.repeat(n);
+  return `<div class="a4${ed?' edit':''}"><table class="hd"><tr><td colspan="4" class="egat"><b>EGAT :</b> Electricity Generating Authority of Thailand ; Rajjaprabha Hydro Power Plant (RPBH)</td></tr>
+    <tr><td style="width:22%"><b>System</b> QSHEEnP</td><td style="width:36%">แผนกบำรุงรักษาเครื่องกล</td><td style="width:9%">doc. no.</td><td class="docno">${csE(tpl.docNo)}</td></tr>
+    <tr><td>Task list : ${csE(tpl.taskList)}</td><td>Maint. plan : ${csE(tpl.plan)}</td><td colspan="2" class="c"><b>${csE(tpl.title)}</b></td></tr></table>
+    <table class="hd2${active==='hdr'?' act':''}"${ed?' data-ed="hdr"':''}><colgroup><col style="width:42%"><col style="width:24%"><col></colgroup>
+    <tr><td>Unit no. : ${['#1','#2','#3'].map(u=>box(raw.unitNo===u)+' '+u).join('&nbsp;&nbsp;')}</td><td>Date : <u>${raw.date?csThD(raw.date):blank(16)}</u></td><td>Work order no. : <u>${csE(raw.wo)||blank(16)}</u></td></tr>
+    <tr><td>PM interval : ${['4W','3M','6M','1Y'].map(u=>box(raw.interval===u)+' '+u).join('&nbsp;&nbsp;')}</td><td colspan="2">Unit status : ${box(raw.unitStatus==='operate')} operate&nbsp;&nbsp;${box(raw.unitStatus==='shut down')} shut down ${ed?'<span class="ph">(แตะเพื่อแก้ส่วนหัว)</span>':''}</td></tr></table>
+    <table class="bd"><thead><tr><th style="width:5%">Item</th><th>Description</th><th style="width:14.5%">Design</th><th style="width:12.5%">Actual</th><th style="width:9.5%">ต่าง</th><th style="width:4.5%">ผล</th><th style="width:17%">Remark</th></tr></thead><tbody>${rows}</tbody></table>
+    <table class="nt"><tr><td${ed?' data-ed="note"':''} class="${active==='note'?'act':''}"><b>สรุปผล:</b> ตรวจ ${st.filled}/${st.total} รายการ · ผ่าน ${st.pass} · ไม่ผ่าน ${st.fail}${st.fail?` (ข้อ ${st.fails.join(', ')})`:''}<br><b>Note:</b> ${raw.note?csE(raw.note).replace(/\n/g,'<br>'):ph('แตะเพื่อเขียนหมายเหตุ')}</td></tr></table>
+    <table class="sg${active==='sign'?' act':''}"${ed?' data-ed="sign"':''}><tr>${[['inspection by','i','id'],['approve by','a','ad'],['register by','g','gd']].map(([l,n,dd])=>`<td><div class="c">${l}</div><div class="c nm">( ${raw.sign[n]?csE(raw.sign[n]):(ed&&n==='i'?'<span class="ph">แตะเพื่อลงชื่อ</span>':blank(30))} )</div><div>date : ${csThD(raw.sign[dd])}</div></td>`).join('')}</tr></table>
+    <div class="foot">${csE(x.pmnum||'')} · ${csE(x.desc||'')}${x.planDate?' · แผน '+csThD(x.planDate):''}</div></div>`;
+}
+function csSeg(k,opts,val){return `<span class="csseg">${opts.map(o=>`<button type="button" data-set="${k}" data-val="${csE(o)}" class="${val===o?'on':''}">${o}</button>`).join('')}</span>`}
+/** แผงแก้ไขด้านล่าง */
+function csEditorHTML(tpl,raw,target){
+  if(target==='hdr')return `<div class="eh"><div class="en">ส่วนหัวแบบฟอร์ม</div></div>
+    <div class="g2"><label><span class="lb">Date</span><input type="date" data-k="date" value="${csE(raw.date)}"></label><label><span class="lb">Work order no.</span><input data-k="wo" value="${csE(raw.wo)}"></label></div>
+    <span class="lb">Unit no.</span>${csSeg('unitNo',['#1','#2','#3'],raw.unitNo)}
+    <span class="lb">PM interval</span>${csSeg('interval',['4W','3M','6M','1Y'],raw.interval)}
+    <span class="lb">Unit status</span>${csSeg('unitStatus',['operate','shut down'],raw.unitStatus)}
+    <div class="enav" style="grid-template-columns:1fr 1fr"><button class="btn" data-nav="close">ปิด</button><button class="btn primary" data-nav="first">เริ่มกรอกข้อ 1.1 ▶</button></div>`;
+  if(target==='note')return `<div class="en">Note</div><textarea rows="3" data-k="note" style="margin-top:6px">${csE(raw.note)}</textarea><div class="enav" style="grid-template-columns:1fr"><button class="btn primary" data-nav="close">เสร็จ</button></div>`;
+  if(target==='sign')return `<div class="en">ลงชื่อ</div>${[['i','id','Inspection by'],['a','ad','Approve by'],['g','gd','Register by']].map(([n,d,l])=>`<div class="g2"><label><span class="lb">${l}</span><input data-k="sign.${n}" value="${csE(raw.sign[n]||'')}"></label><label><span class="lb">Date</span><input type="date" data-k="sign.${d}" value="${csE(raw.sign[d]||'')}"></label></div>`).join('')}<div class="enav" style="grid-template-columns:1fr"><button class="btn primary" data-nav="close">เสร็จ</button></div>`;
+  const n=target.slice(2),i=tpl.items.findIndex(z=>z.n===n),it=tpl.items[i],v=raw.v[n]||{};
+  let ctl='';
+  if(it.t==='chk')ctl=`<div class="big"><button type="button" data-set="v.${n}.a" data-val="OK" class="okc ${v.a==='OK'?'on':''}">ปกติ</button><button type="button" data-set="v.${n}.a" data-val="NG" class="ngc ${v.a==='NG'?'on':''}">ผิดปกติ</button></div>`;
+  else if(it.t==='man')ctl=`<div class="numw"><input data-k="v.${n}.a" value="${csE(v.a||'')}" placeholder="ค่าที่วัดได้"></div><div class="big"><button type="button" data-set="v.${n}.j" data-val="OK" class="okc ${v.j==='OK'?'on':''}">ปกติ</button><button type="button" data-set="v.${n}.j" data-val="NG" class="ngc ${v.j==='NG'?'on':''}">ผิดปกติ</button></div>`;
+  else ctl=`<div class="numw"><input inputmode="decimal" data-k="v.${n}.a" value="${csE(v.a??'')}" placeholder="Actual" enterkeyhint="next"><em>${csE(it.u)}</em></div>`;
+  return `<div class="eh"><div><div class="en">${it.n} ${csE(it.d)}</div><div class="edz">Design: ${it.ds?csE(it.ds):'–'}${it.approx?' (ยอมรับ ±10%)':''}</div></div><div class="res2" id="csRes">${csResHTML(it,v)}</div></div>
+    <div class="erow">${ctl}</div>
+    <input data-k="v.${n}.r" value="${csE(v.r||'')}" placeholder="${it.hint?csE('Remark เช่น '+it.hint):'Remark'}">
+    <div class="enav"><button class="btn" data-nav="prev" ${i===0?'disabled':''}>◀ ก่อนหน้า</button><button class="btn" data-nav="close">ปิด</button><button class="btn primary" data-nav="next">${i===tpl.items.length-1?'ลงชื่อ ▶':'ถัดไป ▶'}</button></div>`;
+}
+function csResHTML(it,v){const r=csEval(it,v);if(r.s==='empty')return '<span style="color:var(--ink3)">ยังไม่กรอก</span>';if(r.s==='bad')return '<span class="no">ค่าไม่ถูกต้อง</span>';const p=csPctText(r);return `<span class="${r.s==='pass'?'ok':'no'}">${r.s==='pass'?'✓ ผ่าน':'✗ ไม่ผ่าน'}</span>${p?`<br><small>${p}</small>`:''}`}
+function csSetPath(raw,path,val){const p=path.split('.');
+  if(p[0]==='v'){const n=p[1]+'.'+p[2];const o=raw.v[n]=raw.v[n]||{};o[p[3]]=val;return n}
+  let o=raw;for(let i=0;i<p.length-1;i++)o=o[p[i]];o[p[p.length-1]]=val;return null}
+function csGetPath(raw,path){const p=path.split('.');if(p[0]==='v')return (raw.v[p[1]+'.'+p[2]]||{})[p[3]];let o=raw;for(const k of p)o=o==null?o:o[k];return o}
+/** ตัวควบคุมฟอร์ม: ผูก A4 + แผงแก้ไขเข้ากับ element ที่กำหนด */
+function csController(o){
+  // o: {page, scroll, ed, tpl, x, raw, onChange, onSum}
+  const C={raw:o.raw,active:null,zoom:'fit',o};
+  C.load=(x,tpl,raw)=>{o.x=x;o.tpl=tpl;C.raw=raw;C.active=null;o.ed.hidden=true;o.ed.innerHTML='';if(o.onEd)o.onEd(false);C.render()};
+  C.render=()=>{o.page.innerHTML=csA4HTML(o.x,o.tpl,C.raw,'edit',C.active);C.fit();if(o.onSum)o.onSum(csStats(o.tpl,C.raw))};
+  C.fit=()=>{const pg=o.page.firstElementChild;if(!pg)return;if(C.zoom==='full'){o.page.style.transform='';o.page.style.height='';o.page.style.width=pg.offsetWidth+'px';return}
+    o.page.style.width='';const w=o.scroll.clientWidth-16,sc=Math.min(1,w/pg.offsetWidth);o.page.style.transform=`scale(${sc})`;o.page.style.height=(pg.offsetHeight*sc)+'px'};
+  C.open=(t)=>{C.active=t;o.ed.innerHTML=csEditorHTML(o.tpl,C.raw,t);o.ed.hidden=false;if(o.onEd)o.onEd(true);C.render();
+    requestAnimationFrame(()=>{const el=o.page.querySelector('.act');if(el){const r=el.getBoundingClientRect(),s=o.scroll.getBoundingClientRect();o.scroll.scrollTop+=r.top-s.top-Math.max(20,(s.height)*0.25)}
+      const inp=o.ed.querySelector('input[inputmode],input[data-k^="v."]:not([data-k$=".r"])');if(inp&&t.startsWith('n:')&&o.tpl.items.find(z=>'n:'+z.n===t).t!=='chk')inp.focus({preventScroll:true})})};
+  C.close=()=>{C.active=null;o.ed.hidden=true;o.ed.innerHTML='';if(o.onEd)o.onEd(false);C.render()};
+  C.step=(d)=>{const items=o.tpl.items;if(!C.active||!C.active.startsWith('n:')){C.open('n:'+items[0].n);return}
+    const i=items.findIndex(z=>'n:'+z.n===C.active)+d;if(i<0)return;if(i>=items.length){C.open('sign');return}C.open('n:'+items[i].n)};
+  C.changed=(n)=>{if(n){const it=o.tpl.items.find(z=>z.n===n);const el=o.ed.querySelector('#csRes');if(el)el.innerHTML=csResHTML(it,C.raw.v[n])}C.render();if(o.onChange)o.onChange(C.raw)};
+  o.page.addEventListener('click',e=>{const t=e.target.closest('[data-ed]');if(t)C.open(t.dataset.ed)});
+  o.ed.addEventListener('input',e=>{const k=e.target.dataset.k;if(!k)return;C.changed(csSetPath(C.raw,k,e.target.value))});
+  o.ed.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.tagName==='INPUT'){e.preventDefault();C.step(1)}});
+  o.ed.addEventListener('click',e=>{const b=e.target.closest('[data-set]');
+    if(b){const k=b.dataset.set,v=b.dataset.val,nv=csGetPath(C.raw,k)===v?'':v;const n=csSetPath(C.raw,k,nv);
+      b.parentElement.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.val===nv));C.changed(n);
+      if(n&&nv&&k.endsWith('.a')&&o.tpl.items.find(z=>z.n===n).t==='chk')setTimeout(()=>C.step(1),180);return}
+    const nv=e.target.closest('[data-nav]');if(!nv)return;const a=nv.dataset.nav;
+    if(a==='close')C.close();else if(a==='next')C.step(1);else if(a==='prev')C.step(-1);else if(a==='first')C.open('n:'+o.tpl.items[0].n)});
+  window.addEventListener('resize',()=>C.fit());
+  return C;
+}
+function csLoadScript(src){return new Promise((ok,no)=>{if(document.querySelector(`script[src="${src}"]`))return ok();const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=()=>no(new Error('load'));document.head.appendChild(s)})}
+/** สร้าง PDF 1 หน้า A4 จากฟอร์ม */
+async function csMakePdf(x,tpl,raw){
+  await csLoadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+  await csLoadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+  const host=document.createElement('div');host.style.cssText='position:fixed;left:-10000px;top:0;background:#fff;padding:0';
+  host.innerHTML=csA4HTML(x,tpl,raw,'print');document.body.appendChild(host);
+  try{if(document.fonts&&document.fonts.ready)await document.fonts.ready;
+    const el=host.firstElementChild;el.style.boxShadow='none';
+    const canvas=await window.html2canvas(el,{scale:2.2,backgroundColor:'#ffffff',logging:false});
+    const pdf=new window.jspdf.jsPDF({unit:'mm',format:'a4',orientation:'portrait'});
+    const mw=194,mh=281;let w=mw,h=canvas.height*mw/canvas.width;if(h>mh){h=mh;w=canvas.width*mh/canvas.height}
+    pdf.addImage(canvas.toDataURL('image/jpeg',0.92),'JPEG',(210-w)/2,8,w,h);
+    return pdf.output('blob');
+  }finally{host.remove()}
+}
+function csPdfName(x,raw){return `CheckSheet_${(x.pmnum||'PM').replace(/[^\w-]+/g,'_')}_${raw.date||csToday()}.pdf`}
+function csBlobToB64(b){return new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(',')[1]);r.onerror=no;r.readAsDataURL(b)})}
+function csPrintHTML(html){let r=document.getElementById('printRoot');if(!r){r=document.createElement('div');r.id='printRoot';document.body.appendChild(r)}r.innerHTML=html;
+  r.style.cssText='display:block;position:absolute;left:-9999px;top:0;visibility:hidden';const pg=r.firstElementChild,mm=96/25.4,maxH=279*mm,h=pg.offsetHeight;pg.style.zoom=h>maxH?(maxH/h).toFixed(3):'';r.style.cssText='';setTimeout(()=>window.print(),50)}
+
+function csPayloadOf(x,tpl,raw){const st=csStats(tpl,raw);
+  return {pmnum:x.pmnum,tpl:tpl.title,date:raw.date,wo:raw.wo,unit:raw.unitNo||x.unit,interval:raw.interval,unitStatus:raw.unitStatus,total:st.total,filled:st.filled,pass:st.pass,fail:st.fail,inspector:raw.sign.i,note:raw.note,
+    items:tpl.items.map(it=>{const v=raw.v[it.n]||{},r=csEval(it,v);return {n:it.n,d:it.d,design:it.ds,actual:csActText(it,v),unit:it.u||'',pct:csPctText(r),result:r.s==='pass'?'ผ่าน':r.s==='fail'?'ไม่ผ่าน':'',remark:v.r||''}}),raw}}
+
+/* ---------- E-Check sheet (ส่วนของแอปหัวหน้างาน) ---------- */
+let csItem=null,csTpl=null,csRaw=null,csTimer=null,csCtl=null,csPending=null;
+function csIsHosted(){return location.protocol==='https:'&&!(window.claude&&window.claude.use)}
+function csCtlInit(){if(csCtl)return;
+  csCtl=csController({page:$('csA4Page'),scroll:$('csScroll'),ed:$('csEd'),tpl:CS_TPL[0],x:{},raw:{v:{},sign:{}},
+    onChange:r=>{csRaw=r;csAutosave()},onEd:open=>{$('csAct').hidden=open},
+    onSum:st=>{const el=$('csSumLine');if(el)el.innerHTML=`กรอก <b>${st.filled}/${st.total}</b> · <span style="color:var(--ok)">ผ่าน ${st.pass}</span> · <span style="color:var(--danger)">ไม่ผ่าน ${st.fail}${st.fail?' ('+st.fails.join(', ')+')':''}</span>`}})}
 function openCS(x){
   const tpl=csTplFor(x);if(!tpl){openPm(x);return}
-  csItem=x;csTpl=tpl;csRaw=S.checks[x.id]?JSON.parse(JSON.stringify(S.checks[x.id])):csNew(x,tpl);
-  $('csA4').hidden=true;$('csForm').hidden=false;renderCS();$('csDlg').showModal();$('csScroll').scrollTop=0;
-  if(!S.checks[x.id]&&pmOn()&&navigator.onLine!==false)csFetchRemote(x.id);
+  csCtlInit();csItem=x;csTpl=tpl;csPending=null;
+  csRaw=S.checks[x.id]?JSON.parse(JSON.stringify(S.checks[x.id])):csNew(x,tpl);
+  $('csHead').innerHTML=`<div class="cst">${esc(tpl.title)}</div><div class="sub">${esc(x.desc)} · แผน ${thDate(x.planDate,true)}</div><div class="sub" id="csSumLine"></div>`;
+  $('csPdf').textContent='PDF';csCtl.zoom='fit';$('csZoom').textContent='ขยาย';
+  $('csDlg').showModal();csCtl.load(x,tpl,csRaw);$('csScroll').scrollTop=0;
+  if(pmOn()&&navigator.onLine!==false)csFetchRemote(x.id);
 }
 async function csFetchRemote(id){
   try{const u=S.pmSheet.url+(S.pmSheet.url.includes('?')?'&':'?')+'action=check&id='+encodeURIComponent(id)+'&token='+encodeURIComponent(S.pmSheet.token);
     const j=await (await fetch(u)).json();
-    if(j.ok&&j.check&&csItem&&csItem.id===id&&!csRaw.savedAt){csRaw=j.check;csRaw.synced=true;S.checks[id]=JSON.parse(JSON.stringify(csRaw));save();renderCS();toast('โหลดผลตรวจที่บันทึกไว้ใน Sheet แล้ว')}}catch(e){}
+    if(!j.ok||!j.check||!csItem||csItem.id!==id)return;
+    const rem=j.check,loc=csRaw;
+    if((rem.savedAt||0)<=(loc.savedAt||0))return;
+    const localEdits=(loc.editedAt||0)>(loc.savedAt||0)&&Object.keys(loc.v||{}).length;
+    if(localEdits&&!confirm('ใน Sheet มีผลตรวจที่ใหม่กว่า (เช่น ช่างกรอกผ่านลิงก์) ต้องการโหลดมาแทนข้อมูลในเครื่องหรือไม่?'))return;
+    rem.synced=true;csRaw=rem;S.checks[id]=JSON.parse(JSON.stringify(rem));save();csCtl.load(csItem,csTpl,csRaw);toast('โหลดผลตรวจล่าสุดจาก Sheet แล้ว');
+  }catch(e){}
 }
-function renderCS(){
-  const x=csItem,tpl=csTpl,raw=csRaw,st=csStats(tpl,raw);
-  $('csHead').innerHTML=`<div class="cst">${esc(tpl.title)}</div><div class="sub">${esc(x.desc)} · แผน ${thDate(x.planDate,true)}</div>`;
-  const hdr=`<div class="csgrid">
-    <label class="f"><span>Date</span><input type="date" data-k="date" value="${esc(raw.date)}"></label>
-    <label class="f"><span>Work order no.</span><input data-k="wo" value="${esc(raw.wo)}" placeholder="WO-123456"></label></div>
-    <div class="csline"><span class="lb">Unit no.</span>${seg('unitNo',[['#1','#1'],['#2','#2'],['#3','#3']],raw.unitNo)}</div>
-    <div class="csline"><span class="lb">PM interval</span>${seg('interval',[['4W','4W'],['3M','3M'],['6M','6M'],['1Y','1Y']],raw.interval)}</div>
-    <div class="csline"><span class="lb">Unit status</span>${seg('unitStatus',[['operate','operate'],['shut down','shut down']],raw.unitStatus)}</div>`;
-  const rows=tpl.sections.map(([title,items])=>`<div class="cs-sec">${esc(title)}</div>`+items.map(it=>{const v=raw.v[it.n]||{};
-    let inp='';
-    if(it.t==='chk')inp=seg('v.'+it.n+'.a',[['OK','ปกติ','okc'],['NG','ผิดปกติ','ngc']],v.a);
-    else if(it.t==='man')inp=`<span class="csman"><input data-k="v.${it.n}.a" value="${esc(v.a||'')}" placeholder="ค่าที่วัดได้">${seg('v.'+it.n+'.j',[['OK','ปกติ','okc'],['NG','ผิดปกติ','ngc']],v.j)}</span>`;
-    else inp=`<span class="csnum"><input inputmode="decimal" data-k="v.${it.n}.a" value="${esc(v.a??'')}" placeholder="Actual"><em>${esc(it.u)}</em></span>`;
-    return `<div class="cs-row" data-row="${it.n}"><div class="l1"><span class="no">${it.n}</span><span class="ds">${esc(it.d)}</span></div>
-      <div class="l2"><span class="dz" title="Design">${it.ds?esc(it.ds):'<i>–</i>'}${it.approx?'<sup title="ประมาณ ±10%">≈</sup>':''}</span>${inp}<span class="res" id="csr-${it.n.replace('.','-')}">${csBadge(it,raw)}</span></div>
-      <input class="rmk" data-k="v.${it.n}.r" value="${esc(v.r||'')}" placeholder="${it.hint?esc('Remark เช่น '+it.hint):'Remark'}"></div>`}).join('')).join('');
-  const sign=[['i','id','Inspection by'],['a','ad','Approve by'],['g','gd','Register by']].map(([n,d,l])=>`<div class="csgrid"><label class="f"><span>${l}</span><input data-k="sign.${n}" value="${esc(raw.sign[n]||'')}"></label><label class="f"><span>Date</span><input type="date" data-k="sign.${d}" value="${esc(raw.sign[d]||'')}"></label></div>`).join('');
-  $('csForm').innerHTML=hdr+`<div id="csSum">${csSumHTML(st)}</div>`+rows+`<label class="f" style="margin-top:12px"><span>Note</span><textarea rows="2" data-k="note">${esc(raw.note)}</textarea></label>`+sign+
-    `<div class="sub" style="margin:6px 0 4px">${raw.savedAt?`บันทึกล่าสุด ${new Date(raw.savedAt).toLocaleString('th-TH',{dateStyle:'medium',timeStyle:'short'})} · ${raw.synced?'อยู่ใน Sheet แล้ว':'ยังไม่ได้ส่งขึ้น Sheet'}`:'ยังไม่ได้บันทึก'}</div>`;
-}
-function csSumHTML(st){return `<div class="cssum"><span>กรอกแล้ว <b>${st.filled}/${st.total}</b></span><span class="okt">ผ่าน <b>${st.pass}</b></span><span class="ngt">ไม่ผ่าน <b>${st.fail}</b></span>${st.fail?`<span class="ngt">(${st.fails.join(', ')})</span>`:''}</div>`}
-function csSet(path,val){const p=path.split('.');let o=csRaw;
-  if(p[0]==='v'){const n=p[1]+'.'+p[2];o=csRaw.v[n]=csRaw.v[n]||{};o[p[3]]=val;return n}
-  for(let i=0;i<p.length-1;i++)o=o[p[i]];o[p[p.length-1]]=val;return null}
-function csAutosave(){csRaw.synced=false;clearTimeout(csTimer);csTimer=setTimeout(()=>{S.checks[csItem.id]=JSON.parse(JSON.stringify(csRaw));save()},600)}
-function csPayload(){const x=csItem,tpl=csTpl,raw=csRaw,st=csStats(tpl,raw);
-  return {pmnum:x.pmnum,tpl:tpl.title,date:raw.date,wo:raw.wo,unit:raw.unitNo||x.unit,interval:raw.interval,unitStatus:raw.unitStatus,total:st.total,filled:st.filled,pass:st.pass,fail:st.fail,inspector:raw.sign.i,note:raw.note,
-    items:tpl.items.map(it=>{const v=raw.v[it.n]||{},r=csEval(it,v);return {n:it.n,d:it.d,design:it.ds,actual:it.t==='chk'?(v.a==='OK'?'ปกติ':v.a==='NG'?'ผิดปกติ':''):(v.a||''),unit:it.u||'',pct:csPctText(r),result:r.s==='pass'?'ผ่าน':r.s==='fail'?'ไม่ผ่าน':'',remark:v.r||''}}),raw}}
-async function saveCS(close){
+function csAutosave(){csRaw.synced=false;csRaw.editedAt=Date.now();clearTimeout(csTimer);csTimer=setTimeout(()=>{S.checks[csItem.id]=JSON.parse(JSON.stringify(csRaw));save()},600)}
+async function csPost(body){const r=await fetch(S.pmSheet.url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({token:S.pmSheet.token},body))});const j=await r.json();if(!j.ok)throw new Error(j.error||'error');return j}
+async function saveCS(close,quiet){
   const st=csStats(csTpl,csRaw);
-  if(close&&st.filled<st.total&&!confirm(`ยังกรอกไม่ครบ (${st.filled}/${st.total}) ต้องการปิดงาน PM เลยหรือไม่?`))return;
+  if(close&&st.filled<st.total&&!confirm(`ยังกรอกไม่ครบ (${st.filled}/${st.total}) ต้องการปิดงาน PM เลยหรือไม่?`))return false;
   clearTimeout(csTimer);csRaw.savedAt=Date.now();S.checks[csItem.id]=JSON.parse(JSON.stringify(csRaw));save();
-  if(!pmOn()){toast('บันทึกในเครื่องแล้ว');renderCS();return}
+  if(!pmOn()){if(!quiet)toast('บันทึกในเครื่องแล้ว');return true}
   const btn=close?$('csDone'):$('csSave');btn.disabled=true;
   try{
-    const pl=csPayload();delete pl.raw.synced;
-    const r=await fetch(S.pmSheet.url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({token:S.pmSheet.token,action:'saveCheck',id:csItem.id,check:pl})});
-    const j=await r.json();if(!j.ok)throw new Error(j.error||'error');
+    const pl=csPayloadOf(csItem,csTpl,csRaw);pl.raw=JSON.parse(JSON.stringify(csRaw));delete pl.raw.synced;
+    await csPost({action:'saveCheck',id:csItem.id,check:pl});
     csRaw.synced=true;S.checks[csItem.id]=JSON.parse(JSON.stringify(csRaw));save();
     if(close){const f={status:PM_DONE,actualDate:csRaw.date||todayISO()};if(csRaw.wo)f.wo=csRaw.wo;if(csRaw.sign.i&&!csItem.owner)f.owner=csRaw.sign.i;
-      const it=await pmPost(csItem.id,f);Object.assign(csItem,it||f);pmSaveCache();$('csDlg').close();toast('บันทึกผลตรวจและปิดงาน PM แล้ว');render();return}
-    toast('บันทึกผลตรวจลง Sheet แล้ว');
-  }catch(e){toast(/ไม่รู้จักคำสั่ง/.test(e.message)?'บันทึกในเครื่องแล้ว แต่สคริปต์ใน Sheet ยังไม่รองรับ (อัปเดตสคริปต์)':navigator.onLine===false?'บันทึกในเครื่องแล้ว ส่งขึ้น Sheet ไม่ได้เพราะไม่มีเน็ต':'บันทึกในเครื่องแล้ว แต่ส่งขึ้น Sheet ไม่สำเร็จ')}
-  finally{btn.disabled=false}
-  renderCS();render();
+      const it=await pmPost(csItem.id,f);Object.assign(csItem,it||f);pmSaveCache();$('csDlg').close();toast('บันทึกผลตรวจและปิดงาน PM แล้ว');render();return true}
+    if(!quiet)toast('บันทึกผลตรวจลง Sheet แล้ว');return true;
+  }catch(e){toast(/ไม่รู้จักคำสั่ง/.test(e.message)?'บันทึกในเครื่องแล้ว แต่สคริปต์ใน Sheet ยังไม่รองรับ (อัปเดตสคริปต์)':navigator.onLine===false?'บันทึกในเครื่องแล้ว ส่งขึ้น Sheet ไม่ได้เพราะไม่มีเน็ต':'บันทึกในเครื่องแล้ว แต่ส่งขึ้น Sheet ไม่สำเร็จ');return false}
+  finally{btn.disabled=false;render()}
 }
-function csA4HTML(){const x=csItem,tpl=csTpl,raw=csRaw,st=csStats(tpl,raw);
-  const box=(on)=>on?'☑':'☐',d=iso=>iso?thDate(iso,true):'';
-  const rows=tpl.sections.map(([title,items])=>`<tr class="sec"><td colspan="7">${esc(title)}</td></tr>`+items.map(it=>{const v=raw.v[it.n]||{},r=csEval(it,v);
-    const act=it.t==='chk'?(v.a==='OK'?'ปกติ':v.a==='NG'?'ผิดปกติ':''):it.t==='man'?(v.a||'')+(v.j?` (${v.j==='OK'?'ปกติ':'ผิดปกติ'})`:''):(v.a!=null&&v.a!==''?esc(v.a)+' '+esc(it.u):'');
-    return `<tr><td class="c">${it.n}</td><td class="dsc">${esc(it.d)}</td><td class="c">${esc(it.ds)}</td><td class="c">${act}</td><td class="c">${csPctText(r)}</td><td class="c ${r.s==='fail'?'ng':''}">${r.s==='pass'?'✓':r.s==='fail'?'✗':''}</td><td>${esc(v.r||'')}</td></tr>`}).join('')).join('');
-  return `<div class="a4"><table class="hd"><tr><td colspan="4" class="egat"><b>EGAT :</b> Electricity Generating Authority of Thailand ; Rajjaprabha Hydro Power Plant (RPBH)</td></tr>
-    <tr><td style="width:22%"><b>System</b> QSHEEnP</td><td style="width:36%">แผนกบำรุงรักษาเครื่องกล</td><td style="width:9%">doc. no.</td><td class="docno">${esc(tpl.docNo)}</td></tr>
-    <tr><td>Task list : ${esc(tpl.taskList)}</td><td>Maint. plan : ${esc(tpl.plan)}</td><td colspan="2" class="c"><b>${esc(tpl.title)}</b></td></tr></table>
-    <table class="hd2"><colgroup><col style="width:42%"><col style="width:24%"><col></colgroup><tr><td>Unit no. : ${['#1','#2','#3'].map(u=>box(raw.unitNo===u)+' '+u).join('&nbsp;&nbsp;')}</td><td>Date : <u>${d(raw.date)||'&nbsp;'.repeat(16)}</u></td><td>Work order no. : <u>${esc(raw.wo)||'&nbsp;'.repeat(16)}</u></td></tr>
-    <tr><td>PM interval : ${['4W','3M','6M','1Y'].map(u=>box(raw.interval===u)+' '+u).join('&nbsp;&nbsp;')}</td><td colspan="2">Unit status : ${box(raw.unitStatus==='operate')} operate&nbsp;&nbsp;${box(raw.unitStatus==='shut down')} shut down</td></tr></table>
-    <table class="bd"><thead><tr><th style="width:5%">Item</th><th>Description</th><th style="width:14.5%">Design</th><th style="width:12.5%">Actual</th><th style="width:9.5%">ต่าง</th><th style="width:4.5%">ผล</th><th style="width:17%">Remark</th></tr></thead><tbody>${rows}</tbody></table>
-    <table class="nt"><tr><td><b>สรุปผล:</b> ตรวจ ${st.filled}/${st.total} รายการ · ผ่าน ${st.pass} · ไม่ผ่าน ${st.fail}${st.fail?` (ข้อ ${st.fails.join(', ')})`:''}<br><b>Note:</b> ${esc(raw.note).replace(/\n/g,'<br>')}</td></tr></table>
-    <table class="sg"><tr>${[['inspection by','i','id'],['approve by','a','ad'],['register by','g','gd']].map(([l,n,dd])=>`<td><div class="c">${l}</div><div class="c nm">( ${esc(raw.sign[n]||'').padEnd(1,' ')||'&nbsp;'} )</div><div>date : ${d(raw.sign[dd])}</div></td>`).join('')}</tr></table>
-    <div class="foot">${esc(x.pmnum)} · ${esc(x.desc)} · พิมพ์จากแอปติดตามงานบำรุงรักษา ${new Date().toLocaleString('th-TH',{dateStyle:'short',timeStyle:'short'})}</div></div>`}
-function csShowA4(){$('csA4Page').innerHTML=csA4HTML();$('csForm').hidden=true;$('csA4').hidden=false;$('csScroll').scrollTop=0;csFit()}
-function csFit(){const w=$('csA4').clientWidth-16,pg=$('csA4Page').firstElementChild;if(!pg)return;const sc=Math.min(1,w/pg.offsetWidth);$('csA4Page').style.transform=`scale(${sc})`;$('csA4Page').style.height=(pg.offsetHeight*sc)+'px'}
-function csPrint(){let r=$('printRoot');if(!r){r=document.createElement('div');r.id='printRoot';document.body.appendChild(r)}r.innerHTML=csA4HTML();
-  r.style.cssText='display:block;position:absolute;left:-9999px;top:0;visibility:hidden';const pg=r.firstElementChild,mm=96/25.4,maxH=279*mm,h=pg.offsetHeight;pg.style.zoom=h>maxH?(maxH/h).toFixed(3):'';r.style.cssText='';const t=document.title;document.title=`CheckSheet_${(csItem.pmnum||'')}_${csRaw.date||''}`;setTimeout(()=>{window.print();document.title=t},50)}
+async function csShare(){
+  if(!pmOn()){toast('ต้องเชื่อมต่อ Google Sheet ในหน้า PM ก่อน');return}
+  if(!csIsHosted()){toast('แชร์ให้ช่างได้จากแอปที่ติดตั้งจาก GitHub Pages เท่านั้น');return}
+  const b=$('csShare');b.disabled=true;
+  try{
+    if(!(await saveCS(false,true)))return;
+    const j=await csPost({action:'shareCreate',id:csItem.id});
+    const base=location.origin+location.pathname.replace(/[^/]*$/,'')+'check.html';
+    const link=base+'#'+new URLSearchParams({a:S.pmSheet.url,i:csItem.id,k:j.key}).toString();
+    const msg=`📋 ใบตรวจ ${csTpl.title.replace('Inspection Sheet : ','')} ${csItem.unit||''}\nแผน ${thDate(csItem.planDate,true)}${csRaw.wo?' · '+csRaw.wo:''}\nกรอกผลการตรวจได้ที่ลิงก์นี้ 👇\n${link}`;
+    window.open('https://line.me/R/share?text='+encodeURIComponent(msg),'_blank');
+  }catch(e){toast(/ไม่รู้จักคำสั่ง/.test(e.message)?'ต้องอัปเดตสคริปต์ใน Sheet เป็นเวอร์ชันล่าสุดก่อน':'สร้างลิงก์ไม่สำเร็จ ลองใหม่อีกครั้ง')}
+  finally{b.disabled=false}
+}
+async function csSharePdf(){const p=csPending;if(!p)return false;try{await navigator.share({files:[p.file],title:p.file.name});csPending=null;$('csPdf').textContent='PDF';return true}catch(e){if(e.name==='AbortError'){csPending=null;$('csPdf').textContent='PDF';return true}return false}}
+async function csExportPdf(){
+  if(csPending&&await csSharePdf())return;
+  const b=$('csPdf');b.disabled=true;b.textContent='กำลังสร้าง…';
+  try{
+    const blob=await csMakePdf(csItem,csTpl,csRaw),name=csPdfName(csItem,csRaw),file=new File([blob],name,{type:'application/pdf'});
+    if(pmOn())csBlobToB64(blob).then(d=>csPost({action:'pdf',id:csItem.id,name,data:d})).then(()=>toast('บันทึก PDF ลง Google Drive แล้ว')).catch(()=>{});
+    b.textContent='PDF';
+    if(navigator.canShare&&navigator.canShare({files:[file]})){csPending={file};if(await csSharePdf())return;b.textContent='แตะเพื่อแชร์ PDF';return}
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();toast('ดาวน์โหลด PDF แล้ว');
+  }catch(e){b.textContent='PDF';toast('สร้าง PDF ไม่ได้ จะเปิดหน้าพิมพ์แทน');csPrintHTML(csA4HTML(csItem,csTpl,csRaw,'print'))}
+  finally{b.disabled=false}
+}
 
 function openPm(x){
   if(!x)return;pmEditing=x;
@@ -1264,19 +1361,9 @@ function demo(){
 $('pmSave').onclick=savePm;$('pmCancel').onclick=()=>$('pmDlg').close();
 $('pmStatus').onchange=()=>{if($('pmStatus').value===PM_DONE&&!$('pmActual').value)$('pmActual').value=todayISO()};
 $('csClose').onclick=()=>{clearTimeout(csTimer);if(csItem){S.checks[csItem.id]=JSON.parse(JSON.stringify(csRaw));save()}$('csDlg').close()};
-$('csForm').addEventListener('input',e=>{const k=e.target.dataset.k;if(!k)return;const n=csSet(k,e.target.value);
-  if(n){const it=csTpl.items.find(i=>i.n===n);const el=$('csr-'+n.replace('.','-'));if(el)el.innerHTML=csBadge(it,csRaw);$('csSum').innerHTML=csSumHTML(csStats(csTpl,csRaw))}csAutosave()});
-$('csForm').addEventListener('click',e=>{const b=e.target.closest('[data-set]');if(!b)return;const k=b.dataset.set,v=b.dataset.val;
-  const path=k.split('.');let old;if(path[0]==='v'){old=(csRaw.v[path[1]+'.'+path[2]]||{})[path[3]]}else old=csRaw[k];
-  const n=csSet(k,old===v?'':v);
-  b.parentElement.querySelectorAll('button').forEach(x=>{const on=x.dataset.val===(old===v?'':v);x.className=on?('on '+(x.dataset.val==='OK'?'okc':x.dataset.val==='NG'?'ngc':'')):''});
-  if(n){const it=csTpl.items.find(i=>i.n===n);const el=$('csr-'+n.replace('.','-'));if(el)el.innerHTML=csBadge(it,csRaw);$('csSum').innerHTML=csSumHTML(csStats(csTpl,csRaw))}csAutosave()});
+$('csZoom').onclick=()=>{if(!csCtl)return;csCtl.zoom=csCtl.zoom==='fit'?'full':'fit';$('csZoom').textContent=csCtl.zoom==='fit'?'ขยาย':'พอดีจอ';csCtl.fit()};
 $('csSave').onclick=()=>saveCS(false);$('csDone').onclick=()=>saveCS(true);
-$('csPmBtn').onclick=()=>openPm(csItem);
-$('csA4Btn').onclick=()=>{csShowA4();$('csActForm').hidden=true;$('csActA4').hidden=false};
-$('csBack').onclick=()=>{$('csA4').hidden=true;$('csForm').hidden=false;$('csActForm').hidden=false;$('csActA4').hidden=true};
-$('csPrint').onclick=csPrint;
-window.addEventListener('resize',()=>{if(!$('csA4').hidden)csFit()});
+$('csPmBtn').onclick=()=>openPm(csItem);$('csShare').onclick=csShare;$('csPdf').onclick=csExportPdf;
 $('mainNav').onclick=e=>{const b=e.target.closest('[data-v]');if(b)setView(b.dataset.v)};
 $('alerts').onclick=e=>{const b=e.target.closest('[data-q]');if(!b)return;const q=b.dataset.q;if(q==='all'){filter.quick=null}else{filter.quick=filter.quick===q?null:q}render()};
 $('openView').onclick=e=>{const b=e.target.closest('.job');if(b)openJob(S.tasks.find(t=>t.id===b.dataset.id))};

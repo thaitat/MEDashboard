@@ -1,7 +1,7 @@
 // เปลี่ยนเลขเวอร์ชันทุกครั้งที่อัปโหลด index.html ใหม่ เพื่อให้มือถือโหลดเวอร์ชันล่าสุด
-const CACHE = 'maint-v11';
-const SHELL = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
-const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
+const CACHE = 'maint-v12';
+const SHELL = ['./', './index.html', './check.html', './manifest.json', './icon-192.png', './icon-512.png'];
+const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com', 'cdnjs.cloudflare.com'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
 });
