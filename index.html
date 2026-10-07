@@ -832,13 +832,21 @@ async function gasPost(body,verify){
     const t=await r.text();try{j=JSON.parse(t)}catch(e){j=null}}
   catch(e){if(!verify)throw e;j=null}
   if(j){if(!j.ok)throw new Error(j.error||'error');return j}
-  if(verify){for(const w of [700,1800,3500]){await gasSleep(w);try{const v=await verify();if(v)return v}catch(e){}}}
+  if(verify){for(const w of [400,1200,2500]){await gasSleep(w);try{const v=await verify();if(v)return v}catch(e){}}}
   throw new Error('Sheet ตอบกลับไม่สมบูรณ์ กดรีเฟรชเพื่อตรวจว่าบันทึกแล้วหรือไม่');
 }
 const pmSame=(a,b)=>String(a??'')===String(b??'');
+async function pmVerify(id,fields){
+  let it=null;
+  try{const r=await gasGet({action:'item',id});if('item' in r&&!('items' in r))it=r.item;else{it=(r.items||[]).find(x=>x.id===id)}}catch(e){}
+  if(it&&Object.keys(fields).every(k=>pmSame(it[k],fields[k])))return {ok:true,item:it};return null}
 async function pmPost(id,fields){
-  const j=await gasPost({action:'update',id,fields},async()=>{const L=await gasGet({action:'list'});const it=(L.items||[]).find(x=>x.id===id);
-    if(it&&Object.keys(fields).every(k=>pmSame(it[k],fields[k]))){PMC.items=L.items;PMC.fetchedAt=Date.now();pmSaveCache();return {ok:true,item:it}}return null});
+  // 1) อัปเดตผ่าน GET (สคริปต์เวอร์ชัน 5 ขึ้นไป) ตอบกลับเร็วและเป็น JSON เสมอ
+  try{const r=await gasGet({action:'update',id,fields:JSON.stringify(fields),_:Date.now()});
+    if(r.item)return r.item;               // สำเร็จ
+  }catch(e){if(e.message!=='BADRESP'&&!/fetch|network|load/i.test(e.message))throw e}
+  // 2) สคริปต์เวอร์ชันเก่า: ใช้ POST แล้วตรวจผลจาก Sheet
+  const j=await gasPost({action:'update',id,fields},()=>pmVerify(id,fields));
   return j.item;
 }
 function pmCfgHTML(first){
