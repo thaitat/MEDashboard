@@ -260,7 +260,7 @@ function csThD(iso){if(!iso)return '';const [y,m,d]=iso.split('-').map(Number);r
 function csTplFor(x){return x?CS_TPL.find(t=>t.match instanceof RegExp?t.match.test(x.desc||''):t.match(x))||null:null}
 function csIntervalOf(w,tpl){const v={4:'4W',12:'3M',24:'6M',48:'1Y'}[Number(w)]||'';return tpl&&tpl.intervals.indexOf(v)<0?'':v}
 function csUnitNo(u,tpl){if(tpl&&tpl.units.length===1)return tpl.units[0];const m=String(u||'').match(/Unit\s*(\d)/);return m?'#'+m[1]:''}
-function csNew(x,tpl){return {tpl:tpl.key,date:csToday(),wo:x.wo||'',interval:csIntervalOf(x.freqWeeks,tpl),unitStatus:'',equipStatus:'',unitNo:csUnitNo(x.unit,tpl),f:{},v:{},note:'',sign:{i:x.owner||'',id:'',a:'',ad:'',g:'',gd:''},savedAt:0,synced:false}}
+function csNew(x,tpl){return {tpl:tpl.key,date:csToday(),wo:x.wo||'',interval:csIntervalOf(x.freqWeeks,tpl),unitStatus:'',equipStatus:'',unitNo:csUnitNo(x.unit,tpl),f:{},v:{},note:'',sign:{i:/^Group [ABC]$/.test(x.owner||'')?'':(x.owner||''),id:'',a:'',ad:'',g:'',gd:''},savedAt:0,synced:false}}
 function csNum(v){const n=parseFloat(String(v??'').replace(/,/g,'.').replace(/[^0-9.\-]/g,''));return isFinite(n)?n:NaN}
 const CS_U=['u1','u2','u3'];
 function csNumJudge(it,a){const lo=it.min==null||(it.gt?a>it.min:a>=it.min),hi=it.max==null||(it.lt?a<it.max:a<=it.max);

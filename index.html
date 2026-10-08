@@ -155,7 +155,7 @@ pre.preview{white-space:pre-wrap;background:var(--bg);border:1px solid var(--lin
 .mhead.otm>span:last-child{font-weight:400;font-size:12px}
 .tagnow{font-size:11px;font-weight:600;background:var(--steel-soft);color:var(--steel);padding:1px 6px;border-radius:4px;margin-left:4px}
 .meet-soon{color:var(--warn);font-weight:500}
-.pmbar{display:grid;grid-template-columns:1.3fr 1fr;gap:8px;margin-bottom:10px}
+.pmbar{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:8px;margin-bottom:10px}
 .pmbar select{width:100%;padding:8px 6px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
 .pmprog{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:10px}
 .pmprog .row{display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-size:13px;color:var(--ink2)}
@@ -384,6 +384,7 @@ pre.preview{white-space:pre-wrap;background:var(--bg);border:1px solid var(--lin
     <div class="err" id="errPName"></div>
     <div class="row2">
       <label class="f"><span>ตำแหน่ง</span><select id="pPos"></select></label>
+      <label class="f"><span>กลุ่ม (Group)</span><select id="pGrp"><option value="">ไม่ระบุกลุ่ม</option><option value="A">Group A</option><option value="B">Group B</option><option value="C">Group C</option></select></label>
       <label class="f"><span>รหัสพนักงาน</span><input id="pEmp" placeholder="EMP-0123"></label>
     </div>
     <div class="row2">
@@ -456,7 +457,8 @@ pre.preview{white-space:pre-wrap;background:var(--bg);border:1px solid var(--lin
       <label class="f"><span>วันที่ทำจริง</span><input id="pmActual" type="date"></label>
       <label class="f"><span>เลข WO</span><input id="pmWo" placeholder="WO-123456"></label>
     </div>
-    <label class="f"><span>ผู้รับผิดชอบ</span><input id="pmOwner" list="owners" placeholder="สมชาย"></label>
+    <label class="f"><span>ผู้รับผิดชอบ (กลุ่ม)</span><select id="pmOwner"></select></label>
+    <div class="sub" id="pmMembers" style="margin:-6px 0 10px"></div>
     <label class="f"><span>หมายเหตุ</span><textarea id="pmNote" rows="2" placeholder="เปลี่ยนไส้กรอง 2 ตัว"></textarea></label>
     <div class="err" id="pmErr"></div>
     <div class="acts">
@@ -755,17 +757,20 @@ function renderPeople(){
   $('orphan').innerHTML=orphans.length?`<div class="orphan">มีชื่อในงานที่ยังไม่อยู่ในรายชื่อ: ${orphans.map(esc).join(', ')}<div style="margin-top:8px"><button class="btn" style="font-size:13px;padding:6px 12px" id="addOrphans">เพิ่มทั้งหมดเข้ารายชื่อ</button></div></div>`:'';
   if(orphans.length)$('addOrphans').onclick=()=>{orphans.forEach(n=>S.people.push({id:uid(),name:n,full:'',pos:'ช่างเทคนิค',emp:'',tel:'',avail:'ปฏิบัติงาน',skill:'',note:''}));toast(`เพิ่ม ${orphans.length} คนแล้ว แตะชื่อเพื่อแก้ตำแหน่ง`);save()};
   if(!P.length){$('pplList').innerHTML=orphans.length?'':`<div class="empty"><h2>ยังไม่มีรายชื่อบุคลากร</h2><p>เพิ่มคนในแผนก แล้วจะเห็นภาระงานของแต่ละคนได้ที่นี่</p><button class="btn primary" id="pEmptyAdd">เพิ่มบุคลากร</button></div>`;if(!orphans.length)$('pEmptyAdd').onclick=()=>openPerson(null);return}
-  $('pplList').innerHTML=P.map(p=>{const T=S.tasks.filter(t=>t.owner===p.name),late=T.filter(isLate).length;const on=!p.avail||p.avail==='ปฏิบัติงาน';
+  const pcard=p=>{const T=S.tasks.filter(t=>t.owner===p.name),late=T.filter(isLate).length;const on=!p.avail||p.avail==='ปฏิบัติงาน';
     const byCat=Object.entries(CATS).map(([k,c])=>{const n=T.filter(t=>t.cat===k).length;return n?`<span>${c.name} <b>${n}</b></span>`:''}).join('');
     return `<button class="person" data-p="${p.id}"><div class="row"><div><div class="nm">${esc(p.name)}${p.full&&p.full!==p.name?` <span class="pos">(${esc(p.full)})</span>`:''}</div><div class="pos">${esc(p.pos||'')}${p.skill?' · '+esc(p.skill):''}</div></div><span class="avail ${on?'on':'off'}">${esc(p.avail||'ปฏิบัติงาน')}</span></div>
-      <div class="load"><span>งานเปิด <b>${T.length}</b></span>${late?`<span class="late">เกินกำหนด <b>${late}</b></span>`:''}${byCat}</div>${p.note?`<div class="note">${esc(p.note)}</div>`:''}</button>`}).join('');
+      <div class="load"><span>งานเปิด <b>${T.length}</b></span>${late?`<span class="late">เกินกำหนด <b>${late}</b></span>`:''}${byCat}</div>${p.note?`<div class="note">${esc(p.note)}</div>`:''}</button>`};
+  $('pplList').innerHTML=[...GROUPS,''].map(g=>{const M=P.filter(p=>(p.grp||'')===g);if(!M.length&&!g)return '';
+    const own=g?PMC.items.filter(x=>x.owner===grpLabel(g)):[],open=own.filter(pmOpen).length,late=own.filter(pmLate).length;
+    return `<div class="mhead otm"><span>${g?'Group '+g:'ยังไม่ระบุกลุ่ม'} · ${M.length} คน</span><span>${g&&pmOn()?`PM ค้าง ${open}${late?` · <b style="color:var(--danger)">เลยกำหนด ${late}</b>`:''}`:''}</span></div>`+(M.length?M.map(pcard).join(''):'<div class="sub" style="margin:0 0 8px">ยังไม่มีสมาชิก แตะชื่อบุคลากรแล้วเลือกกลุ่ม</div>')}).join('');
 }
 function openPerson(p){
   editingP=p;
   $('pPos').innerHTML=POS.map(x=>`<option>${x}</option>`).join('');$('pAvail').innerHTML=AVAIL.map(x=>`<option>${x}</option>`).join('');
   $('pTitle').textContent=p?'ข้อมูลบุคลากร':'เพิ่มบุคลากร';
   $('pName').value=p?.name||'';$('pFull').value=p?.full||'';$('pPos').value=p?.pos||'ช่างเทคนิค';$('pEmp').value=p?.emp||'';
-  $('pTel').value=p?.tel||'';$('pAvail').value=p?.avail||'ปฏิบัติงาน';$('pSkill').value=p?.skill||'';$('pNote').value=p?.note||'';
+  $('pTel').value=p?.tel||'';$('pAvail').value=p?.avail||'ปฏิบัติงาน';$('pGrp').value=p?.grp||'';$('pSkill').value=p?.skill||'';$('pNote').value=p?.note||'';
   $('errPName').textContent='';$('pDel').hidden=!p;
   const T=p?S.tasks.filter(t=>t.owner===p.name):[];
   $('pTasks').innerHTML=T.length?`<div class="f"><span>งานที่รับผิดชอบอยู่ (${T.length})</span></div><div class="ptasks">${T.map(t=>`<div>${CATS[t.cat].name} · ${esc(t.wo?t.wo+' ':'')}${esc(t.title)} – <span class="${isLate(t)?'due late':''}">${esc(t.status)}</span></div>`).join('')}</div>`:'';
@@ -776,7 +781,7 @@ function savePerson(){
   const name=$('pName').value.trim();
   if(!name){$('errPName').textContent='ใส่ชื่อที่ใช้ในงานก่อนบันทึก';return}
   if(S.people.some(p=>p.name===name&&p!==editingP)){$('errPName').textContent='มีชื่อนี้ในรายชื่อแล้ว';return}
-  const d={name,full:$('pFull').value.trim(),pos:$('pPos').value,emp:$('pEmp').value.trim(),tel:$('pTel').value.trim(),avail:$('pAvail').value,skill:$('pSkill').value.trim(),note:$('pNote').value.trim()};
+  const d={name,full:$('pFull').value.trim(),pos:$('pPos').value,emp:$('pEmp').value.trim(),tel:$('pTel').value.trim(),avail:$('pAvail').value,grp:$('pGrp').value,skill:$('pSkill').value.trim(),note:$('pNote').value.trim()};
   if(editingP){const old=editingP.name;if(old!==name)[...S.tasks,...S.log,...S.budget].forEach(t=>{if(t.owner===old)t.owner=name});Object.assign(editingP,d);toast('บันทึกแล้ว')}
   else{S.people.push({id:uid(),...d});toast('เพิ่มบุคลากรแล้ว')}
   $('pDlg').close();save();
@@ -864,6 +869,9 @@ function pmLate(x){return x.planDate&&x.planDate<todayISO()&&x.status!==PM_DONE&
 function pmOpen(x){return x.status!==PM_DONE&&x.status!==PM_CANCEL}
 /** งาน PM ปกติ (ไม่รวม PM Outage ซึ่งไปอยู่ในหน้าแผน Outage) */
 function pmReg(){return PMC.items.filter(x=>x.cat!=='PM Outage')}
+const GROUPS=['A','B','C'];
+function grpLabel(g){return 'Group '+g}
+function grpMembers(label){const m=String(label||'').match(/^Group ([ABC])$/);return m?S.people.filter(p=>p.grp===m[1]).map(p=>p.name):null}
 function pmStats(ym){const L=pmReg().filter(x=>x.planDate&&x.planDate.slice(0,7)===ym);
   return {L,done:L.filter(x=>x.status===PM_DONE).length,late:L.filter(pmLate).length,mh:L.reduce((a,x)=>a+(Number(x.manHours)||0),0)}}
 async function pmFetch(silent){
@@ -935,6 +943,7 @@ function renderPM(){
   const monthOpts=['<option value="0">ทั้งปี '+(yr+543)+'</option>'].concat(MONTHS_TH_FULL.map((m,i)=>`<option value="${i+1}" ${pmF.month===i+1?'selected':''}>${m}</option>`)).join('');
   let base=pmReg();
   if(pmF.unit)base=base.filter(x=>x.unit===pmF.unit);
+  if(pmF.grp)base=base.filter(x=>pmF.grp==='-'?!x.owner:x.owner===pmF.grp);
   const inMonth=pmF.month?base.filter(x=>x.month===pmF.month):base;
   const lateAll=base.filter(pmLate);
   let L=pmF.quick==='late'?lateAll:inMonth;
@@ -948,6 +957,7 @@ function renderPM(){
     <div class="pmbar">
       <select id="pmMonth" aria-label="เดือน">${monthOpts}</select>
       <select id="pmUnit" aria-label="หน่วย"><option value="">ทุกหน่วย</option>${['ส่วนกลาง','Unit 1','Unit 2','Unit 3'].map(u=>`<option ${pmF.unit===u?'selected':''}>${u}</option>`).join('')}</select>
+      <select id="pmGrpF" aria-label="กลุ่ม"><option value="">ทุกกลุ่ม</option>${GROUPS.map(g=>`<option value="${grpLabel(g)}" ${pmF.grp===grpLabel(g)?'selected':''}>${grpLabel(g)}</option>`).join('')}<option value="-" ${pmF.grp==='-'?'selected':''}>ยังไม่กำหนด</option></select>
       
     </div>
     <div class="pmprog"><div class="row"><span>${pmF.month?MONTHS_TH_FULL[pmF.month-1]:'ทั้งปี'} · เสร็จแล้ว</span><span><b>${done}</b> / ${inMonth.length} (${pct}%)</span></div>
@@ -973,6 +983,7 @@ function renderPM(){
   $('pmMonth').value=String(pmF.month);
   $('pmMonth').onchange=e=>{pmF.month=Number(e.target.value);if(pmF.quick==='late')pmF.quick='';renderPM()};
   $('pmUnit').onchange=e=>{pmF.unit=e.target.value;renderPM()};
+  $('pmGrpF').onchange=e=>{pmF.grp=e.target.value;renderPM()};
   el.querySelector('.alerts').onclick=e=>{const b=e.target.closest('[data-pq]');if(!b)return;const q=b.dataset.pq;pmF.quick=pmF.quick===q?'':q;renderPM()};
   $('pmList').onclick=e=>{const b=e.target.closest('[data-pm]');if(b)openCS(PMC.items.find(x=>x.id===b.dataset.pm))};
   $('pmCfgBtn').onclick=()=>{pmCfgOpen=!pmCfgOpen;renderPM();window.scrollTo(0,0)};
@@ -1124,7 +1135,7 @@ function csThD(iso){if(!iso)return '';const [y,m,d]=iso.split('-').map(Number);r
 function csTplFor(x){return x?CS_TPL.find(t=>t.match instanceof RegExp?t.match.test(x.desc||''):t.match(x))||null:null}
 function csIntervalOf(w,tpl){const v={4:'4W',12:'3M',24:'6M',48:'1Y'}[Number(w)]||'';return tpl&&tpl.intervals.indexOf(v)<0?'':v}
 function csUnitNo(u,tpl){if(tpl&&tpl.units.length===1)return tpl.units[0];const m=String(u||'').match(/Unit\s*(\d)/);return m?'#'+m[1]:''}
-function csNew(x,tpl){return {tpl:tpl.key,date:csToday(),wo:x.wo||'',interval:csIntervalOf(x.freqWeeks,tpl),unitStatus:'',equipStatus:'',unitNo:csUnitNo(x.unit,tpl),f:{},v:{},note:'',sign:{i:x.owner||'',id:'',a:'',ad:'',g:'',gd:''},savedAt:0,synced:false}}
+function csNew(x,tpl){return {tpl:tpl.key,date:csToday(),wo:x.wo||'',interval:csIntervalOf(x.freqWeeks,tpl),unitStatus:'',equipStatus:'',unitNo:csUnitNo(x.unit,tpl),f:{},v:{},note:'',sign:{i:/^Group [ABC]$/.test(x.owner||'')?'':(x.owner||''),id:'',a:'',ad:'',g:'',gd:''},savedAt:0,synced:false}}
 function csNum(v){const n=parseFloat(String(v??'').replace(/,/g,'.').replace(/[^0-9.\-]/g,''));return isFinite(n)?n:NaN}
 const CS_U=['u1','u2','u3'];
 function csNumJudge(it,a){const lo=it.min==null||(it.gt?a>it.min:a>=it.min),hi=it.max==null||(it.lt?a<it.max:a<=it.max);
@@ -1326,7 +1337,7 @@ async function saveCS(close,quiet){
     const sv=csRaw.savedAt,cid=csItem.id;
     await csPost({action:'saveCheck',id:cid,check:pl},async()=>{const r=await gasGet({action:'check',id:cid});return r.check&&r.check.savedAt===sv?{ok:true}:null});
     csRaw.synced=true;S.checks[csItem.id]=JSON.parse(JSON.stringify(csRaw));save();
-    if(close){const f={status:PM_DONE,actualDate:csRaw.date||todayISO()};if(csRaw.wo)f.wo=csRaw.wo;if(csRaw.sign.i&&!csItem.owner)f.owner=csRaw.sign.i;
+    if(close){const f={status:PM_DONE,actualDate:csRaw.date||todayISO()};if(csRaw.wo)f.wo=csRaw.wo;if(!csItem.owner){const pp=S.people.find(z=>z.name===csRaw.sign.i);if(pp&&pp.grp)f.owner=grpLabel(pp.grp)}
       const it=await pmPost(csItem.id,f);Object.assign(csItem,it||f);pmSaveCache();$('csDlg').close();toast('บันทึกผลตรวจและปิดงาน PM แล้ว');render();return true}
     if(!quiet)toast('บันทึกผลตรวจลง Sheet แล้ว');return true;
   }catch(e){toast(/ไม่รู้จักคำสั่ง/.test(e.message)?'บันทึกในเครื่องแล้ว แต่สคริปต์ใน Sheet ยังไม่รองรับ (อัปเดตสคริปต์)':navigator.onLine===false?'บันทึกในเครื่องแล้ว ส่งขึ้น Sheet ไม่ได้เพราะไม่มีเน็ต':'บันทึกในเครื่องแล้ว แต่ส่งขึ้น Sheet ไม่สำเร็จ');return false}
@@ -1379,9 +1390,10 @@ function openPm(x){
   $('pmTitle').textContent=x.desc;
   $('pmInfo').textContent=`${x.pmnum} · ตามแผน ${thDate(x.planDate,true)} · ${x.unit}${x.location?' · '+x.location:''}${x.men&&x.hours?` · ${x.men} คน × ${x.hours} ชม.`:''}`;
   $('pmStatus').innerHTML=PMC.statuses.map(s=>`<option ${s===x.status?'selected':''}>${esc(s)}</option>`).join('');
-  $('pmActual').value=x.actualDate||'';$('pmWo').value=x.wo||'';$('pmOwner').value=x.owner||'';$('pmNote').value=x.note||'';
+  $('pmActual').value=x.actualDate||'';$('pmWo').value=x.wo||'';{const o=x.owner||'';const opts=['',...GROUPS.map(grpLabel)];if(o&&!opts.includes(o))opts.push(o);$('pmOwner').innerHTML=opts.map(v=>`<option value="${esc(v)}">${v?esc(v)+(grpMembers(v)===null?' (เดิม)':''):'ยังไม่กำหนด'}</option>`).join('');$('pmOwner').value=o;pmShowMembers()}$('pmNote').value=x.note||'';
   $('pmErr').textContent='';$('pmSave').disabled=false;$('pmSave').textContent='บันทึกลง Sheet';$('pmDlg').showModal();
 }
+function pmShowMembers(){const m=grpMembers($('pmOwner').value);$('pmMembers').textContent=m?(m.length?'สมาชิก: '+m.join(', '):'กลุ่มนี้ยังไม่มีสมาชิก (เพิ่มได้ในหน้าบุคลากร)'):''}
 async function savePm(){
   const x=pmEditing;if(!x)return;
   const f={status:$('pmStatus').value,actualDate:$('pmActual').value,wo:$('pmWo').value.trim(),owner:$('pmOwner').value.trim(),note:$('pmNote').value.trim()};
@@ -1623,7 +1635,7 @@ function demo(){
   save();
 }
 
-$('pmSave').onclick=savePm;$('pmCancel').onclick=()=>$('pmDlg').close();
+$('pmSave').onclick=savePm;$('pmOwner').onchange=pmShowMembers;$('pmCancel').onclick=()=>$('pmDlg').close();
 $('pmStatus').onchange=()=>{if($('pmStatus').value===PM_DONE&&!$('pmActual').value)$('pmActual').value=todayISO()};
 $('csClose').onclick=()=>{clearTimeout(csTimer);if(csItem){S.checks[csItem.id]=JSON.parse(JSON.stringify(csRaw));save()}$('csDlg').close()};
 $('csZoom').onclick=()=>{if(!csCtl)return;csCtl.zoom=csCtl.zoom==='fit'?'full':'fit';$('csZoom').textContent=csCtl.zoom==='fit'?'ขยาย':'พอดีจอ';csCtl.fit()};
