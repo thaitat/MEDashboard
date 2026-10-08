@@ -330,6 +330,7 @@ pre.preview{white-space:pre-wrap;background:var(--bg);border:1px solid var(--lin
       </div>
       <label class="f"><span>จำนวนชั่วโมง</span><input id="fOHours" inputmode="decimal" placeholder="เช่น 192"></label>
       <div class="err" id="errOut"></div>
+      <div id="fLinked"></div>
     </div>
     <label class="f"><span>สถานะ</span><select id="fStatus"></select></label>
     <label class="f"><span>อัปเดตล่าสุด</span><textarea id="fNote" rows="2" placeholder="รอผู้ขายยืนยันวันส่งของ"></textarea></label>
@@ -587,12 +588,12 @@ function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&l
 function toast(m){const t=$('toast');const d=[...document.querySelectorAll('dialog[open]')].pop();const host=d||document.body;if(t.parentNode!==host)host.appendChild(t);t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),1800)}
 
 function load(){try{const r=localStorage.getItem(LS);if(r){const d=JSON.parse(r);if(d&&Array.isArray(d.tasks))S=d}}catch(e){}normalize(S)}
-function save(){
+function save(skipRender){
   S.updatedAt=Date.now();
   try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
   if(db){clearTimeout(saveTimer);$('sync').textContent='กำลังบันทึก…';
     saveTimer=setTimeout(async()=>{try{await db.doc('data/board').set(JSON.parse(JSON.stringify(S)));$('sync').textContent='บันทึกแล้ว'}catch(e){$('sync').textContent='บันทึกในเครื่องนี้เท่านั้น'}},700)}
-  render();
+  if(!skipRender)render();
 }
 async function connectDb(){
   if(!(window.claude&&window.claude.use))return;
@@ -608,7 +609,34 @@ async function connectDb(){
   }catch(e){db=null}
 }
 
+/* ---------- แผน Outage อัตโนมัติจากงาน PM ที่ต้องหยุดเครื่อง ---------- */
+function otMonth(ym){const [y,m]=ym.split('-').map(Number);return new Date(y,m-1,1).toLocaleDateString('th-TH',{month:'short',year:'2-digit'})}
+function otLinked(t){return (t.pmIds||[]).map(id=>PMC.items.find(x=>x.id===id)).filter(Boolean)}
+function otSyncFromPM(){
+  if(!pmOn()||!PMC.items.length)return false;
+  if(!Array.isArray(S.otIgnore))S.otIgnore=[];
+  const g={};PMC.items.filter(x=>x.cat==='PM Outage'&&x.planDate).forEach(x=>{const k=x.unit+'|'+x.planDate.slice(0,7);(g[k]=g[k]||[]).push(x)});
+  let ch=false;
+  Object.entries(g).forEach(([k,L])=>{
+    if(S.otIgnore.includes(k)||S.log.some(t=>t.pmkey===k))return;
+    const [unit,ym]=k.split('|'),dates=L.map(x=>x.planDate).sort(),ids=L.map(x=>x.id).sort();
+    let t=S.tasks.find(z=>z.pmkey===k);
+    if(!t){t={id:uid(),cat:'OT',pmkey:k,createdAt:todayISO(),title:`PM Outage ${unit}`,outage:`${unit} รอบ ${otMonth(ym)}`,oStart:dates[0],oEnd:dates[dates.length-1],oHours:null,
+      wo:'',owner:'',due:'',pri:3,status:CATS.OT.st[0],note:'',history:[{d:todayISO(),s:CATS.OT.st[0],n:'สร้างจากแผน PM'}]};S.tasks.push(t);ch=true}
+    else if(t.autoDates!==false&&(t.oStart!==dates[0]||t.oEnd!==dates[dates.length-1])){t.oStart=dates[0];t.oEnd=dates[dates.length-1];ch=true}
+    if(JSON.stringify(t.pmIds||[])!==JSON.stringify(ids)){t.pmIds=ids;ch=true}
+    const live=L.filter(x=>x.status!==PM_CANCEL),done=live.filter(x=>x.status===PM_DONE).length,busy=live.some(x=>x.status==='กำลังดำเนินการ');
+    let ns=t.status;
+    if(live.length&&done===live.length)ns=OT_DONE;
+    else if(busy||done>0)ns='กำลังดำเนินการ';
+    else if(t.status===OT_DONE||t.status==='กำลังดำเนินการ')ns=t.preStatus||CATS.OT.st[1];
+    if(ns!==t.status){if(ns==='กำลังดำเนินการ'||ns===OT_DONE){if(t.status!=='กำลังดำเนินการ'&&t.status!==OT_DONE)t.preStatus=t.status}
+      t.status=ns;(t.history=t.history||[]).push({d:todayISO(),s:ns,n:`อัปเดตจากงาน PM (เสร็จ ${done}/${live.length})`});ch=true}
+  });
+  return ch;
+}
 function render(){
+  if(otSyncFromPM())save(true);
   $('today').textContent=new Date().toLocaleDateString('th-TH',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   renderNav();
   const C=S.tasks.filter(t=>t.cat===filter.cat);
@@ -624,7 +652,7 @@ function render(){
   if(filter.quick==='wait')L=L.filter(t=>WAIT.includes(t.status));
   if(filter.quick==='urgent')L=L.filter(t=>t.pri==1);
   const sk=t=>t.cat==='OT'?(t.oStart||t.oEnd||'9'):(t.due||'9');
-  L.sort((a,b)=>(isLate(b)-isLate(a))||(a.pri-b.pri)||(sk(a)>sk(b)?1:-1));
+  L.sort((a,b)=>((a.status===OT_DONE)-(b.status===OT_DONE))||(isLate(b)-isLate(a))||(a.pri-b.pri)||(sk(a)>sk(b)?1:-1));
   if(!S.tasks.length){
     $('openView').innerHTML=`<div class="empty"><h2>เริ่มติดตามงานแรก</h2><p>เพิ่มงานจาก Maximo ที่ต้องการติดตาม แล้วกดสรุปส่งไลน์ให้ทีมได้ทุกเมื่อ</p><button class="btn primary" id="emptyAdd">เพิ่มงาน</button> <button class="btn" id="demoBtn">ลองใส่ข้อมูลตัวอย่าง</button></div>`;
     $('emptyAdd').onclick=()=>openJob(null);$('demoBtn').onclick=demo;
@@ -636,8 +664,11 @@ function render(){
       <div class="top"><span>${t.cat==='OT'?`<span class="wo">${c.name}</span>${t.outage?' · '+esc(t.outage):''}`:`<span class="wo">${esc(t.wo||'ไม่มีเลขอ้างอิง')}</span> ${c.name}`}</span>${t.pri<3?`<span class="pri p${t.pri}">${PRI[t.pri]}</span>`:''}</div>
       <div class="t">${esc(t.title)}</div>
       <div class="meta"><span class="st ${WAIT.includes(t.status)?'wait':t.status===OT_DONE?'ok':''}">${esc(t.status)}</span>${t.cat==='OT'?`${otPeriod(t)?`<span class="due ${isLate(t)?'late':''}">${isLate(t)?'เลยช่วง ':''}${otPeriod(t)}</span>`:''}${otHours(t)?`<span>${otHours(t)}</span>`:''}`:`<span>${esc(t.owner||'ยังไม่ระบุผู้รับผิดชอบ')}</span>${t.due?`<span class="due ${isLate(t)?'late':''}">${isLate(t)?'เกินกำหนด ':'ครบ '}${thDate(t.due)}</span>`:''}`}</div>
+      ${t.pmIds?(()=>{const L=otLinked(t).filter(x=>x.status!==PM_CANCEL),d=L.filter(x=>x.status===PM_DONE).length,mh=L.reduce((a,x)=>a+(Number(x.manHours)||0),0);
+        return `<div class="note">🛠️ งาน PM เสร็จ ${d}/${L.length}${mh?` · Man-hour ${mh.toLocaleString('th-TH')}`:''} · ${L.map(x=>esc(String(x.desc).replace(/\s*PM Outage.*$/i,''))).join(', ')}</div>`})():''}
       ${t.note?`<div class="note">${esc(t.note)}</div>`:''}</button>`}).join('');
   }
+  if(filter.cat==='OT'&&!pmOn())$('openView').insertAdjacentHTML('afterbegin','<div class="sub" style="margin:0 0 10px">เชื่อมต่อ Google Sheet ในหน้า PM แล้ว งาน PM ที่ต้อง Outage จะมาสร้างรายการให้ที่นี่อัตโนมัติ</div>');
   renderLog();renderBudget();renderPeople();renderTests();renderLastBk();if(view==='PM')renderPM();
   const owners=[...new Set([...S.people.map(p=>p.name),...[...S.tasks,...S.log,...S.budget].map(t=>t.owner)].filter(Boolean))];
   $('owners').innerHTML=owners.map(o=>`<option value="${esc(o)}">`).join('');
@@ -1378,6 +1409,8 @@ function openJob(t){
   $('fWo').value=t?.wo||'';$('fOutage').value=t?.outage||'';$('fOStart').value=t?.oStart||'';$('fOEnd').value=t?.oEnd||'';$('fOHours').value=t&&t.oHours!=null?t.oHours:'';$('errOut').textContent='';$('fTitle').value=t?.title||'';$('fOwner').value=t?.owner||'';$('fDue').value=t?.due||'';
   $('fPri').value=t?.pri||3;$('fNote').value=t?.note||'';fillStatus(newCat,t?.status);
   $('errTitle').textContent='';$('delBtn').hidden=!t;$('closeJobBtn').hidden=!t;
+  const LK=t&&t.pmIds?otLinked(t):[];
+  $('fLinked').innerHTML=LK.length?`<span class="lb" style="display:block;font-size:13px;color:var(--ink2);margin:0 0 4px">งาน PM ในรอบนี้ (จาก Google Sheet) – แตะเพื่อเปิดใบตรวจ</span><div class="ptasks">${LK.map(x=>`<div><button type="button" class="linkbtn" data-lpm="${esc(x.id)}">${esc(x.desc)}</button> – <span class="${x.status===PM_DONE?'':'sub'}">${esc(x.status)}</span>${x.men&&x.hours?` · ${x.men}×${x.hours} ชม.`:''}</div>`).join('')}</div>`:'';
   const h=t?.history||[];$('fHist').hidden=!h.length;
   $('fHist').innerHTML=h.slice().reverse().map(x=>`${thDate(x.d,true)}: ${esc(x.s)}${x.n?' – '+esc(x.n):''}`).join('<br>');
   $('jobDlg').showModal();
@@ -1392,6 +1425,7 @@ function saveJob(){
   const d=ot?{cat:newCat,outage:$('fOutage').value.trim(),wo:'',title,owner:'',due:'',pri:3,oStart:$('fOStart').value,oEnd:$('fOEnd').value,oHours,status:$('fStatus').value,note:$('fNote').value.trim()}
     :{cat:newCat,outage:'',oStart:'',oEnd:'',oHours:null,wo:$('fWo').value.trim(),title,owner:$('fOwner').value.trim(),due:$('fDue').value,pri:Number($('fPri').value),status:$('fStatus').value,note:$('fNote').value.trim()};
   if(editing){
+    if(editing.pmkey&&(editing.oStart!==d.oStart||editing.oEnd!==d.oEnd))editing.autoDates=false;
     const changed=editing.status!==d.status||editing.note!==d.note;
     Object.assign(editing,d);
     if(changed)(editing.history=editing.history||[]).push({d:todayISO(),s:d.status,n:d.note});
@@ -1615,8 +1649,9 @@ $('fTitle').oninput=()=>$('errTitle').textContent='';
 $('addBtn').onclick=()=>view==='PM'&&pmOn()?pmFetch(false):view==='bud'?openBud(null):view==='ppl'?openPerson(null):view==='test'?openTest(null):openJob(null);
 $('saveBtn').onclick=saveJob;
 $('cancelBtn').onclick=()=>$('jobDlg').close();
-$('delBtn').onclick=()=>{if(editing&&confirm('ลบงานนี้ถาวร? (ถ้างานเสร็จแล้ว ให้กด "ปิดงาน" แทนเพื่อเก็บไว้ในประวัติ)')){S.tasks=S.tasks.filter(t=>t.id!==editing.id);$('jobDlg').close();toast('ลบแล้ว');save()}};
+$('delBtn').onclick=()=>{if(editing&&confirm('ลบงานนี้ถาวร? (ถ้างานเสร็จแล้ว ให้กด "ปิดงาน" แทนเพื่อเก็บไว้ในประวัติ)')){if(editing.pmkey){S.otIgnore=S.otIgnore||[];S.otIgnore.push(editing.pmkey)}S.tasks=S.tasks.filter(t=>t.id!==editing.id);$('jobDlg').close();toast('ลบแล้ว');save()}};
 $('closeJobBtn').onclick=()=>askClose(editing);
+$('fLinked').onclick=e=>{const b=e.target.closest('[data-lpm]');if(!b)return;const x=PMC.items.find(z=>z.id===b.dataset.lpm);if(x)openCS(x)};
 $('closeCancel').onclick=()=>$('closeDlg').close();
 $('closeOk').onclick=doClose;
 $('shareBtn').onclick=()=>{monthOptions();try{$('sReporter').value=localStorage.getItem('mech-maint-reporter')||''}catch(e){}updatePreview();$('shareDlg').showModal()};
