@@ -152,7 +152,7 @@ pre.preview{white-space:pre-wrap;background:var(--bg);border:1px solid var(--lin
 .lastbk-old{color:var(--warn);font-weight:500}
 .mhead{font-size:13px;font-weight:600;color:var(--ink2);margin:14px 0 6px}
 .meet-soon{color:var(--warn);font-weight:500}
-.pmbar{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:8px;margin-bottom:10px}
+.pmbar{display:grid;grid-template-columns:1.3fr 1fr;gap:8px;margin-bottom:10px}
 .pmbar select{width:100%;padding:8px 6px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
 .pmprog{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:10px}
 .pmprog .row{display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-size:13px;color:var(--ink2)}
@@ -846,7 +846,9 @@ function pmOn(){return !!(S.pmSheet&&S.pmSheet.url&&S.pmSheet.token)}
 function pmSaveCache(){try{localStorage.setItem(PMK,JSON.stringify(PMC))}catch(e){}}
 function pmLate(x){return x.planDate&&x.planDate<todayISO()&&x.status!==PM_DONE&&x.status!==PM_CANCEL}
 function pmOpen(x){return x.status!==PM_DONE&&x.status!==PM_CANCEL}
-function pmStats(ym){const L=PMC.items.filter(x=>x.planDate&&x.planDate.slice(0,7)===ym);
+/** งาน PM ปกติ (ไม่รวม PM Outage ซึ่งไปอยู่ในหน้าแผน Outage) */
+function pmReg(){return PMC.items.filter(x=>x.cat!=='PM Outage')}
+function pmStats(ym){const L=pmReg().filter(x=>x.planDate&&x.planDate.slice(0,7)===ym);
   return {L,done:L.filter(x=>x.status===PM_DONE).length,late:L.filter(pmLate).length,mh:L.reduce((a,x)=>a+(Number(x.manHours)||0),0)}}
 async function pmFetch(silent){
   if(!pmOn()||pmBusy)return;
@@ -915,9 +917,8 @@ function renderPM(){
   if(pmF.month==null){const n=new Date();pmF.month=(PMC.year&&n.getFullYear()!==PMC.year)?0:n.getMonth()+1}
   const yr=PMC.year||new Date().getFullYear();
   const monthOpts=['<option value="0">ทั้งปี '+(yr+543)+'</option>'].concat(MONTHS_TH_FULL.map((m,i)=>`<option value="${i+1}" ${pmF.month===i+1?'selected':''}>${m}</option>`)).join('');
-  let base=PMC.items.slice();
+  let base=pmReg();
   if(pmF.unit)base=base.filter(x=>x.unit===pmF.unit);
-  if(pmF.cat)base=base.filter(x=>x.cat===pmF.cat);
   const inMonth=pmF.month?base.filter(x=>x.month===pmF.month):base;
   const lateAll=base.filter(pmLate);
   let L=pmF.quick==='late'?lateAll:inMonth;
@@ -931,7 +932,7 @@ function renderPM(){
     <div class="pmbar">
       <select id="pmMonth" aria-label="เดือน">${monthOpts}</select>
       <select id="pmUnit" aria-label="หน่วย"><option value="">ทุกหน่วย</option>${['ส่วนกลาง','Unit 1','Unit 2','Unit 3'].map(u=>`<option ${pmF.unit===u?'selected':''}>${u}</option>`).join('')}</select>
-      <select id="pmCat" aria-label="ประเภท"><option value="">ทุกประเภท</option>${['PM','PM Outage'].map(u=>`<option ${pmF.cat===u?'selected':''}>${u}</option>`).join('')}</select>
+      
     </div>
     <div class="pmprog"><div class="row"><span>${pmF.month?MONTHS_TH_FULL[pmF.month-1]:'ทั้งปี'} · เสร็จแล้ว</span><span><b>${done}</b> / ${inMonth.length} (${pct}%)</span></div>
       <div class="bar"><i style="width:${pct}%"></i></div>
@@ -942,20 +943,20 @@ function renderPM(){
       <button class="pill ${pmF.quick==='done'?'on':''}" data-pq="done">เสร็จแล้ว <b>${done}</b></button>
       <button class="pill red ${pmF.quick==='late'?'on':''}" data-pq="late">เลยกำหนดทั้งปี <b>${lateAll.length}</b></button>
     </div>
-    <div id="pmList">${!PMC.items.length?`<div class="empty"><p>${pmBusy?'กำลังดึงแผน PM…':'ยังไม่มีข้อมูล กดรีเฟรชเพื่อดึงจาก Sheet'}</p></div>`:!L.length?'<div class="empty"><p>ไม่มีรายการตามตัวกรองนี้</p></div>':L.map(x=>{
+    <div id="pmList">${!base.length&&!PMC.items.length?`<div class="empty"><p>${pmBusy?'กำลังดึงแผน PM…':'ยังไม่มีข้อมูล กดรีเฟรชเพื่อดึงจาก Sheet'}</p></div>`:!L.length?'<div class="empty"><p>ไม่มีรายการตามตัวกรองนี้</p></div>':L.map(x=>{
       const st=x.status===PM_DONE?'ok':x.status==='เลื่อน'?'wait':x.status===PM_CANCEL?'no':'';
       return `<button class="job" style="--c:var(${x.cat==='PM Outage'?'--ot':'--pm'})" data-pm="${esc(x.id)}">
         <div class="top"><span><span class="wo">${thDate(x.planDate)}</span> · ${esc(x.unit)}${x.cat==='PM Outage'?' · Outage':''}</span><span>${x.freqWeeks?esc(x.freqWeeks)+'W':''}</span></div>
         <div class="t">${esc(x.desc)}</div>
         <div class="meta"><span class="st ${st}">${esc(x.status)}</span>${pmLate(x)?`<span class="due late">เลยกำหนด ${daysLate(x.planDate,todayISO())} วัน</span>`:''}${x.actualDate?`<span>ทำจริง ${thDate(x.actualDate)}</span>`:''}${x.men&&x.hours?`<span>${x.men} คน × ${x.hours} ชม.</span>`:''}${x.wo?`<span>${esc(x.wo)}</span>`:''}${x.owner?`<span>${esc(x.owner)}</span>`:''}${(()=>{const t=csTplFor(x);if(!t)return '';const c=S.checks[x.id];if(!c)return '<span class="st">📋 Check sheet</span>';const q=csStats(t,c);return `<span class="st ${q.fail?'no':q.filled===q.total?'ok':''}">📋 ${q.filled}/${q.total}${q.fail?' · ไม่ผ่าน '+q.fail:''}</span>`})()}</div>
         ${x.note?`<div class="note">${esc(x.note)}</div>`:''}</button>`}).join('')}</div>
+    <div class="sub" style="margin:4px 0">งาน PM Outage (${PMC.items.length-pmReg().length} รายการ) แสดงอยู่ในหน้า แผน Outage</div>
     <button class="linkbtn" id="pmCfgBtn">ตั้งค่าการเชื่อมต่อ Google Sheet</button>
     ${legacyHTML}`;
   if(pmCfgOpen)bindPmCfg();
   $('pmMonth').value=String(pmF.month);
   $('pmMonth').onchange=e=>{pmF.month=Number(e.target.value);if(pmF.quick==='late')pmF.quick='';renderPM()};
   $('pmUnit').onchange=e=>{pmF.unit=e.target.value;renderPM()};
-  $('pmCat').onchange=e=>{pmF.cat=e.target.value;renderPM()};
   el.querySelector('.alerts').onclick=e=>{const b=e.target.closest('[data-pq]');if(!b)return;const q=b.dataset.pq;pmF.quick=pmF.quick===q?'':q;renderPM()};
   $('pmList').onclick=e=>{const b=e.target.closest('[data-pm]');if(b)openCS(PMC.items.find(x=>x.id===b.dataset.pm))};
   $('pmCfgBtn').onclick=()=>{pmCfgOpen=!pmCfgOpen;renderPM();window.scrollTo(0,0)};
@@ -1380,7 +1381,7 @@ const MONTHS_TH_FULL=['มกราคม','กุมภาพันธ์','ม
 function renderNav(){
   const today=todayISO(),in30=addDays(today,30);
   $('mainNav').innerHTML=NAV.map(([k,l])=>{let cnt='';
-    if(k==='PM'&&pmOn()){const late=PMC.items.filter(pmLate).length,cur=pmStats(todayISO().slice(0,7)).L.filter(pmOpen).length;if(late)cnt=`<span class="cnt red">${late}</span>`;else if(cur)cnt=`<span class="cnt">${cur}</span>`}
+    if(k==='PM'&&pmOn()){const late=pmReg().filter(pmLate).length,cur=pmStats(todayISO().slice(0,7)).L.filter(pmOpen).length;if(late)cnt=`<span class="cnt red">${late}</span>`;else if(cur)cnt=`<span class="cnt">${cur}</span>`}
     else if(CATS[k]){const L=S.tasks.filter(t=>t.cat===k),late=L.filter(isLate).length;if(L.length)cnt=`<span class="cnt ${late?'red':''}">${L.length}</span>`}
     else if(k==='test'){const late=S.tests.filter(tLate).length,soon=S.tests.filter(t=>t.date&&t.date>=today&&t.date<=in30&&!tDone(t)).length;if(late)cnt=`<span class="cnt red">${late}</span>`;else if(soon)cnt=`<span class="cnt">${soon}</span>`}
     return `<button data-v="${k}" class="${view===k?'on':''}" style="--c:var(${CATS[k]?CATS[k].c:'--steel'})" aria-current="${view===k?'page':'false'}">${l}${cnt}</button>`}).join('');
@@ -1473,7 +1474,7 @@ function buildDaily(){
   const closedToday=S.log.filter(t=>t.closedAt===today);
   o.push('📊 ภาพรวมงาน');
   catsInUse().forEach(k=>{const L=S.tasks.filter(t=>t.cat===k),late=L.filter(isLate).length;
-    if(k==='PM'&&pmOn()){const st=pmStats(today.slice(0,7)),pl=PMC.items.filter(pmLate).length;
+    if(k==='PM'&&pmOn()){const st=pmStats(today.slice(0,7)),pl=pmReg().filter(pmLate).length;
       o.push(`▪️ PM (แผนประจำปี): เดือนนี้เสร็จ ${st.done}/${st.L.length}${pl?` · เลยกำหนด ${pl}`:''}`);if(!L.length)return}
     o.push(`▪️ ${CATS[k].name}: เปิดอยู่ ${L.length}${late?` · เกินกำหนด ${late}`:''}`)});
   const lateAll=S.tasks.filter(isLate).length;
@@ -1483,15 +1484,15 @@ function buildDaily(){
     iss.sort((a,b)=>(isLate(b)-isLate(a))||(a.pri-b.pri));
     const lateT=S.tests.filter(tLate);
     const csFailToday=Object.values(S.checks).some(c=>c.savedAt&&c.date===today&&(()=>{const t=CS_TPL.find(z=>z.key===c.tpl);return t&&csStats(t,c).fail>0})());
-    if(iss.length||lateT.length||csFailToday||(pmOn()&&PMC.items.some(pmLate))){o.push('',`⚠️ เรื่องที่ต้องติดตาม${iss.length?` (${iss.length} งาน)`:''}`);
+    if(iss.length||lateT.length||csFailToday||(pmOn()&&pmReg().some(pmLate))){o.push('',`⚠️ เรื่องที่ต้องติดตาม${iss.length?` (${iss.length} งาน)`:''}`);
       more(o,iss,(t,i)=>{const r=[];if(isLate(t))r.push(`เกินกำหนด ${daysLate(dueOf(t),today)} วัน`);else if(t.pri==1)r.push('ด่วนมาก');r.push(t.status);if(t.cat!=='OT'&&t.owner)r.push(t.owner);
         return `${i+1}. ${tag(t)} ${t.title}\n   ${r.join(' · ')}${t.note?`\n   ↳ ${t.note}`:''}`});
-      const pl=pmOn()?PMC.items.filter(pmLate).sort((a,b)=>a.planDate<b.planDate?-1:1):[];
+      const pl=pmOn()?pmReg().filter(pmLate).sort((a,b)=>a.planDate<b.planDate?-1:1):[];
       if(pl.length){o.push(`🛠️ PM เลยกำหนด ${pl.length} รายการ`);pl.slice(0,3).forEach(x=>o.push(`   • ${x.desc} (${x.unit}, แผน ${thDate(x.planDate)})`));if(pl.length>3)o.push(`   …และอีก ${pl.length-3} รายการ`)}
       Object.entries(S.checks).forEach(([id,c])=>{if(!c.savedAt||c.date!==today)return;const t=CS_TPL.find(z=>z.key===c.tpl);if(!t)return;const q=csStats(t,c);if(q.fail){const it=PMC.items.find(z=>z.id===id);o.push(`🔎 ผลตรวจผิดปกติ: ${t.title.replace('Inspection Sheet : ','')} ${c.unitNo||''} – ${q.fail} รายการ (ข้อ ${q.fails.join(', ')})`)}});
       if(lateT.length){lateT.sort(tSort);o.push(`🧪 ทดสอบอุปกรณ์เลยกำหนด ${lateT.length} รายการ`);lateT.slice(0,3).forEach(t=>o.push(`   • ${t.equip} (กำหนด ${thDate(t.date)})`));if(lateT.length>3)o.push(`   …และอีก ${lateT.length-3} รายการ`)}}
   }
-  const pmToday=pmOn()?PMC.items.filter(x=>x.status===PM_DONE&&x.actualDate===today):[];
+  const pmToday=pmOn()?pmReg().filter(x=>x.status===PM_DONE&&x.actualDate===today):[];
   if($('sClosed').checked&&(closedToday.length||pmToday.length)){o.push('',`✅ ปิดงานวันนี้ (${closedToday.length+pmToday.length})`);more(o,[...pmToday.map(x=>({cat:'PM',title:x.desc+' ('+x.unit+')'})),...closedToday],t=>`• ${tag(t)} ${t.title}${t.closeNote?`\n   ↳ ${t.closeNote}`:''}`)}
   if($('sNext').checked){
     const ev=[];
