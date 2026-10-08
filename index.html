@@ -151,6 +151,9 @@ pre.preview{white-space:pre-wrap;background:var(--bg);border:1px solid var(--lin
 .bkh{font-weight:600;margin-bottom:2px}
 .lastbk-old{color:var(--warn);font-weight:500}
 .mhead{font-size:13px;font-weight:600;color:var(--ink2);margin:14px 0 6px}
+.mhead.otm{display:flex;justify-content:space-between;gap:8px;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:4px}
+.mhead.otm>span:last-child{font-weight:400;font-size:12px}
+.tagnow{font-size:11px;font-weight:600;background:var(--steel-soft);color:var(--steel);padding:1px 6px;border-radius:4px;margin-left:4px}
 .meet-soon{color:var(--warn);font-weight:500}
 .pmbar{display:grid;grid-template-columns:1.3fr 1fr;gap:8px;margin-bottom:10px}
 .pmbar select{width:100%;padding:8px 6px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
@@ -635,6 +638,18 @@ function otSyncFromPM(){
   });
   return ch;
 }
+/** หน้าแผน Outage: จัดกลุ่มตามเดือนของวันเริ่ม Outage (เดือนที่ยังมีงานค้างขึ้นก่อน เดือนที่เสร็จหมดแล้วไว้ท้าย) */
+function otGroupHTML(L,cardOf){
+  const g={};L.forEach(t=>{const d=t.oStart||t.oEnd||'';const k=d?d.slice(0,7):'none';(g[k]=g[k]||[]).push(t)});
+  const keys=Object.keys(g).sort((a,b)=>a==='none'?1:b==='none'?-1:a<b?-1:1);
+  const allDone=k=>g[k].every(t=>t.status===OT_DONE);
+  const order=keys.filter(k=>!allDone(k)).concat(keys.filter(allDone));
+  const cur=todayISO().slice(0,7);
+  return order.map(k=>{const T=g[k].slice().sort((a,b)=>((a.status===OT_DONE)-(b.status===OT_DONE))||((a.oStart||'9')<(b.oStart||'9')?-1:1));
+    const d=T.filter(t=>t.status===OT_DONE).length,late=T.filter(isLate).length;
+    const name=k==='none'?'ยังไม่กำหนดช่วง Outage':new Date(+k.slice(0,4),+k.slice(5)-1,1).toLocaleDateString('th-TH',{month:'long',year:'numeric'});
+    return `<div class="mhead otm"><span>${name}${k===cur?' <span class="tagnow">เดือนนี้</span>':''}</span><span>${T.length} รอบ · เสร็จ ${d}/${T.length}${late?` · <b style="color:var(--danger)">เลยช่วง ${late}</b>`:''}</span></div>`+T.map(cardOf).join('')}).join('');
+}
 function render(){
   if(otSyncFromPM())save(true);
   $('today').textContent=new Date().toLocaleDateString('th-TH',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
@@ -660,13 +675,14 @@ function render(){
     $('openView').innerHTML=filter.quick?`<div class="empty"><p>ไม่มีงานที่ตรงกับตัวกรองนี้</p></div>`:`<div class="empty"><p>ยังไม่มีงาน ${esc(NAVL[filter.cat]||'')} ที่เปิดอยู่</p><button class="btn primary" id="catAdd">เพิ่มงาน</button></div>`;
     if(!filter.quick)$('catAdd').onclick=()=>openJob(null);
   }else{
-    $('openView').innerHTML=L.map(t=>{const c=CATS[t.cat];return `<button class="job" style="--c:var(${c.c})" data-id="${t.id}">
+    const cardOf=t=>{const c=CATS[t.cat];return `<button class="job" style="--c:var(${c.c})" data-id="${t.id}">
       <div class="top"><span>${t.cat==='OT'?`<span class="wo">${c.name}</span>${t.outage?' · '+esc(t.outage):''}`:`<span class="wo">${esc(t.wo||'ไม่มีเลขอ้างอิง')}</span> ${c.name}`}</span>${t.pri<3?`<span class="pri p${t.pri}">${PRI[t.pri]}</span>`:''}</div>
       <div class="t">${esc(t.title)}</div>
       <div class="meta"><span class="st ${WAIT.includes(t.status)?'wait':t.status===OT_DONE?'ok':''}">${esc(t.status)}</span>${t.cat==='OT'?`${otPeriod(t)?`<span class="due ${isLate(t)?'late':''}">${isLate(t)?'เลยช่วง ':''}${otPeriod(t)}</span>`:''}${otHours(t)?`<span>${otHours(t)}</span>`:''}`:`<span>${esc(t.owner||'ยังไม่ระบุผู้รับผิดชอบ')}</span>${t.due?`<span class="due ${isLate(t)?'late':''}">${isLate(t)?'เกินกำหนด ':'ครบ '}${thDate(t.due)}</span>`:''}`}</div>
       ${t.pmIds?(()=>{const L=otLinked(t).filter(x=>x.status!==PM_CANCEL),d=L.filter(x=>x.status===PM_DONE).length,mh=L.reduce((a,x)=>a+(Number(x.manHours)||0),0);
         return `<div class="note">🛠️ งาน PM เสร็จ ${d}/${L.length}${mh?` · Man-hour ${mh.toLocaleString('th-TH')}`:''} · ${L.map(x=>esc(String(x.desc).replace(/\s*PM Outage.*$/i,''))).join(', ')}</div>`})():''}
-      ${t.note?`<div class="note">${esc(t.note)}</div>`:''}</button>`}).join('');
+      ${t.note?`<div class="note">${esc(t.note)}</div>`:''}</button>`};
+    $('openView').innerHTML=filter.cat==='OT'?otGroupHTML(L,cardOf):L.map(cardOf).join('');
   }
   if(filter.cat==='OT'&&!pmOn())$('openView').insertAdjacentHTML('afterbegin','<div class="sub" style="margin:0 0 10px">เชื่อมต่อ Google Sheet ในหน้า PM แล้ว งาน PM ที่ต้อง Outage จะมาสร้างรายการให้ที่นี่อัตโนมัติ</div>');
   renderLog();renderBudget();renderPeople();renderTests();renderLastBk();if(view==='PM')renderPM();
