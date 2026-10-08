@@ -490,6 +490,20 @@ pre.preview{white-space:pre-wrap;background:var(--bg);border:1px solid var(--lin
   </div>
 </dialog>
 
+<dialog id="agDlg">
+  <div class="dlg">
+    <h2>จัดกลุ่มผู้รับผิดชอบอัตโนมัติ</h2>
+    <p class="sub" style="margin-top:-6px">เรียงงาน PM ตามวันตามแผน แล้วมอบหมายวนเป็น Group A → B → C → A → B → C … (ไม่รวมงาน PM Outage)</p>
+    <div id="agInfo" class="sub" style="margin:0 0 10px"></div>
+    <div style="display:grid;gap:8px">
+      <button class="btn primary" id="agAll">จัดใหม่ทั้งหมด</button>
+      <button class="btn" id="agEmpty">เฉพาะงานที่ยังไม่มีกลุ่ม</button>
+      <button class="btn" id="agCancel">ยกเลิก</button>
+    </div>
+    <div class="err" id="agErr" style="margin-top:10px"></div>
+  </div>
+</dialog>
+
 <dialog id="closeDlg">
   <div class="dlg">
     <h2>ปิดงาน</h2>
@@ -977,6 +991,7 @@ function renderPM(){
         <div class="meta"><span class="st ${st}">${esc(x.status)}</span>${pmLate(x)?`<span class="due late">เลยกำหนด ${daysLate(x.planDate,todayISO())} วัน</span>`:''}${x.actualDate?`<span>ทำจริง ${thDate(x.actualDate)}</span>`:''}${x.men&&x.hours?`<span>${x.men} คน × ${x.hours} ชม.</span>`:''}${x.wo?`<span>${esc(x.wo)}</span>`:''}${x.owner?`<span>${esc(x.owner)}</span>`:''}${(()=>{const t=csTplFor(x);if(!t)return '';const c=S.checks[x.id];if(!c)return '<span class="st">📋 Check sheet</span>';const q=csStats(t,c);return `<span class="st ${q.fail?'no':q.filled===q.total?'ok':''}">📋 ${q.filled}/${q.total}${q.fail?' · ไม่ผ่าน '+q.fail:''}</span>`})()}</div>
         ${x.note?`<div class="note">${esc(x.note)}</div>`:''}</button>`}).join('')}</div>
     <div class="sub" style="margin:4px 0">งาน PM Outage (${PMC.items.length-pmReg().length} รายการ) แสดงอยู่ในหน้า แผน Outage</div>
+    <button class="btn" id="pmAgBtn" style="width:100%;margin:6px 0 4px">จัดกลุ่มผู้รับผิดชอบอัตโนมัติ (A → B → C)</button>
     <button class="linkbtn" id="pmCfgBtn">ตั้งค่าการเชื่อมต่อ Google Sheet</button>
     ${legacyHTML}`;
   if(pmCfgOpen)bindPmCfg();
@@ -986,6 +1001,7 @@ function renderPM(){
   $('pmGrpF').onchange=e=>{pmF.grp=e.target.value;renderPM()};
   el.querySelector('.alerts').onclick=e=>{const b=e.target.closest('[data-pq]');if(!b)return;const q=b.dataset.pq;pmF.quick=pmF.quick===q?'':q;renderPM()};
   $('pmList').onclick=e=>{const b=e.target.closest('[data-pm]');if(b)openCS(PMC.items.find(x=>x.id===b.dataset.pm))};
+  $('pmAgBtn').onclick=agOpen;
   $('pmCfgBtn').onclick=()=>{pmCfgOpen=!pmCfgOpen;renderPM();window.scrollTo(0,0)};
   bindLegacy();
 }
@@ -1393,6 +1409,26 @@ function openPm(x){
   $('pmActual').value=x.actualDate||'';$('pmWo').value=x.wo||'';{const o=x.owner||'';const opts=['',...GROUPS.map(grpLabel)];if(o&&!opts.includes(o))opts.push(o);$('pmOwner').innerHTML=opts.map(v=>`<option value="${esc(v)}">${v?esc(v)+(grpMembers(v)===null?' (เดิม)':''):'ยังไม่กำหนด'}</option>`).join('');$('pmOwner').value=o;pmShowMembers()}$('pmNote').value=x.note||'';
   $('pmErr').textContent='';$('pmSave').disabled=false;$('pmSave').textContent='บันทึกลง Sheet';$('pmDlg').showModal();
 }
+function pmSorted(){return pmReg().slice().sort((a,b)=>(a.planDate<b.planDate?-1:a.planDate>b.planDate?1:String(a.desc).localeCompare(String(b.desc))))}
+function agPlan(mode){const L=pmSorted();const T=mode==='all'?L:L.filter(x=>!/^Group [ABC]$/.test(x.owner||''));
+  return T.map((x,i)=>({id:x.id,owner:grpLabel(GROUPS[i%3])})).filter(u=>{const x=PMC.items.find(z=>z.id===u.id);return x.owner!==u.owner})}
+function agOpen(){
+  const L=pmReg(),has=L.filter(x=>/^Group [ABC]$/.test(x.owner||'')).length;
+  const cnt=g=>L.filter(x=>x.owner===grpLabel(g)).length;
+  $('agInfo').innerHTML=`งาน PM ทั้งหมด <b>${L.length}</b> งาน · มีกลุ่มแล้ว ${has} (A ${cnt('A')} · B ${cnt('B')} · C ${cnt('C')}) · ยังไม่มีกลุ่ม ${L.length-has}`;
+  $('agErr').textContent='';['agAll','agEmpty'].forEach(i=>$(i).disabled=false);$('agEmpty').disabled=has===L.length;$('agDlg').showModal()}
+async function agRun(mode){
+  const ups=agPlan(mode);
+  if(!ups.length){$('agErr').textContent='ไม่มีงานที่ต้องเปลี่ยน';return}
+  if(mode==='all'&&pmReg().some(x=>x.owner)&&!confirm(`จะเขียนทับกลุ่มเดิม และเปลี่ยนผู้รับผิดชอบ ${ups.length} งาน ต้องการดำเนินการหรือไม่?`))return;
+  ['agAll','agEmpty'].forEach(i=>$(i).disabled=true);$('agErr').style.color='var(--ink2)';$('agErr').textContent=`กำลังบันทึก ${ups.length} งานลง Sheet…`;
+  try{
+    await gasPost({action:'bulkOwner',updates:ups},async()=>{const r=await gasGet({action:'list'});const ok=ups.every(u=>{const it=(r.items||[]).find(x=>x.id===u.id);return it&&it.owner===u.owner});
+      if(ok){PMC.items=r.items;PMC.fetchedAt=Date.now()}return ok?{ok:true}:null});
+    ups.forEach(u=>{const x=PMC.items.find(z=>z.id===u.id);if(x)x.owner=u.owner});pmSaveCache();
+    $('agDlg').close();toast(`จัดกลุ่มผู้รับผิดชอบแล้ว ${ups.length} งาน`);render();
+  }catch(e){$('agErr').style.color='var(--danger)';$('agErr').textContent=/ไม่รู้จักคำสั่ง/.test(e.message)?'ต้องอัปเดตสคริปต์ใน Sheet เป็นเวอร์ชัน 6 ก่อน (Deploy → New version)':'บันทึกไม่สำเร็จ: '+e.message;['agAll','agEmpty'].forEach(i=>$(i).disabled=false)}
+}
 function pmShowMembers(){const m=grpMembers($('pmOwner').value);$('pmMembers').textContent=m?(m.length?'สมาชิก: '+m.join(', '):'กลุ่มนี้ยังไม่มีสมาชิก (เพิ่มได้ในหน้าบุคลากร)'):''}
 async function savePm(){
   const x=pmEditing;if(!x)return;
@@ -1635,7 +1671,7 @@ function demo(){
   save();
 }
 
-$('pmSave').onclick=savePm;$('pmOwner').onchange=pmShowMembers;$('pmCancel').onclick=()=>$('pmDlg').close();
+$('pmSave').onclick=savePm;$('agAll').onclick=()=>agRun('all');$('agEmpty').onclick=()=>agRun('empty');$('agCancel').onclick=()=>$('agDlg').close();$('pmOwner').onchange=pmShowMembers;$('pmCancel').onclick=()=>$('pmDlg').close();
 $('pmStatus').onchange=()=>{if($('pmStatus').value===PM_DONE&&!$('pmActual').value)$('pmActual').value=todayISO()};
 $('csClose').onclick=()=>{clearTimeout(csTimer);if(csItem){S.checks[csItem.id]=JSON.parse(JSON.stringify(csRaw));save()}$('csDlg').close()};
 $('csZoom').onclick=()=>{if(!csCtl)return;csCtl.zoom=csCtl.zoom==='fit'?'full':'fit';$('csZoom').textContent=csCtl.zoom==='fit'?'ขยาย':'พอดีจอ';csCtl.fit()};
