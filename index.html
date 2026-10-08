@@ -493,7 +493,7 @@ pre.preview{white-space:pre-wrap;background:var(--bg);border:1px solid var(--lin
 <dialog id="agDlg">
   <div class="dlg">
     <h2>จัดกลุ่มผู้รับผิดชอบอัตโนมัติ</h2>
-    <p class="sub" style="margin-top:-6px">เรียงงาน PM ตามวันตามแผน แล้วมอบหมายวนเป็น Group A → B → C → A → B → C … (ไม่รวมงาน PM Outage)</p>
+    <p class="sub" style="margin-top:-6px">เรียงตามลำดับแถวในแท็บ PM_Schedule_2026 (ตามวันตามแผน) แล้วมอบหมายวนเป็น Group A → B → C → A → B → C … (ไม่รวมงาน PM Outage) เลือก "เฉพาะงานที่ยังไม่มีกลุ่ม" จะเติมช่องว่างโดยคงลำดับ A B C เดิมไว้</p>
     <div id="agInfo" class="sub" style="margin:0 0 10px"></div>
     <div style="display:grid;gap:8px">
       <button class="btn primary" id="agAll">จัดใหม่ทั้งหมด</button>
@@ -1409,9 +1409,14 @@ function openPm(x){
   $('pmActual').value=x.actualDate||'';$('pmWo').value=x.wo||'';{const o=x.owner||'';const opts=['',...GROUPS.map(grpLabel)];if(o&&!opts.includes(o))opts.push(o);$('pmOwner').innerHTML=opts.map(v=>`<option value="${esc(v)}">${v?esc(v)+(grpMembers(v)===null?' (เดิม)':''):'ยังไม่กำหนด'}</option>`).join('');$('pmOwner').value=o;pmShowMembers()}$('pmNote').value=x.note||'';
   $('pmErr').textContent='';$('pmSave').disabled=false;$('pmSave').textContent='บันทึกลง Sheet';$('pmDlg').showModal();
 }
-function pmSorted(){return pmReg().slice().sort((a,b)=>(a.planDate<b.planDate?-1:a.planDate>b.planDate?1:String(a.desc).localeCompare(String(b.desc))))}
-function agPlan(mode){const L=pmSorted();const T=mode==='all'?L:L.filter(x=>!/^Group [ABC]$/.test(x.owner||''));
-  return T.map((x,i)=>({id:x.id,owner:grpLabel(GROUPS[i%3])})).filter(u=>{const x=PMC.items.find(z=>z.id===u.id);return x.owner!==u.owner})}
+/** ลำดับเดียวกับแถวในแท็บ PM_Schedule_2026 ของ Sheet (เรียงตามวันตามแผน) */
+function pmSorted(){return pmReg().slice()}
+function agPlan(mode){const L=pmSorted();
+  return L.map((x,i)=>({x,id:x.id,owner:grpLabel(GROUPS[i%3])})).filter(u=>(mode==='all'||!/^Group [ABC]$/.test(u.x.owner||''))&&u.x.owner!==u.owner).map(({id,owner})=>({id,owner}))}
+function agInfoUpdate(){
+  const L=pmReg(),has=L.filter(x=>/^Group [ABC]$/.test(x.owner||'')).length,cnt=g=>L.filter(x=>x.owner===grpLabel(g)).length;
+  $('agInfo').innerHTML=`งาน PM ทั้งหมด <b>${L.length}</b> งาน · มีกลุ่มแล้ว ${has} (A ${cnt('A')} · B ${cnt('B')} · C ${cnt('C')}) · ยังไม่มีกลุ่ม ${L.length-has}`;
+  $('agEmpty').disabled=has===L.length;['agAll'].forEach(i=>$(i).disabled=false);if(has<L.length)$('agEmpty').disabled=false}
 function agOpen(){
   const L=pmReg(),has=L.filter(x=>/^Group [ABC]$/.test(x.owner||'')).length;
   const cnt=g=>L.filter(x=>x.owner===grpLabel(g)).length;
@@ -1423,17 +1428,24 @@ async function agRun(mode){
   if(mode==='all'&&pmReg().some(x=>x.owner)&&!confirm(`จะเขียนทับกลุ่มเดิม และเปลี่ยนผู้รับผิดชอบ ${ups.length} งาน ต้องการดำเนินการหรือไม่?`))return;
   ['agAll','agEmpty'].forEach(i=>$(i).disabled=true);$('agErr').style.color='var(--ink2)';$('agErr').textContent=`กำลังบันทึก ${ups.length} งานลง Sheet…`;
   try{
-    const size=20;let done=0;
+    const size=15;let done=0;
+    const applied=async part=>{const r=await gasGet({action:'list'});PMC.items=r.items||PMC.items;PMC.fetchedAt=Date.now();return part.every(u=>{const it=PMC.items.find(x=>x.id===u.id);return it&&it.owner===u.owner})};
     for(let k=0;k<ups.length;k+=size){
-      const part=ups.slice(k,k+size);
-      const r=await gasGet({action:'bulkOwner',updates:JSON.stringify(part),_:Date.now()});
-      if(!('count' in r)||'items' in r)throw new Error('ไม่รู้จักคำสั่ง bulkOwner');
+      const part=ups.slice(k,k+size);let ok=false,lastErr=null;
+      for(let attempt=0;attempt<4&&!ok;attempt++){
+        if(attempt){$('agErr').textContent=`Sheet ตอบกลับไม่สมบูรณ์ กำลังลองใหม่ (${attempt}/3)… ${done}/${ups.length}`;await gasSleep(900*attempt)}
+        try{const r=await gasGet({action:'bulkOwner',updates:JSON.stringify(part),_:Date.now()});
+          if(!('count' in r)||'items' in r)throw new Error('ไม่รู้จักคำสั่ง bulkOwner');ok=true}
+        catch(e){lastErr=e;if(/ไม่รู้จักคำสั่ง|รหัส/.test(e.message))throw e;try{ok=await applied(part)}catch(x){}}
+      }
+      if(!ok)throw lastErr||new Error('BADRESP');
       part.forEach(u=>{const x=PMC.items.find(z=>z.id===u.id);if(x)x.owner=u.owner});
-      done+=part.length;$('agErr').textContent=`กำลังบันทึกลง Sheet… ${done}/${ups.length}`;
+      done+=part.length;$('agErr').style.color='var(--ink2)';$('agErr').textContent=`กำลังบันทึกลง Sheet… ${done}/${ups.length}`;
+      await gasSleep(250);
     }
     pmSaveCache();
     $('agDlg').close();toast(`จัดกลุ่มผู้รับผิดชอบแล้ว ${ups.length} งาน`);render();
-  }catch(e){$('agErr').style.color='var(--danger)';$('agErr').textContent=/ไม่รู้จักคำสั่ง/.test(e.message)?'ต้องอัปเดตสคริปต์ใน Sheet เป็นเวอร์ชัน 7 ก่อน (Deploy → Manage deployments → New version)':'บันทึกไม่สำเร็จ: '+e.message;['agAll','agEmpty'].forEach(i=>$(i).disabled=false)}
+  }catch(e){pmSaveCache();render();agInfoUpdate();$('agErr').style.color='var(--danger)';$('agErr').textContent=e.message==='BADRESP'?'Sheet ตอบกลับผิดพลาดหลายครั้ง บันทึกได้บางส่วน กด "เฉพาะงานที่ยังไม่มีกลุ่ม" เพื่อทำต่อจากเดิม':/ไม่รู้จักคำสั่ง/.test(e.message)?'ต้องอัปเดตสคริปต์ใน Sheet เป็นเวอร์ชัน 7 ก่อน (Deploy → Manage deployments → New version)':'บันทึกไม่สำเร็จ: '+e.message;['agAll','agEmpty'].forEach(i=>$(i).disabled=false)}
 }
 function pmShowMembers(){const m=grpMembers($('pmOwner').value);$('pmMembers').textContent=m?(m.length?'สมาชิก: '+m.join(', '):'กลุ่มนี้ยังไม่มีสมาชิก (เพิ่มได้ในหน้าบุคลากร)'):''}
 async function savePm(){
