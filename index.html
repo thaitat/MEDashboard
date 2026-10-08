@@ -1423,11 +1423,17 @@ async function agRun(mode){
   if(mode==='all'&&pmReg().some(x=>x.owner)&&!confirm(`จะเขียนทับกลุ่มเดิม และเปลี่ยนผู้รับผิดชอบ ${ups.length} งาน ต้องการดำเนินการหรือไม่?`))return;
   ['agAll','agEmpty'].forEach(i=>$(i).disabled=true);$('agErr').style.color='var(--ink2)';$('agErr').textContent=`กำลังบันทึก ${ups.length} งานลง Sheet…`;
   try{
-    await gasPost({action:'bulkOwner',updates:ups},async()=>{const r=await gasGet({action:'list'});const ok=ups.every(u=>{const it=(r.items||[]).find(x=>x.id===u.id);return it&&it.owner===u.owner});
-      if(ok){PMC.items=r.items;PMC.fetchedAt=Date.now()}return ok?{ok:true}:null});
-    ups.forEach(u=>{const x=PMC.items.find(z=>z.id===u.id);if(x)x.owner=u.owner});pmSaveCache();
+    const size=20;let done=0;
+    for(let k=0;k<ups.length;k+=size){
+      const part=ups.slice(k,k+size);
+      const r=await gasGet({action:'bulkOwner',updates:JSON.stringify(part),_:Date.now()});
+      if(!('count' in r)||'items' in r)throw new Error('ไม่รู้จักคำสั่ง bulkOwner');
+      part.forEach(u=>{const x=PMC.items.find(z=>z.id===u.id);if(x)x.owner=u.owner});
+      done+=part.length;$('agErr').textContent=`กำลังบันทึกลง Sheet… ${done}/${ups.length}`;
+    }
+    pmSaveCache();
     $('agDlg').close();toast(`จัดกลุ่มผู้รับผิดชอบแล้ว ${ups.length} งาน`);render();
-  }catch(e){$('agErr').style.color='var(--danger)';$('agErr').textContent=/ไม่รู้จักคำสั่ง/.test(e.message)?'ต้องอัปเดตสคริปต์ใน Sheet เป็นเวอร์ชัน 6 ก่อน (Deploy → New version)':'บันทึกไม่สำเร็จ: '+e.message;['agAll','agEmpty'].forEach(i=>$(i).disabled=false)}
+  }catch(e){$('agErr').style.color='var(--danger)';$('agErr').textContent=/ไม่รู้จักคำสั่ง/.test(e.message)?'ต้องอัปเดตสคริปต์ใน Sheet เป็นเวอร์ชัน 7 ก่อน (Deploy → Manage deployments → New version)':'บันทึกไม่สำเร็จ: '+e.message;['agAll','agEmpty'].forEach(i=>$(i).disabled=false)}
 }
 function pmShowMembers(){const m=grpMembers($('pmOwner').value);$('pmMembers').textContent=m?(m.length?'สมาชิก: '+m.join(', '):'กลุ่มนี้ยังไม่มีสมาชิก (เพิ่มได้ในหน้าบุคลากร)'):''}
 async function savePm(){
