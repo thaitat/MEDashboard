@@ -163,6 +163,9 @@ pre.preview{white-space:pre-wrap;background:var(--bg);border:1px solid var(--lin
 .cfg{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;margin:6px 0 12px}
 .cfg h2{font-size:16px;margin:0 0 4px}
 .linkbtn{background:none;border:0;color:var(--steel);text-decoration:underline;padding:4px 0;font-size:13px}
+.rank{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;background:var(--line);color:var(--ink2);flex:none}
+.rank.r1{background:#E6B53E;color:#3A2A00}.rank.r2{background:#C9CED6;color:#222}.rank.r3{background:#D59A6A;color:#2B1600}
+.score{font-size:22px;font-weight:600;line-height:1.1}
 .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--panel);padding:8px 16px;border-radius:8px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s}
 .toast.show{opacity:1}
 .sync{font-size:12px;color:var(--ink3)}
@@ -297,6 +300,8 @@ pre.preview{white-space:pre-wrap;background:var(--bg);border:1px solid var(--lin
     <div id="orphan"></div>
     <div id="pplList"></div>
   </div>
+
+  <div id="perfView" hidden></div>
 
   <div class="tools">
     <button class="btn" id="backupBtn">สำรอง / กู้คืนข้อมูล</button>
@@ -504,6 +509,27 @@ pre.preview{white-space:pre-wrap;background:var(--bg);border:1px solid var(--lin
   </div>
 </dialog>
 
+<dialog id="pfDlg">
+  <div class="dlg">
+    <h2 id="pfTitle"></h2>
+    <p class="sub" id="pfSub" style="margin-top:-6px"></p>
+    <div class="sub" style="margin:4px 0">คะแนน 6 เดือนล่าสุด</div>
+    <div id="pfChart"></div>
+    <div class="sub" style="margin:10px 0 4px">งานที่ปิดในช่วงที่เลือก</div>
+    <div class="ptasks" id="pfList" style="max-height:38vh;overflow:auto"></div>
+    <div class="acts"><button class="btn" id="pfClose">ปิด</button></div>
+  </div>
+</dialog>
+
+<dialog id="pwDlg">
+  <div class="dlg">
+    <h2>เกณฑ์คะแนน</h2>
+    <p class="sub" style="margin-top:-6px">คะแนนต่องานที่ปิดได้ ปรับได้ตามนโยบายของแผนก</p>
+    <div id="pwBody"></div>
+    <div class="acts"><button class="btn grow" id="pwReset">ค่าเริ่มต้น</button><button class="btn" id="pwCancel">ยกเลิก</button><button class="btn primary" id="pwSave">บันทึก</button></div>
+  </div>
+</dialog>
+
 <dialog id="closeDlg">
   <div class="dlg">
     <h2>ปิดงาน</h2>
@@ -530,6 +556,7 @@ pre.preview{white-space:pre-wrap;background:var(--bg);border:1px solid var(--lin
       <label class="chk"><input type="checkbox" id="mOpen" checked> งานเกินกำหนด</label>
       <label class="chk"><input type="checkbox" id="mList"> รายการงานที่ปิดในเดือน</label>
       <label class="chk"><input type="checkbox" id="mPerson"> ผลงานรายบุคคล</label>
+      <label class="chk"><input type="checkbox" id="mPerf"> คะแนนผลงานรายบุคคล</label>
       <label class="chk"><input type="checkbox" id="mBud"> งบประมาณ</label>
     </div>
     <div id="dOpts">
@@ -701,7 +728,7 @@ function render(){
     $('openView').innerHTML=filter.cat==='OT'?otGroupHTML(L,cardOf):L.map(cardOf).join('');
   }
   if(filter.cat==='OT'&&!pmOn())$('openView').insertAdjacentHTML('afterbegin','<div class="sub" style="margin:0 0 10px">เชื่อมต่อ Google Sheet ในหน้า PM แล้ว งาน PM ที่ต้อง Outage จะมาสร้างรายการให้ที่นี่อัตโนมัติ</div>');
-  renderLog();renderBudget();renderPeople();renderTests();renderLastBk();if(view==='PM')renderPM();
+  renderLog();renderBudget();renderPeople();renderTests();renderLastBk();if(view==='PM')renderPM();if(view==='perf')renderPerf();
   const owners=[...new Set([...S.people.map(p=>p.name),...[...S.tasks,...S.log,...S.budget].map(t=>t.owner)].filter(Boolean))];
   $('owners').innerHTML=owners.map(o=>`<option value="${esc(o)}">`).join('');
 }
@@ -868,7 +895,7 @@ function testLines(o,from,to,title){
   L.filter(t=>from!==todayISO()||!tDone(t)).forEach(t=>o.push(ln(t)));
   if(meets.length){const g={};meets.forEach(t=>(g[t.meet]=g[t.meet]||[]).push(t.equip));Object.keys(g).sort().forEach(m=>o.push(`📅 ประชุมเตรียมงาน ${thDate(m)}: ${g[m].join(', ')}`))}
 }
-const NAV=[['PM','PM'],['CM','CM'],['IM','IM'],['OT','แผน Outage'],['test','แผนทดสอบ'],['bud','งานงบประมาณ'],['ppl','บุคลากร']];
+const NAV=[['PM','PM'],['CM','CM'],['IM','IM'],['OT','แผน Outage'],['test','แผนทดสอบ'],['bud','งานงบประมาณ'],['ppl','บุคลากร'],['perf','ผลงาน']];
 const NAVL=Object.fromEntries(NAV);
 let jobMode='open';
 /* ---------- แผน PM จาก Google Sheet ---------- */
@@ -1460,6 +1487,73 @@ async function savePm(){
   catch(e){$('pmErr').textContent=/รหัส/.test(e.message)?'TOKEN ไม่ถูกต้อง':navigator.onLine===false?'ไม่มีอินเทอร์เน็ต บันทึกไม่ได้':e.message.startsWith('Sheet')?e.message:'บันทึกไม่สำเร็จ: '+e.message;$('pmSave').disabled=false;$('pmSave').textContent='บันทึกลง Sheet'}
 }
 const MONTHS_TH_FULL=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+/* ---------- ผลงานรายบุคคล (คะแนนจากปริมาณงาน) ---------- */
+const PERF_W0={PM:1,OT:2,CM:2,IM:3,PR:1,urgent:1.5,latePen:0.3,grace:7};
+let perfPeriod=null;
+function perfW(){return Object.assign({},PERF_W0,S.perfW||{})}
+function perfPeriods(){const y=new Date().getFullYear(),m=new Date().getMonth()+1,o=[],th=(yy,mm)=>new Date(yy,mm-1,1).toLocaleDateString('th-TH',{month:'long',year:'numeric'});
+  for(let i=0;i<12;i++){const d=new Date(y,m-1-i,1),k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');o.push({k:'m:'+k,l:th(d.getFullYear(),d.getMonth()+1)+(i===0?' (เดือนนี้)':''),from:k+'-01',to:k+'-31'})}
+  for(let q=Math.ceil(m/3);q>=1;q--){const a=(q-1)*3+1,b=q*3;o.push({k:`q:${y}-${q}`,l:`ไตรมาส ${q}/${y+543}`,from:`${y}-${String(a).padStart(2,'0')}-01`,to:`${y}-${String(b).padStart(2,'0')}-31`})}
+  o.push({k:'y:'+y,l:'ทั้งปี '+(y+543),from:y+'-01-01',to:y+'-12-31'});return o}
+function perfMembers(owner){return grpMembers(owner)||[]}
+/** รายการงานที่ทำเสร็จในช่วงเวลา พร้อมคะแนนของแต่ละคน */
+function perfEntries(from,to){
+  const W=perfW(),out=[],inR=d=>d&&d>=from&&d<=to;
+  S.log.forEach(t=>{if(!t.owner||!inR(t.closedAt)||!W[t.cat])return;
+    const late=!!(t.due&&t.closedAt>t.due),base=W[t.cat]*(t.pri==1?W.urgent:1),pts=base*(late?1-W.latePen:1);
+    out.push({who:t.owner,share:1,cat:t.cat,title:t.title,date:t.closedAt,late,pts,mh:0})});
+  PMC.items.forEach(x=>{if(x.status!==PM_DONE||!inR(x.actualDate))return;const M=perfMembers(x.owner);if(!M.length)return;
+    const cat=x.cat==='PM Outage'?'OT':'PM',late=!!(x.planDate&&x.actualDate>addDays(x.planDate,W.grace)),sh=1/M.length;
+    M.forEach(n=>out.push({who:n,share:sh,cat,title:x.desc,date:x.actualDate,late,pts:W[cat]*sh*(late?1-W.latePen:1),mh:(Number(x.manHours)||0)*sh,grp:x.owner}))});
+  return out;
+}
+function perfScore(name,E){const L=E.filter(e=>e.who===name),by={};let pts=0,late=0,mh=0;
+  L.forEach(e=>{by[e.cat]=by[e.cat]||{n:0,pts:0};by[e.cat].n+=e.share;by[e.cat].pts+=e.pts;pts+=e.pts;if(e.late)late+=e.share;mh+=e.mh});
+  const n=L.reduce((a,e)=>a+e.share,0);return {name,pts,n,late,ontime:n?Math.round((n-late)/n*100):null,mh,by,list:L}}
+function perfOpenLoad(p){const own=S.tasks.filter(t=>t.owner===p.name&&t.cat!=='OT'),pm=PMC.items.filter(x=>p.grp&&x.owner===grpLabel(p.grp)&&pmOpen(x));
+  const sz=p.grp?Math.max(1,S.people.filter(z=>z.grp===p.grp).length):1;
+  return {n:own.length+pm.length/sz,late:own.filter(isLate).length+pm.filter(pmLate).length/sz}}
+const r1=v=>Math.round(v*10)/10;
+const PERF_CAT={PM:'PM',OT:'PM Outage',CM:'CM',IM:'IM',PR:'จัดซื้อ'};
+function perfRank(P){const per=perfPeriods().find(z=>z.k===P)||perfPeriods()[0];const E=perfEntries(per.from,per.to);
+  return {per,rows:S.people.map(p=>Object.assign(perfScore(p.name,E),{p,load:perfOpenLoad(p)})).sort((a,b)=>b.pts-a.pts||b.n-a.n)}}
+function renderPerf(){
+  const el=$('perfView');if(!el)return;const periods=perfPeriods();if(!perfPeriod)perfPeriod=periods[0].k;
+  if(!S.people.length){el.innerHTML='<div class="empty"><h2>ยังไม่มีรายชื่อบุคลากร</h2><p>เพิ่มบุคลากรและจัดเข้า Group ก่อน แล้วคะแนนผลงานจะคำนวณให้อัตโนมัติ</p></div>';return}
+  const {per,rows}=perfRank(perfPeriod),top=Math.max(1,...rows.map(r=>r.pts));
+  const tot=rows.reduce((a,r)=>a+r.pts,0),jobs=rows.reduce((a,r)=>a+r.n,0),lateJ=rows.reduce((a,r)=>a+r.late,0);
+  el.innerHTML=`<div class="pmbar" style="grid-template-columns:1fr auto"><select id="perfSel">${periods.map(z=>`<option value="${z.k}" ${z.k===perfPeriod?'selected':''}>${esc(z.l)}</option>`).join('')}</select><button class="btn" id="perfW" style="padding:8px 12px">เกณฑ์คะแนน</button></div>
+    <div class="bsum"><div><div class="k">คะแนนรวมทีม</div><div class="v">${r1(tot)}</div></div><div><div class="k">งานที่ปิด</div><div class="v">${r1(jobs)}</div></div><div><div class="k">ตรงเวลา</div><div class="v" style="color:var(--ok)">${jobs?Math.round((jobs-lateJ)/jobs*100)+'%':'–'}</div></div></div>
+    ${!pmOn()?'<div class="sub" style="margin:0 0 8px">ยังไม่ได้เชื่อม Google Sheet คะแนนงาน PM จึงยังไม่ถูกนับ</div>':''}
+    ${rows.map((r,i)=>{const chips=Object.entries(r.by).map(([c,v])=>`<span>${PERF_CAT[c]} <b>${r1(v.n)}</b> งาน · ${r1(v.pts)} คะแนน</span>`).join('');
+      return `<button class="person" data-perf="${esc(r.name)}"><div class="row"><div style="display:flex;gap:10px;align-items:center"><span class="rank r${i<3&&r.pts>0?i+1:0}">${i+1}</span><div><div class="nm">${esc(r.name)}</div><div class="pos">${esc(r.p.pos||'')}${r.p.grp?' · Group '+r.p.grp:''}</div></div></div><div style="text-align:right"><div class="score">${r1(r.pts)}</div><div class="pos">คะแนน</div></div></div>
+        <div class="bar" style="margin-top:8px"><i style="width:${Math.round(r.pts/top*100)}%;background:var(--steel)"></i></div>
+        <div class="load">${chips||'<span>ยังไม่มีงานที่ปิดในช่วงนี้</span>'}</div>
+        <div class="load"><span>ตรงเวลา <b>${r.ontime==null?'–':r.ontime+'%'}</b></span>${r.mh?`<span>Man-hour <b>${r1(r.mh)}</b></span>`:''}<span>งานค้างตอนนี้ <b>${r1(r.load.n)}</b>${r.load.late?` (<b style="color:var(--danger)">เลยกำหนด ${r1(r.load.late)}</b>)`:''}</span></div></button>`}).join('')}
+    <p class="sub" style="margin:8px 2px">งาน PM ของกลุ่มแบ่งคะแนนเท่ากันให้สมาชิกในกลุ่ม · งานที่เสร็จช้ากว่ากำหนดได้คะแนนลดลง ${Math.round(perfW().latePen*100)}%</p>`;
+  $('perfSel').onchange=e=>{perfPeriod=e.target.value;renderPerf()};
+  $('perfW').onclick=openPerfW;
+  el.querySelectorAll('[data-perf]').forEach(b=>b.onclick=()=>openPerfDetail(b.dataset.perf));
+}
+function openPerfDetail(name){
+  const {per}=perfRank(perfPeriod),E=perfEntries(per.from,per.to),r=perfScore(name,E);
+  const now=new Date(),months=[...Array(6)].map((_,i)=>{const d=new Date(now.getFullYear(),now.getMonth()-5+i,1),k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');return {l:d.toLocaleDateString('th-TH',{month:'short'}),v:perfScore(name,perfEntries(k+'-01',k+'-31')).pts}});
+  const mx=Math.max(1,...months.map(m=>m.v)),W=300,H=110,bw=W/6;
+  const svg=`<svg viewBox="0 0 ${W} ${H+20}" width="100%" role="img" aria-label="คะแนน 6 เดือนล่าสุด">${months.map((m,i)=>{const h=Math.round(m.v/mx*(H-18));return `<rect x="${i*bw+8}" y="${H-h}" width="${bw-16}" height="${h}" rx="3" fill="var(--steel)" opacity="${i===5?1:.55}"/><text x="${i*bw+bw/2}" y="${H-h-4}" text-anchor="middle" font-size="11" fill="var(--ink)">${r1(m.v)}</text><text x="${i*bw+bw/2}" y="${H+14}" text-anchor="middle" font-size="11" fill="var(--ink2)">${m.l}</text>`}).join('')}</svg>`;
+  $('pfTitle').textContent=name;$('pfSub').textContent=`${per.l} · ${r1(r.pts)} คะแนน · ${r1(r.n)} งาน · ตรงเวลา ${r.ontime==null?'–':r.ontime+'%'}`;
+  $('pfChart').innerHTML=svg;
+  $('pfList').innerHTML=r.list.length?r.list.sort((a,b)=>a.date<b.date?1:-1).map(e=>`<div><b>${thDate(e.date)}</b> · ${PERF_CAT[e.cat]} · ${esc(e.title)}${e.share<1?` <span class="sub">(${e.grp}, ส่วนแบ่ง ${Math.round(e.share*100)}%)</span>`:''}${e.late?' <span style="color:var(--danger)">ช้า</span>':''} – <b>${r1(e.pts)}</b></div>`).join(''):'<div class="sub">ยังไม่มีงานที่ปิดในช่วงนี้</div>';
+  $('pfDlg').showModal();
+}
+function openPerfW(){const W=perfW();
+  $('pwBody').innerHTML=[['PM','งาน PM ปกติ (ต่องาน แบ่งในกลุ่ม)'],['OT','งาน PM Outage (ต่องาน แบ่งในกลุ่ม)'],['CM','งาน CM (ต่องาน)'],['IM','งาน IM (ต่องาน)'],['PR','งานจัดซื้อ (ต่องาน)'],['urgent','ตัวคูณงานด่วนมาก (CM/IM)'],['latePen','ลดคะแนนเมื่อเสร็จช้า (0–1)'],['grace','PM เสร็จช้าได้ไม่เกิน (วัน)']]
+    .map(([k,l])=>`<label class="f"><span>${l}</span><input inputmode="decimal" data-pw="${k}" value="${W[k]}"></label>`).join('');
+  $('pwDlg').showModal()}
+function savePerfW(){const W={};let bad=false;$('pwBody').querySelectorAll('[data-pw]').forEach(i=>{const v=Number(i.value);if(!isFinite(v)||v<0)bad=true;W[i.dataset.pw]=v});
+  if(bad||W.latePen>1){toast('ใส่ตัวเลขให้ถูกต้อง (ลดคะแนนต้องอยู่ระหว่าง 0–1)');return}S.perfW=W;$('pwDlg').close();toast('บันทึกเกณฑ์คะแนนแล้ว');save()}
+function perfLines(o,from,to){const E=perfEntries(from,to);const R=S.people.map(p=>Object.assign(perfScore(p.name,E),{p})).filter(r=>r.pts>0).sort((a,b)=>b.pts-a.pts);
+  if(!R.length)return;o.push('','🏆 คะแนนผลงานรายบุคคล');R.forEach((r,i)=>o.push(`${i+1}. ${r.name}${r.p.grp?' ('+r.p.grp+')':''} ${r1(r.pts)} คะแนน · ${r1(r.n)} งาน · ตรงเวลา ${r.ontime}%`))}
+
 function renderNav(){
   const today=todayISO(),in30=addDays(today,30);
   $('mainNav').innerHTML=NAV.map(([k,l])=>{let cnt='';
@@ -1477,8 +1571,8 @@ function setView(v,keepScroll){
   $('jobSub').hidden=!job;$('alerts').hidden=!(job&&jobMode==='open');
   $('openView').hidden=!(job&&jobMode==='open');$('logView').hidden=!(job&&jobMode==='log');
   $('vOpen').classList.toggle('on',jobMode==='open');$('vLog').classList.toggle('on',jobMode==='log');
-  $('testView').hidden=v!=='test';$('budView').hidden=v!=='bud';$('pplView').hidden=v!=='ppl';
-  $('addBtn').textContent=isPM?(pmOn()?'รีเฟรชแผน PM':'เพิ่มงาน PM'):v==='bud'?'เพิ่มรายการงบ':v==='ppl'?'เพิ่มบุคลากร':v==='test'?'เพิ่มรายการทดสอบ':'เพิ่มงาน '+NAVL[v];
+  $('testView').hidden=v!=='test';$('budView').hidden=v!=='bud';$('pplView').hidden=v!=='ppl';$('perfView').hidden=v!=='perf';
+  $('addBtn').textContent=isPM?(pmOn()?'รีเฟรชแผน PM':'เพิ่มงาน PM'):v==='bud'?'เพิ่มรายการงบ':v==='ppl'?'เพิ่มบุคลากร':v==='test'?'เพิ่มรายการทดสอบ':v==='perf'?'เกณฑ์คะแนน':'เพิ่มงาน '+NAVL[v];
   render();
   if(isPM&&pmOn()&&Date.now()-PMC.fetchedAt>5*60000)pmFetch(true);
   const b=$('mainNav').querySelector('.on');if(b)b.scrollIntoView({block:'nearest',inline:'center'});
@@ -1624,6 +1718,7 @@ function buildMonthly(){
   if($('mPerson').checked){const pc=closed.filter(t=>t.cat!=='OT'),po=open.filter(t=>t.cat!=='OT');const names=[...new Set([...pc,...po].map(t=>t.owner||'ไม่ระบุ'))];
     if(names.length){o.push('','👷 ผลงานรายบุคคล (ปิด / คงค้าง)');names.map(n=>({n,c:pc.filter(t=>(t.owner||'ไม่ระบุ')===n).length,k:po.filter(t=>(t.owner||'ไม่ระบุ')===n).length}))
       .sort((a,b)=>b.c-a.c||b.k-a.k).forEach(x=>o.push(`▪️ ${x.n}: ${x.c} / ${x.k}`))}}
+  if($('mPerf').checked)perfLines(o,first,last);
   if($('mBud').checked)budgetLines(o);
   foot(o);return o.join('\n');
 }
@@ -1689,7 +1784,7 @@ function demo(){
   save();
 }
 
-$('pmSave').onclick=savePm;$('agAll').onclick=()=>agRun('all');$('agEmpty').onclick=()=>agRun('empty');$('agCancel').onclick=()=>$('agDlg').close();$('pmOwner').onchange=pmShowMembers;$('pmCancel').onclick=()=>$('pmDlg').close();
+$('pmSave').onclick=savePm;$('pfClose').onclick=()=>$('pfDlg').close();$('pwCancel').onclick=()=>$('pwDlg').close();$('pwSave').onclick=savePerfW;$('pwReset').onclick=()=>{S.perfW=null;$('pwDlg').close();save();toast('ใช้เกณฑ์เริ่มต้นแล้ว')};$('agAll').onclick=()=>agRun('all');$('agEmpty').onclick=()=>agRun('empty');$('agCancel').onclick=()=>$('agDlg').close();$('pmOwner').onchange=pmShowMembers;$('pmCancel').onclick=()=>$('pmDlg').close();
 $('pmStatus').onchange=()=>{if($('pmStatus').value===PM_DONE&&!$('pmActual').value)$('pmActual').value=todayISO()};
 $('csClose').onclick=()=>{clearTimeout(csTimer);if(csItem){S.checks[csItem.id]=JSON.parse(JSON.stringify(csRaw));save()}$('csDlg').close()};
 $('csZoom').onclick=()=>{if(!csCtl)return;csCtl.zoom=csCtl.zoom==='fit'?'full':'fit';$('csZoom').textContent=csCtl.zoom==='fit'?'ขยาย':'พอดีจอ';csCtl.fit()};
@@ -1729,7 +1824,7 @@ $('logQ').oninput=renderLog;
 $('catSeg').onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;newCat=b.dataset.k;renderSeg();fillStatus(newCat)};
 $('fTitle').oninput=()=>$('errTitle').textContent='';
 ['fOStart','fOEnd','fOHours'].forEach(i=>$(i).addEventListener('input',()=>$('errOut').textContent=''));
-$('addBtn').onclick=()=>view==='PM'&&pmOn()?pmFetch(false):view==='bud'?openBud(null):view==='ppl'?openPerson(null):view==='test'?openTest(null):openJob(null);
+$('addBtn').onclick=()=>view==='perf'?openPerfW():view==='PM'&&pmOn()?pmFetch(false):view==='bud'?openBud(null):view==='ppl'?openPerson(null):view==='test'?openTest(null):openJob(null);
 $('saveBtn').onclick=saveJob;
 $('cancelBtn').onclick=()=>$('jobDlg').close();
 $('delBtn').onclick=()=>{if(editing&&confirm('ลบงานนี้ถาวร? (ถ้างานเสร็จแล้ว ให้กด "ปิดงาน" แทนเพื่อเก็บไว้ในประวัติ)')){if(editing.pmkey){S.otIgnore=S.otIgnore||[];S.otIgnore.push(editing.pmkey)}S.tasks=S.tasks.filter(t=>t.id!==editing.id);$('jobDlg').close();toast('ลบแล้ว');save()}};
@@ -1741,7 +1836,7 @@ $('shareBtn').onclick=()=>{monthOptions();try{$('sReporter').value=localStorage.
 $('sReporter').oninput=()=>{try{localStorage.setItem('mech-maint-reporter',$('sReporter').value)}catch(e){}updatePreview()};
 $('modeSeg').onclick=e=>{const b=e.target.closest('[data-m]');if(!b)return;shareMode=b.dataset.m;
   [...$('modeSeg').children].forEach(x=>x.classList.toggle('on',x===b));$('mOpts').hidden=shareMode!=='month';$('dOpts').hidden=shareMode==='month';updatePreview()};
-['sIssue','sClosed','sNext','sBud','sPpl','sAll','mMonth','mOT','mTest','mOpen','mList','mPerson','mBud'].forEach(i=>$(i).onchange=updatePreview);
+['sIssue','sClosed','sNext','sBud','sPpl','sAll','mMonth','mOT','mTest','mOpen','mList','mPerson','mBud','mPerf'].forEach(i=>$(i).onchange=updatePreview);
 $('shareCancel').onclick=()=>$('shareDlg').close();
 $('copyBtn').onclick=()=>copyText(buildSummary());
 $('exportBtn').onclick=exportData;
