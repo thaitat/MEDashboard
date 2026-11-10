@@ -166,6 +166,45 @@ pre.preview{white-space:pre-wrap;background:var(--bg);border:1px solid var(--lin
 .rank{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;background:var(--line);color:var(--ink2);flex:none}
 .rank.r1{background:#E6B53E;color:#3A2A00}.rank.r2{background:#C9CED6;color:#222}.rank.r3{background:#D59A6A;color:#2B1600}
 .score{font-size:22px;font-weight:600;line-height:1.1}
+.dhead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin:8px 0 12px}
+.dtitle{font-size:20px;font-weight:600}
+.dbtns{display:flex;gap:8px;flex:none}
+.dtiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px}
+.dt{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;border-top:4px solid var(--steel)}
+.dt.ok{border-top-color:var(--ok)}.dt.bad{border-top-color:var(--danger)}
+.dk{font-size:13px;color:var(--ink2)}
+.dv{font-size:26px;font-weight:600;line-height:1.2;margin:2px 0;overflow-wrap:anywhere}
+.dt.bad .dv{color:var(--danger)}
+.ds{font-size:12px;color:var(--ink2)}
+.dgrid{display:grid;grid-template-columns:1fr;gap:12px}
+.dcard{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.dcard h3{font-size:15px;margin:0 0 10px}
+.dleg{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--ink2)}
+.dleg i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.dlist{list-style:none;margin:0;padding:0}
+.dlist li{padding:7px 0;border-top:1px solid var(--line);font-size:14px}
+.dlist li:first-child{border-top:0}
+.dlist li span{display:block;font-size:12.5px;color:var(--ink2)}
+.dlist em{color:var(--danger);font-style:normal;font-weight:600}
+.drank{display:grid;grid-template-columns:26px minmax(90px,1.2fr) 2fr auto;gap:10px;align-items:center;padding:5px 0}
+.drank .bar{margin:0}
+.drank small{color:var(--ink2);font-size:11px}
+/* หน้าจอคอมพิวเตอร์ / จอประชุม */
+@media (min-width:1024px){
+  .wrap,.topin{max-width:1280px}
+  .topbar h1{font-size:20px}
+  .mainnav button{font-size:15px;padding:10px 14px}
+  .dtiles{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .dgrid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .dcard.dwide{grid-column:1/-1}
+  .dv{font-size:32px}
+  #openView,#logList,#pmList,#tList,#budList,#pplList,#perfRows{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:10px;align-items:start}
+  #openView>.mhead,#pmList>.mhead,#tList>.mhead,#budList>.gh,#pplList>.mhead,#openView>.empty,#pmList>.empty,#tList>.empty,#pplList>.empty,#openView>.sub{grid-column:1/-1}
+  .job,.person,.bitem{margin-bottom:0}
+  .yrs{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))!important}
+}
+@media (min-width:1600px){.wrap,.topin{max-width:1560px}body{font-size:16px}.dv{font-size:38px}}
+
 .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--panel);padding:8px 16px;border-radius:8px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s}
 .toast.show{opacity:1}
 .sync{font-size:12px;color:var(--ink3)}
@@ -301,6 +340,7 @@ pre.preview{white-space:pre-wrap;background:var(--bg);border:1px solid var(--lin
     <div id="pplList"></div>
   </div>
 
+  <div id="dashView" hidden></div>
   <div id="perfView" hidden></div>
 
   <div class="tools">
@@ -618,7 +658,7 @@ let budYear=null,editingB=null;
 function baht(n){return (Number(n)||0).toLocaleString('th-TH',{maximumFractionDigits:0})}
 function num(v){const n=Number(String(v).replace(/[,\s฿]/g,''));return isFinite(n)?n:NaN}
 let filter={cat:'PM',quick:null};
-let view='PM';try{const v=localStorage.getItem('mech-maint-view');if(v)view=v}catch(e){}
+let view=window.innerWidth>=1024?'dash':'PM';try{const v=localStorage.getItem('mech-maint-view');if(v)view=v}catch(e){}
 let db=null,saveTimer=null,editing=null,newCat='PM',closing=null;
 const $=id=>document.getElementById(id);
 
@@ -728,7 +768,7 @@ function render(){
     $('openView').innerHTML=filter.cat==='OT'?otGroupHTML(L,cardOf):L.map(cardOf).join('');
   }
   if(filter.cat==='OT'&&!pmOn())$('openView').insertAdjacentHTML('afterbegin','<div class="sub" style="margin:0 0 10px">เชื่อมต่อ Google Sheet ในหน้า PM แล้ว งาน PM ที่ต้อง Outage จะมาสร้างรายการให้ที่นี่อัตโนมัติ</div>');
-  renderLog();renderBudget();renderPeople();renderTests();renderLastBk();if(view==='PM')renderPM();if(view==='perf')renderPerf();
+  renderLog();renderBudget();renderPeople();renderTests();renderLastBk();if(view==='PM')renderPM();if(view==='perf')renderPerf();if(view==='dash')renderDash();
   const owners=[...new Set([...S.people.map(p=>p.name),...[...S.tasks,...S.log,...S.budget].map(t=>t.owner)].filter(Boolean))];
   $('owners').innerHTML=owners.map(o=>`<option value="${esc(o)}">`).join('');
 }
@@ -895,7 +935,7 @@ function testLines(o,from,to,title){
   L.filter(t=>from!==todayISO()||!tDone(t)).forEach(t=>o.push(ln(t)));
   if(meets.length){const g={};meets.forEach(t=>(g[t.meet]=g[t.meet]||[]).push(t.equip));Object.keys(g).sort().forEach(m=>o.push(`📅 ประชุมเตรียมงาน ${thDate(m)}: ${g[m].join(', ')}`))}
 }
-const NAV=[['PM','PM'],['CM','CM'],['IM','IM'],['OT','แผน Outage'],['test','แผนทดสอบ'],['bud','งานงบประมาณ'],['ppl','บุคลากร'],['perf','ผลงาน']];
+const NAV=[['dash','ภาพรวม'],['PM','PM'],['CM','CM'],['IM','IM'],['OT','แผน Outage'],['test','แผนทดสอบ'],['bud','งานงบประมาณ'],['ppl','บุคลากร'],['perf','ผลงาน']];
 const NAVL=Object.fromEntries(NAV);
 let jobMode='open';
 /* ---------- แผน PM จาก Google Sheet ---------- */
@@ -1554,6 +1594,67 @@ function savePerfW(){const W={};let bad=false;$('pwBody').querySelectorAll('[dat
 function perfLines(o,from,to){const E=perfEntries(from,to);const R=S.people.map(p=>Object.assign(perfScore(p.name,E),{p})).filter(r=>r.pts>0).sort((a,b)=>b.pts-a.pts);
   if(!R.length)return;o.push('','🏆 คะแนนผลงานรายบุคคล');R.forEach((r,i)=>o.push(`${i+1}. ${r.name}${r.p.grp?' ('+r.p.grp+')':''} ${r1(r.pts)} คะแนน · ${r1(r.n)} งาน · ตรงเวลา ${r.ontime}%`))}
 
+/* ---------- ภาพรวม (สำหรับนำเสนอในที่ประชุม) ---------- */
+function dashTile(k,v,sub,cls){return `<div class="dt ${cls||''}"><div class="dk">${k}</div><div class="dv">${v}</div><div class="ds">${sub||''}</div></div>`}
+function dashPMChart(){
+  const yr=PMC.year||new Date().getFullYear(),L=pmReg(),cur=new Date().getMonth()+1,today=todayISO();
+  const M=[...Array(12)].map((_,i)=>{const m=i+1,T=L.filter(x=>x.month===m);return {m,n:T.length,d:T.filter(x=>x.status===PM_DONE).length,late:T.filter(pmLate).length}});
+  const mx=Math.max(1,...M.map(z=>z.n)),W=720,H=200,bw=W/12,y0=24;
+  const bars=M.map((z,i)=>{const x=i*bw+10,w=bw-20,hn=Math.round(z.n/mx*(H-40)),hd=Math.round(z.d/mx*(H-40)),hl=Math.round(z.late/mx*(H-40));
+    return `<rect x="${x}" y="${y0+H-hn}" width="${w}" height="${hn}" rx="3" fill="none" stroke="var(--line)" stroke-width="1.5"/>
+      <rect x="${x}" y="${y0+H-hd}" width="${w}" height="${hd}" rx="3" fill="var(--ok)" opacity=".85"/>
+      ${hl?`<rect x="${x}" y="${y0+H-hd-hl}" width="${w}" height="${hl}" rx="3" fill="var(--danger)" opacity=".8"/>`:''}
+      ${z.n?`<text x="${x+w/2}" y="${y0+H-hn-6}" text-anchor="middle" font-size="12" fill="var(--ink2)">${z.d}/${z.n}</text>`:''}
+      <text x="${x+w/2}" y="${y0+H+18}" text-anchor="middle" font-size="12" font-weight="${z.m===cur?700:400}" fill="${z.m===cur?'var(--ink)':'var(--ink2)'}">${new Date(2026,z.m-1,1).toLocaleDateString('th-TH',{month:'short'})}</text>`}).join('');
+  return `<svg viewBox="0 0 ${W} ${H+y0+28}" style="width:100%;height:auto;max-height:300px;display:block;margin:0 auto" role="img" aria-label="ความคืบหน้า PM รายเดือน ปี ${yr+543}">${bars}</svg>
+    <div class="dleg"><span><i style="background:var(--ok)"></i>เสร็จแล้ว</span><span><i style="background:var(--danger)"></i>เลยกำหนด ยังไม่เสร็จ</span><span><i style="border:1.5px solid var(--line)"></i>ตามแผน</span></div>`;
+}
+function renderDash(){
+  const el=$('dashView');if(!el)return;
+  const today=todayISO(),ym=today.slice(0,7),in30=addDays(today,30);
+  const empty=!S.tasks.length&&!S.log.length&&!S.people.length&&!pmOn();
+  const st=pmOn()?pmStats(ym):null,pmLateN=pmOn()?pmReg().filter(pmLate).length:0;
+  const cm=S.tasks.filter(t=>t.cat==='CM'),im=S.tasks.filter(t=>t.cat==='IM');
+  const ots=S.tasks.filter(t=>t.cat==='OT'&&t.status!==OT_DONE).sort((a,b)=>(a.oStart||'9')<(b.oStart||'9')?-1:1);
+  const nextOT=ots.find(t=>(t.oEnd||t.oStart||'')>=today);
+  const tSoon=S.tests.filter(t=>t.date&&t.date>=today&&t.date<=in30&&!tDone(t)).length,tLateN=S.tests.filter(tLate).length;
+  const by=budYears()[0],bt=yearTotals(by);
+  const tiles=[
+    dashTile('PM เดือนนี้',st?`${st.done}/${st.L.length}`:'–',st?`${st.L.length?Math.round(st.done/st.L.length*100):0}% · Man-hour ${st.mh.toLocaleString('th-TH')}`:'ยังไม่เชื่อม Sheet','ok'),
+    dashTile('PM เลยกำหนด (ทั้งปี)',pmOn()?pmLateN:'–','งานที่เลยวันตามแผนและยังไม่เสร็จ',pmLateN?'bad':''),
+    dashTile('CM เปิดอยู่',cm.length,`เลยกำหนด ${cm.filter(isLate).length} · ด่วนมาก ${cm.filter(t=>t.pri==1).length}`,cm.some(isLate)?'bad':''),
+    dashTile('IM เปิดอยู่',im.length,`เลยกำหนด ${im.filter(isLate).length}`,''),
+    dashTile('Outage รอบถัดไป',nextOT?esc(nextOT.outage||nextOT.title):'–',nextOT?`${otPeriod(nextOT)}${nextOT.pmIds?` · PM เสร็จ ${otLinked(nextOT).filter(x=>x.status===PM_DONE).length}/${otLinked(nextOT).length}`:''}`:'ไม่มีรอบที่ค้าง',''),
+    dashTile('แผนทดสอบ 30 วัน',tSoon,`เลยวันทดสอบ ${tLateN}`,tLateN?'bad':''),
+    dashTile(`งบประมาณปี ${by}`,bt.L.length?`${mb(bt.req)} ลบ.`:'–',bt.L.length?`อนุมัติ ${mb(bt.app)} ลบ. (${bt.req?Math.round(bt.app/bt.req*100):0}%)`:'ยังไม่มีรายการ',''),
+    dashTile('บุคลากร',S.people.length,`ไม่อยู่ปฏิบัติงาน ${S.people.filter(p=>p.avail&&p.avail!=='ปฏิบัติงาน').length} คน`,'')
+  ].join('');
+  // issues
+  const iss=[];
+  S.tasks.filter(t=>t.cat!=='OT'&&(isLate(t)||t.pri==1)).sort((a,b)=>(isLate(b)-isLate(a))||(a.pri-b.pri)).forEach(t=>iss.push(`<li><b>[${CATS[t.cat].name}]</b> ${esc(t.title)}<span>${isLate(t)?`เกินกำหนด ${daysLate(dueOf(t),today)} วัน`:'ด่วนมาก'} · ${esc(t.status)}${t.owner?' · '+esc(t.owner):''}</span></li>`));
+  if(pmOn())pmReg().filter(pmLate).sort((a,b)=>a.planDate<b.planDate?-1:1).slice(0,6).forEach(x=>iss.push(`<li><b>[PM]</b> ${esc(x.desc)}<span>แผน ${thDate(x.planDate)} · ${esc(x.unit)}${x.owner?' · '+esc(x.owner):''}</span></li>`));
+  S.tests.filter(tLate).slice(0,4).forEach(t=>iss.push(`<li><b>[ทดสอบ]</b> ${esc(t.equip)}<span>กำหนด ${thDate(t.date)}</span></li>`));
+  // outage list
+  const otl=ots.slice(0,6).map(t=>{const L=otLinked(t),d=L.filter(x=>x.status===PM_DONE).length;return `<li><b>${esc(t.outage||t.title)}</b><span>${otPeriod(t)||'ยังไม่กำหนดช่วง'} · ${esc(t.status)}${L.length?` · PM ${d}/${L.length}`:''}${isLate(t)?' · <em>เลยช่วง</em>':''}</span></li>`}).join('');
+  // performance
+  const per=perfPeriods()[0],E=perfEntries(per.from,per.to);
+  const R=S.people.map(p=>Object.assign(perfScore(p.name,E),{p})).sort((a,b)=>b.pts-a.pts).slice(0,6),top=Math.max(1,...R.map(r=>r.pts));
+  el.innerHTML=`<div class="dhead"><div><div class="dtitle">ภาพรวมงานแผนกบำรุงรักษาเครื่องกล</div><div class="sub">ข้อมูล ณ ${new Date().toLocaleString('th-TH',{dateStyle:'long',timeStyle:'short'})}${pmOn()&&PMC.fetchedAt?` · แผน PM จาก Sheet เมื่อ ${new Date(PMC.fetchedAt).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})}`:''}</div></div>
+      <div class="dbtns">${pmOn()?'<button class="btn" id="dRefresh">รีเฟรช</button>':''}<button class="btn" id="dFull">เต็มจอ</button></div></div>
+    ${empty?`<div class="cfg"><h2>ยังไม่มีข้อมูลในเครื่องนี้</h2><p class="sub" style="margin:0 0 10px">ถ้าเปิดบนคอมพิวเตอร์ ให้นำเข้าไฟล์สำรองจากมือถือ (ไฟล์ .json จากปุ่ม "สำรอง / กู้คืนข้อมูล") แผน PM จาก Sheet จะเชื่อมให้อัตโนมัติ</p><button class="btn primary" id="dImport">นำเข้าไฟล์สำรอง</button></div>`:''}
+    <div class="dtiles">${tiles}</div>
+    <div class="dgrid">
+      <section class="dcard dwide"><h3>ความคืบหน้า PM รายเดือน ${pmOn()?'(PM ปกติ '+pmReg().length+' งาน)':''}</h3>${pmOn()?dashPMChart():'<p class="sub">เชื่อมต่อ Google Sheet ในหน้า PM เพื่อแสดงกราฟ</p>'}</section>
+      <section class="dcard"><h3>เรื่องที่ต้องติดตาม (${iss.length})</h3>${iss.length?`<ul class="dlist">${iss.slice(0,10).join('')}</ul>${iss.length>10?`<p class="sub">…และอีก ${iss.length-10} รายการ</p>`:''}`:'<p class="sub">ไม่มีงานเลยกำหนดหรือด่วนมาก</p>'}</section>
+      <section class="dcard"><h3>รอบ Outage ที่ยังไม่เสร็จ (${ots.length})</h3>${otl?`<ul class="dlist">${otl}</ul>`:'<p class="sub">ไม่มีรอบที่ค้าง</p>'}</section>
+      <section class="dcard"><h3>คะแนนผลงาน ${esc(per.l.replace(' (เดือนนี้)',''))}</h3>${R.some(r=>r.pts>0)?R.map((r,i)=>`<div class="drank"><span class="rank r${i<3&&r.pts>0?i+1:0}">${i+1}</span><span class="nm">${esc(r.name)}${r.p.grp?` <small>Group ${r.p.grp}</small>`:''}</span><span class="bar"><i style="width:${Math.round(r.pts/top*100)}%;background:var(--steel)"></i></span><b>${r1(r.pts)}</b></div>`).join(''):'<p class="sub">ยังไม่มีงานที่ปิดในเดือนนี้</p>'}</section>
+    </div>`;
+  $('dFull').onclick=dashFull;
+  if($('dRefresh'))$('dRefresh').onclick=()=>pmFetch(false);
+  if($('dImport'))$('dImport').onclick=()=>$('importFile').click();
+}
+function dashFull(){const d=document.documentElement;try{if(document.fullscreenElement)document.exitFullscreen();else (d.requestFullscreen||d.webkitRequestFullscreen).call(d)}catch(e){toast('เบราว์เซอร์นี้ไม่รองรับโหมดเต็มจอ')}}
+
 function renderNav(){
   const today=todayISO(),in30=addDays(today,30);
   $('mainNav').innerHTML=NAV.map(([k,l])=>{let cnt='';
@@ -1571,8 +1672,8 @@ function setView(v,keepScroll){
   $('jobSub').hidden=!job;$('alerts').hidden=!(job&&jobMode==='open');
   $('openView').hidden=!(job&&jobMode==='open');$('logView').hidden=!(job&&jobMode==='log');
   $('vOpen').classList.toggle('on',jobMode==='open');$('vLog').classList.toggle('on',jobMode==='log');
-  $('testView').hidden=v!=='test';$('budView').hidden=v!=='bud';$('pplView').hidden=v!=='ppl';$('perfView').hidden=v!=='perf';
-  $('addBtn').textContent=isPM?(pmOn()?'รีเฟรชแผน PM':'เพิ่มงาน PM'):v==='bud'?'เพิ่มรายการงบ':v==='ppl'?'เพิ่มบุคลากร':v==='test'?'เพิ่มรายการทดสอบ':v==='perf'?'เกณฑ์คะแนน':'เพิ่มงาน '+NAVL[v];
+  $('testView').hidden=v!=='test';$('budView').hidden=v!=='bud';$('pplView').hidden=v!=='ppl';$('perfView').hidden=v!=='perf';$('dashView').hidden=v!=='dash';
+  $('addBtn').textContent=isPM?(pmOn()?'รีเฟรชแผน PM':'เพิ่มงาน PM'):v==='bud'?'เพิ่มรายการงบ':v==='ppl'?'เพิ่มบุคลากร':v==='test'?'เพิ่มรายการทดสอบ':v==='perf'?'เกณฑ์คะแนน':v==='dash'?'เต็มจอ':'เพิ่มงาน '+NAVL[v];
   render();
   if(isPM&&pmOn()&&Date.now()-PMC.fetchedAt>5*60000)pmFetch(true);
   const b=$('mainNav').querySelector('.on');if(b)b.scrollIntoView({block:'nearest',inline:'center'});
@@ -1824,7 +1925,7 @@ $('logQ').oninput=renderLog;
 $('catSeg').onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;newCat=b.dataset.k;renderSeg();fillStatus(newCat)};
 $('fTitle').oninput=()=>$('errTitle').textContent='';
 ['fOStart','fOEnd','fOHours'].forEach(i=>$(i).addEventListener('input',()=>$('errOut').textContent=''));
-$('addBtn').onclick=()=>view==='perf'?openPerfW():view==='PM'&&pmOn()?pmFetch(false):view==='bud'?openBud(null):view==='ppl'?openPerson(null):view==='test'?openTest(null):openJob(null);
+$('addBtn').onclick=()=>view==='dash'?dashFull():view==='perf'?openPerfW():view==='PM'&&pmOn()?pmFetch(false):view==='bud'?openBud(null):view==='ppl'?openPerson(null):view==='test'?openTest(null):openJob(null);
 $('saveBtn').onclick=saveJob;
 $('cancelBtn').onclick=()=>$('jobDlg').close();
 $('delBtn').onclick=()=>{if(editing&&confirm('ลบงานนี้ถาวร? (ถ้างานเสร็จแล้ว ให้กด "ปิดงาน" แทนเพื่อเก็บไว้ในประวัติ)')){if(editing.pmkey){S.otIgnore=S.otIgnore||[];S.otIgnore.push(editing.pmkey)}S.tasks=S.tasks.filter(t=>t.id!==editing.id);$('jobDlg').close();toast('ลบแล้ว');save()}};
